@@ -42,6 +42,7 @@ const PAGE_LIB = function () {
     out.__peak = PBA.db(PBA.peak(buf)); out.__clipped = PBA.peak(buf) >= 1;
     return out;
   };
+  H.median = (a) => { const b = a.slice().sort((x, y) => x - y); return b[b.length >> 1]; };
   // Board geometry for the bowed instruments
   H.board = () => { const r = P.bw.rect; return { W: r.width, H: r.height, FB: 0.74 }; };
   H.fingerX = (s) => { const g = H.board(); return (s + 0.5) / 15 * g.FB * g.W; };
@@ -85,14 +86,21 @@ for (const [tab, open] of [['violin', [55, 62, 69, 76]], ['cello', [36, 43, 50, 
 
 // ---- timbre: the same note (G3) on both, then each instrument's own register ----
 test('violin vs cello: timbre', async () => {
-  const H = __pbt, P = PocketBandTest, out = {};
+  const H = __pbt, P = PocketBandTest, out = {}, T0 = 0.4;
   for (const tab of ['violin', 'cello']) {
-    H.setup(tab, 0, 'major'); H.start(2);
-    P.vStart(tab, 't', 55, 0.6, { vib: false });
-    const r = H.analyse(await __pbRender([[1.5, () => P.vStop('t')]]), { body: [0.7, 1.4, 'timbre'], env: [0, 1.4, 'env'] });
-    // attack: time to reach 90% (-0.9 dB) of the steady level
-    const env = r.env.env, steady = r.body.rms, i90 = env.findIndex((v) => v >= steady - 0.92);
-    out[tab] = { centroid: r.body.centroid, above2k: r.body.above2k, attack: i90 * 0.005 };
+    const runs = [];
+    // five renders with different random start phases; detuned copies beat, so one render alone can mislead
+    for (let seed = 1; seed <= 5; seed++) {
+      H.setup(tab, 0, 'major'); window.__pbSeed = seed; H.start(T0 + 2);
+      const r = H.analyse(await __pbRender([[T0, () => P.vStart(tab, 't', 55, 0.6, { vib: false })], [T0 + 1.5, () => P.vStop('t')]]),
+        { body: [T0 + 0.7, T0 + 1.4, 'timbre'], env: [T0, T0 + 1.4, 'env'] });
+      // attack: time to reach 90% (-0.9 dB) of the steady level
+      const env = r.env.env, steady = r.body.rms, i90 = env.findIndex((v) => v >= steady - 0.92);
+      runs.push({ centroid: r.body.centroid, above2k: r.body.above2k, attack: i90 * 0.005 });
+    }
+    window.__pbSeed = 1;
+    out[tab] = {};
+    for (const k of ['centroid', 'above2k', 'attack']) out[tab][k] = H.median(runs.map((x) => x[k]));
   }
   return out;
 }, (r) => {
@@ -213,24 +221,32 @@ test('cello: two-hand bowing too', async () => {
 
 // ---- French horn ----
 test('horn: attack, breath-opened low-pass, vibrato, hand-stop', async () => {
-  const H = __pbt, P = PocketBandTest, $ = (s) => document.querySelector(s), out = {};
+  const H = __pbt, P = PocketBandTest, $ = (s) => document.querySelector(s), out = {}, T0 = 0.4;
   for (const [k, l, stop] of [['soft', 0.3, false], ['loud', 1, false], ['mid', 0.65, false], ['stopped', 0.65, true]]) {
-    H.setup('horn');
-    if (($('#hstop').getAttribute('aria-pressed') === 'true') !== stop) $('#hstop').click();
-    H.start(2.4);
-    P.vStart('horn', 'h', 53, l, {});
-    const r = H.analyse(await __pbRender([[2.2, () => P.vStop('h')]]), { body: [0.3, 0.5, 'timbre'], env: [0, 0.6, 'env'] });
-    // attack: from the start of the note to 90% of its steady level
-    const env = r.env.env, tail = env.slice(60, 120), steady = 10 * Math.log10(tail.reduce((a, v) => a + Math.pow(10, v / 10), 0) / tail.length);
-    const i90 = env.findIndex((v) => v >= steady - 0.92);
-    out[k] = { centroid: r.body.centroid, rms: r.body.rms, attack: i90 * 0.005 };
+    const runs = [];
+    for (let seed = 1; seed <= 5; seed++) { // median of five random start phases, as for the strings
+      H.setup('horn');
+      if (($('#hstop').getAttribute('aria-pressed') === 'true') !== stop) $('#hstop').click();
+      window.__pbSeed = seed; H.start(T0 + 1.2);
+      const r = H.analyse(await __pbRender([[T0, () => P.vStart('horn', 'h', 53, l, {})], [T0 + 1, () => P.vStop('h')]]),
+        { body: [T0 + 0.3, T0 + 0.5, 'timbre'], env: [T0, T0 + 0.6, 'env'] });
+      // attack: from the start of the note to 90% of its level once settled (0.25 to 0.4 s in)
+      const env = r.env.env, tail = env.slice(50, 80), steady = 10 * Math.log10(tail.reduce((a, v) => a + Math.pow(10, v / 10), 0) / tail.length);
+      const i90 = env.findIndex((v) => v >= steady - 0.92);
+      runs.push({ centroid: r.body.centroid, rms: r.body.rms, attack: i90 * 0.005 });
+    }
+    out[k] = {};
+    for (const q of ['centroid', 'rms', 'attack']) out[k][q] = H.median(runs.map((x) => x[q]));
   }
+  window.__pbSeed = 1;
   // vibrato depth: re-render a mid note and track pitch frame by frame
   H.setup('horn'); if ($('#hstop').getAttribute('aria-pressed') === 'true') $('#hstop').click();
-  H.start(2.2); P.vStart('horn', 'h', 53, 0.65, {});
-  const buf = await __pbRender([]), x = PBA.mono(buf), sr = buf.sampleRate, fs = [];
-  for (let t = 1.0; t < 2.0; t += 0.025) fs.push(PBA.pitch(x, sr, Math.round(t * sr), Math.round((t + 0.06) * sr), 50, 1000).f);
-  const cs = fs.map((f) => 1200 * Math.log2(f / 174.614));
+  H.start(T0 + 2.2);
+  const buf = await __pbRender([[T0, () => P.vStart('horn', 'h', 53, 0.65, {})]]), x = PBA.mono(buf), sr = buf.sampleRate, fs = [];
+  // F3 is 174.6 Hz; searching 120-260 Hz keeps short frames from locking onto a harmonic
+  for (let t = T0 + 1.0; t < T0 + 2.0; t += 0.025) fs.push(PBA.pitch(x, sr, Math.round(t * sr), Math.round((t + 0.06) * sr), 120, 260).f);
+  // a 60 ms frame now and then reads the 3:2 ratio between harmonics; frames that far off are dropped
+  const cs = fs.map((f) => 1200 * Math.log2(f / 174.614)).filter((c) => Math.abs(c) < 100);
   out.vibrato = (Math.max(...cs) - Math.min(...cs)) / 2;
   if ($('#hstop').getAttribute('aria-pressed') === 'true') $('#hstop').click();
   return out;

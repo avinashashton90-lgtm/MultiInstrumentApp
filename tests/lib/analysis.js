@@ -111,13 +111,21 @@
   }
 
   // Power of one frequency over [s, e) (Hann window), in dB
+  // Power at frequency f, as the mean over 0.1 s Hann frames: wide enough to take in a note's detuned
+  // copies (which a single long window can cancel out depending on their phases), narrow enough to keep
+  // notes a semitone or more apart separate
   function tonePower(x, sr, s, e, f) {
-    var N = e - s, c = Math.cos(2 * Math.PI * f / sr), sn = Math.sin(2 * Math.PI * f / sr), re = 0, im = 0, cr = 1, ci = 0, t;
-    for (var i = 0; i < N; i++) {
-      var w = x[s + i] * (0.5 - 0.5 * Math.cos(2 * Math.PI * i / (N - 1)));
-      re += w * cr; im -= w * ci; t = cr * c - ci * sn; ci = cr * sn + ci * c; cr = t;
+    var F = Math.min(e - s, Math.round(0.1 * sr)), hop = Math.round(F / 2), sum = 0, n = 0;
+    var c = Math.cos(2 * Math.PI * f / sr), sn = Math.sin(2 * Math.PI * f / sr);
+    for (var a = s; a + F <= e; a += hop) {
+      var re = 0, im = 0, cr = 1, ci = 0, t;
+      for (var i = 0; i < F; i++) {
+        var w = x[a + i] * (0.5 - 0.5 * Math.cos(2 * Math.PI * i / (F - 1)));
+        re += w * cr; im -= w * ci; t = cr * c - ci * sn; ci = cr * sn + ci * c; cr = t;
+      }
+      sum += (re * re + im * im) / (F * F); n++;
     }
-    return 10 * Math.log10((re * re + im * im) / (N * N) + 1e-30);
+    return 10 * Math.log10(sum / n + 1e-30);
   }
 
   // RMS envelope in frames of `frame` samples, in dB
