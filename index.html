@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Pocket Band</title>
-<meta name="description" content="Piano, drums, guitars, flute, tabla and an electric drum pad in one landscape app.">
+<meta name="description" content="Piano, drums, guitars, flute, tabla, electric drum pad, harmonica, violin, cello and French horn in one app.">
 <meta name="theme-color" content="#ded6c4" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#172424" media="(prefers-color-scheme: dark)">
 <meta name="mobile-web-app-capable" content="yes">
@@ -101,15 +101,10 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px s
 .oct { min-width: 38px; font-weight: 700; }
 .lbl { font-size: .8rem; color: var(--muted); flex: 0 0 auto; }
 
-/* Instrument tabs: scroll sideways when there are more than fit */
-.tabs {
-  display: flex; flex: 0 1 auto; min-width: min(250px, 36vw); max-width: min(560px, 58vw); padding: 2px; gap: 2px;
-  background: var(--bg); border: 2px solid var(--edge); border-radius: 12px;
-  overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; touch-action: pan-x;
-}
-.tabs::-webkit-scrollbar { display: none; }
-.tab { flex: 0 0 auto; border: 0; border-radius: 8px; min-height: 32px; padding: 2px 12px; background: transparent; font-weight: 700; }
-.tab[aria-selected="true"] { background: var(--ink); color: var(--bg); }
+/* Instrument screen header: Home button and the instrument's name */
+.homeb { display: flex; align-items: center; justify-content: center; min-width: 40px; min-height: 40px; padding: 0; }
+.homeb svg { width: 22px; height: 22px; }
+.iname { font-weight: 700; font-size: .95rem; flex: 0 0 auto; padding-right: 4px; }
 
 /* Per-instrument visibility */
 body:not([data-tab="piano"]) .only-piano,
@@ -119,7 +114,13 @@ body:not([data-tab="flute"]) .only-flute,
 body:not([data-tab="tabla2"]) .only-tabla2,
 body:not([data-tab="tabla1"]) .only-tabla1,
 body:not([data-tab="tabla2"]):not([data-tab="tabla1"]) .only-tabla,
-body:not([data-tab="epad"]) .only-epad { display: none !important; }
+body:not([data-tab="epad"]) .only-epad,
+body:not([data-tab="harmonica"]) .only-harmonica,
+body:not([data-tab="violin"]):not([data-tab="cello"]) .only-bowed,
+body:not([data-tab="horn"]) .only-horn,
+body:not([data-tab="violin"]):not([data-tab="cello"]):not([data-tab="horn"]) .only-scaled,
+body:not([data-tab="harmonica"]):not([data-tab="violin"]):not([data-tab="cello"]):not([data-tab="horn"]) .only-new,
+body:not([data-tab="piano"]):not([data-tab="harmonica"]):not([data-tab="violin"]):not([data-tab="cello"]):not([data-tab="horn"]) .only-rec { display: none !important; }
 .fine { width: 90px; accent-color: var(--accent); flex: 0 0 auto; }
 @media (display-mode: fullscreen), (display-mode: standalone) { #full { display: none; } }
 
@@ -272,6 +273,104 @@ body:not([data-tab="epad"]) .only-epad { display: none !important; }
 .panel input[type=range] { width: 100%; accent-color: var(--accent); }
 .panel select { width: 100%; }
 
+/* Harmonica: blow on the top half, draw on the bottom half */
+.harp { height: 100%; display: flex; border-radius: 18px; overflow: hidden; touch-action: none; border: 2px solid var(--edge); background: #b9c0c7; }
+.hcol { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; border-left: 1px solid rgba(0,0,0,.18); pointer-events: none; }
+.hcol:first-child { border-left: 0; }
+.hcol > div { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-weight: 700; font-size: .95rem; color: #1d2a2a; }
+.hcol small { font-size: .62rem; font-weight: 500; color: #4b5a5a; }
+.hcol .hb { background: linear-gradient(#f1f3f6, #c9d0d7); }
+.hcol .hd { background: linear-gradient(#b1b9c1, #e3e7eb); }
+.hcol .hn { flex: 0 0 30px; background: #c8463a; }
+.hcol .hn span { width: 62%; max-width: 30px; height: 18px; border-radius: 6px; background: #1b1414; color: #f4efe2; font-size: .68rem; display: flex; align-items: center; justify-content: center; }
+.hcol .on { background: var(--key-on); }
+.hcol .hd.on small { color: #1d2a2a; }
+
+/* Violin and cello: a fretless fingerboard */
+.bowed {
+  position: relative; height: 100%; border-radius: 16px; overflow: hidden; touch-action: none; display: flex; flex-direction: column;
+  background: linear-gradient(180deg, #2b2420, #15110e); border: 2px solid var(--edge);
+}
+.btick { position: absolute; top: 0; bottom: 0; width: 1px; background: rgba(255,255,255,.07); pointer-events: none; }
+.brow { position: relative; flex: 1 1 0; min-height: 0; pointer-events: none; }
+.brow > i {
+  position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%);
+  background: linear-gradient(#f3ead6, #b9a882); border-radius: 2px; box-shadow: 0 2px 2px rgba(0,0,0,.5);
+}
+.brow.on > i { background: var(--string-hit); animation: buzz .06s linear infinite; }
+@keyframes buzz { 50% { transform: translateY(calc(-50% + 1.2px)); } }
+.brow .sn { position: absolute; left: 8px; top: 4px; font-size: .75rem; font-weight: 700; color: #e9dfc8; }
+.bmark { position: absolute; top: 50%; width: 11px; height: 11px; margin: -5.5px 0 0 -5.5px; border-radius: 50%; background: rgba(233,223,200,.32); }
+.bmark.root { background: rgba(242,177,52,.85); }
+.bmark b { position: absolute; top: 13px; left: 50%; transform: translateX(-50%); font-size: .62rem; font-weight: 500; color: #e9dfc8; opacity: .8; white-space: nowrap; }
+.bdot {
+  position: absolute; left: 0; top: 0; width: 40px; height: 40px; margin: -20px 0 0 -20px; border-radius: 50%;
+  border: 3px solid var(--key-on); background: rgba(242,177,52,.25); pointer-events: none; display: none;
+}
+.bhint { position: absolute; right: 12px; bottom: 6px; font-size: .72rem; color: #e9dfc8; opacity: .7; pointer-events: none; }
+
+/* French horn: a row of note buttons; higher up on a button = more breath */
+.horn { position: relative; height: 100%; display: flex; border-radius: 16px; overflow: hidden; touch-action: none; border: 2px solid var(--edge); }
+.hcell {
+  flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding-bottom: 8px;
+  font-size: .75rem; font-weight: 700; color: #3b2a08; pointer-events: none; border-left: 1px solid rgba(0,0,0,.15);
+  background: linear-gradient(180deg, #f8dc85, #d9a536);
+}
+.hcell:first-of-type { border-left: 0; }
+.hcell:nth-of-type(even) { background: linear-gradient(180deg, #f2cf6c, #cc9830); }
+.hcell.root { text-decoration: underline; text-underline-offset: 3px; }
+.hcell.on { background: var(--accent); color: #fff; }
+.horn .hhint { position: absolute; left: 12px; top: 8px; font-size: .75rem; color: #3b2a08; opacity: .8; pointer-events: none; }
+.hdot {
+  position: absolute; left: 0; top: 0; width: 44px; height: 44px; margin: -22px 0 0 -22px; border-radius: 50%;
+  border: 3px solid #fff; background: rgba(255,255,255,.25); pointer-events: none; display: none;
+}
+.nread { min-width: 3.2em; font-weight: 700; color: var(--accent); font-size: .95rem; }
+.small-range { width: 80px; }
+
+/* Home screen: instrument gallery */
+.home {
+  position: fixed; inset: 0; z-index: 10; display: flex; flex-direction: column; gap: 4px; background: var(--bg);
+  padding: max(10px, env(safe-area-inset-top, 0px)) env(safe-area-inset-right, 0px) max(8px, env(safe-area-inset-bottom, 0px)) env(safe-area-inset-left, 0px);
+  --cw: min(68vw, calc(100vh - 150px), 320px);
+}
+@supports (height: 100dvh) { .home { --cw: min(68vw, calc(100dvh - 150px), 320px); } }
+body[data-screen="home"] .bar, body[data-screen="home"] .stage { display: none; }
+body:not([data-screen="home"]) .home { display: none; }
+body[data-screen="home"] .rotate { display: none !important; }
+.hhead { flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px 16px; padding: 0 16px; }
+.hhead h1 { margin: 0; font-size: 1.3rem; }
+.chips { display: flex; gap: 6px; overflow-x: auto; max-width: 100%; touch-action: pan-x; scrollbar-width: none; }
+.chips::-webkit-scrollbar { display: none; }
+.chip { border-radius: 999px; min-height: 40px; padding: 4px 14px; font-weight: 700; }
+.gallery {
+  position: relative; flex: 1 1 auto; min-height: 0; display: flex; align-items: center; gap: 18px;
+  overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; overscroll-behavior-x: contain;
+  padding: 6px calc(50% - var(--cw) / 2); touch-action: pan-x; scrollbar-width: none; outline: none;
+}
+.gallery::-webkit-scrollbar { display: none; }
+.card {
+  flex: 0 0 var(--cw); scroll-snap-align: center; scroll-snap-stop: always; min-height: 0; padding: 0; border: 0; background: none;
+  display: flex; flex-direction: column; align-items: center; gap: 8px; color: var(--ink);
+  transform: scale(.86); opacity: .7; transition: transform .25s, opacity .25s;
+}
+.card.center { transform: none; opacity: 1; }
+.card .art {
+  display: block; width: 100%; aspect-ratio: 1; border-radius: 28px; overflow: hidden; background: var(--c);
+  box-shadow: inset 0 -8px 0 rgba(0,0,0,.08), 0 6px 14px rgba(0,0,0,.12); transition: transform .12s ease-out;
+}
+.card .art svg { display: block; width: 100%; height: 100%; }
+.card:active .art { transform: scale(.94); }
+.card.pop .art { animation: pop .18s ease-out; }
+@keyframes pop { 50% { transform: scale(.9); } }
+.card .cname { font-size: 1.1rem; font-weight: 700; white-space: normal; }
+.card:focus-visible { outline: none; }
+.card:focus-visible .art { outline: 3px solid var(--accent); outline-offset: 4px; }
+.card[hidden] { display: none; }
+.hfoot { flex: 0 0 auto; text-align: center; font-size: .8rem; color: var(--muted); }
+@media (max-height: 420px) { .hhead h1 { font-size: 1.1rem; } .hfoot { display: none; } }
+@media (prefers-reduced-motion: reduce) { .card, .card .art { transition: none; } .card.pop .art { animation: none; } }
+
 .rotate {
   position: fixed; inset: 0; z-index: 20; background: var(--bg); display: none;
   flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 24px; text-align: center;
@@ -282,18 +381,26 @@ body:not([data-tab="epad"]) .only-epad { display: none !important; }
 @media (orientation: portrait) { body:not(.allow-portrait) .rotate { display: flex; } }
 </style>
 </head>
-<body data-tab="piano">
+<body data-tab="piano" data-screen="home">
+
+<section class="home" id="homeScr" aria-label="Choose an instrument">
+  <div class="hhead">
+    <h1>Pocket Band</h1>
+    <div class="chips" id="chips" role="group" aria-label="Show instruments">
+      <button class="chip" data-cat="all" aria-pressed="true">All</button>
+      <button class="chip" data-cat="keys" aria-pressed="false">Keys</button>
+      <button class="chip" data-cat="strings" aria-pressed="false">Strings</button>
+      <button class="chip" data-cat="wind" aria-pressed="false">Wind</button>
+      <button class="chip" data-cat="perc" aria-pressed="false">Percussion</button>
+    </div>
+  </div>
+  <div class="gallery" id="gallery" aria-label="Instruments: swipe or use the arrow keys, tap to play"></div>
+  <div class="hfoot">Swipe to browse · tap to play</div>
+</section>
 
 <div class="bar" id="bar">
-  <div class="tabs" role="tablist" aria-label="Instrument">
-    <button class="tab" role="tab" data-tab="piano" aria-selected="true">Piano</button>
-    <button class="tab" role="tab" data-tab="drums" aria-selected="false">Drums</button>
-    <button class="tab" role="tab" data-tab="guitar" aria-selected="false">Guitar</button>
-    <button class="tab" role="tab" data-tab="flute" aria-selected="false">Flute</button>
-    <button class="tab" role="tab" data-tab="tabla2" aria-selected="false">Tabla pair</button>
-    <button class="tab" role="tab" data-tab="tabla1" aria-selected="false">Tabla solo</button>
-    <button class="tab" role="tab" data-tab="epad" aria-selected="false">Drum pad</button>
-  </div>
+  <button id="home" class="homeb" aria-label="Home: choose an instrument"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg></button>
+  <span class="iname" id="iname">Piano</span>
 
   <select id="inst" class="only-piano" aria-label="Piano sound">
     <option value="piano">Grand piano</option>
@@ -307,8 +414,8 @@ body:not([data-tab="epad"]) .only-epad { display: none !important; }
   <span class="lbl only-piano" id="octLbl">C3</span>
   <button class="oct only-piano" id="octUp" aria-label="Octave up">+</button>
   <button id="sustain" class="only-piano" aria-pressed="false">Sustain</button>
-  <button id="rec" class="rec only-piano" aria-pressed="false">Record</button>
-  <button id="play" class="only-piano" disabled>Play</button>
+  <button id="rec" class="rec only-rec" aria-pressed="false">Record</button>
+  <button id="play" class="only-rec" disabled>Play</button>
 
   <select id="kit" class="only-drums" aria-label="Drum kit">
     <option value="acoustic">Acoustic kit</option>
@@ -359,6 +466,27 @@ body:not([data-tab="epad"]) .only-epad { display: none !important; }
   <button id="eclear" class="only-epad">Clear</button>
   <span class="lbl only-epad" id="bpmLbl">100 BPM</span>
   <input type="range" id="bpm" class="fine only-epad" min="60" max="180" step="1" value="100" aria-label="Tempo">
+
+  <select id="nkey" class="only-new" aria-label="Key"></select>
+  <select id="nscale" class="only-scaled" aria-label="Scale">
+    <option value="major">Major</option>
+    <option value="minor">Minor</option>
+    <option value="penta">Major penta</option>
+    <option value="minpenta">Minor penta</option>
+    <option value="blues">Blues</option>
+    <option value="chromatic">Chromatic</option>
+  </select>
+  <button id="hwah" class="only-harmonica" aria-pressed="false">Wah</button>
+  <button id="htrem" class="only-harmonica" aria-pressed="false">Tremolo</button>
+  <button id="bpizz" class="only-bowed" aria-pressed="false">Pizzicato</button>
+  <button id="bsnap" class="only-bowed" aria-pressed="false">Snap to scale</button>
+  <button id="bvib" class="only-bowed" aria-pressed="true">Vibrato</button>
+  <button id="hstop" class="only-horn" aria-pressed="false">Hand-stop</button>
+  <span class="lbl only-horn">Slide</span>
+  <input type="range" id="hslide" class="fine small-range only-horn" min="0" max="1" step="0.01" value="0.35" aria-label="Slide between notes">
+  <span class="lbl only-new">Reverb</span>
+  <input type="range" id="irev" class="fine small-range only-new" min="0" max="1" step="0.01" value="0.35" aria-label="Reverb for this instrument">
+  <span class="lbl nread only-new" id="nread"></span>
 
   <span class="sep"></span>
   <button id="more" aria-pressed="false">Settings</button>
@@ -418,6 +546,24 @@ body:not([data-tab="epad"]) .only-epad { display: none !important; }
     </div>
   </div>
 
+  <div class="view only-harmonica">
+    <div class="harp" id="harp" aria-label="Harmonica: top half blows, bottom half draws. Slide along the row to glide, drag down on a draw hole to bend"></div>
+  </div>
+
+  <div class="view only-bowed">
+    <div class="bowed" id="bowed" aria-label="Fingerboard: touch a string for the note, drag across it to bow">
+      <div class="bdot" id="bdot"></div>
+      <span class="bhint" id="bhint"></span>
+    </div>
+  </div>
+
+  <div class="view only-horn">
+    <div class="horn" id="horn" aria-label="French horn: touch a note, higher up blows harder, slide across for legato">
+      <span class="hhint">Higher up blows harder · slide across for legato</span>
+      <div class="hdot" id="hdot"></div>
+    </div>
+  </div>
+
   <div class="panel" id="panel">
     <div class="r"><span>Volume</span><input type="range" id="vol" min="0" max="1" step="0.01" value="0.8"></div>
     <div class="r"><span>Reverb</span><input type="range" id="rev" min="0" max="1" step="0.01" value="0.25"></div>
@@ -467,12 +613,12 @@ body:not([data-tab="epad"]) .only-epad { display: none !important; }
 <script>
 (function () {
   var AC = window.AudioContext || window.webkitAudioContext;
-  var ctx, bus, master, wet, lfoDepth, noiseBuf, drive, conv, gch, eOut;
+  var ctx, bus, master, wet, lfoDepth, noiseBuf, drive, conv, gch, eOut, hall;
   var $ = function (id) { return document.getElementById(id); };
 
   var state = {
     tab: 'piano', inst: 'piano', octave: 3, range: 3, chord: 'off', labels: 'names',
-    velocity: true, pedal: false, vol: 0.8, rev: 0.25, vib: 0
+    velocity: true, pedal: false, vol: 0.8, rev: 0.25, vib: 0, screen: 'home'
   };
 
   /* ---------- Audio engine ---------- */
@@ -524,6 +670,17 @@ body:not([data-tab="epad"]) .only-epad { display: none !important; }
     // Drum pad output: a per-kit tone filter (the Lo-fi kit rolls off the top)
     eOut = ctx.createBiquadFilter(); eOut.type = 'lowpass'; eOut.Q.value = 0.4;
     eOut.connect(bus); setEpadKitTone();
+
+    // A longer, smoother hall for harmonica, violin, cello and horn; each sends to it at its own level
+    hall = ctx.createConvolver();
+    var hlen = Math.floor(ctx.sampleRate * 2.6), hir = ctx.createBuffer(2, hlen, ctx.sampleRate), pre = Math.floor(ctx.sampleRate * 0.015);
+    for (var hc = 0; hc < 2; hc++) {
+      var hd = hir.getChannelData(hc), sm = 0;
+      for (var hi = pre; hi < hlen; hi++) { sm += 0.4 * ((Math.random() * 2 - 1) - sm); hd[hi] = sm * Math.pow(1 - hi / hlen, 2.2); }
+    }
+    hall.buffer = hir;
+    var hallOut = ctx.createGain(); hallOut.gain.value = 0.8;
+    hall.connect(hallOut); hallOut.connect(master);
   }
 
   // Move an AudioParam smoothly from wherever it is now, even mid-ramp
@@ -611,11 +768,12 @@ body:not([data-tab="epad"]) .only-epad { display: none !important; }
   function releaseVoice(v, rel) {
     if (!v || v.done) return;
     v.done = true; clearTimeout(v.timer);
-    var t = ctx.currentTime;
+    var t = ctx.currentTime, p = v.g.gain, cur = Math.max(p.value, 0.0001);
     try {
-      v.g.gain.cancelScheduledValues(t);
-      v.g.gain.setValueAtTime(Math.max(v.g.gain.value, 0.0001), t);
-      v.g.gain.exponentialRampToValueAtTime(0.0001, t + rel);
+      // Hold the envelope exactly where it is (even mid-attack), then fade from there: no jump, no click
+      if (p.cancelAndHoldAtTime) p.cancelAndHoldAtTime(t); else p.cancelScheduledValues(t);
+      p.setValueAtTime(cur, t);
+      p.exponentialRampToValueAtTime(0.0001, t + rel);
     } catch (e) {}
     v.oscs.forEach(function (o) { try { o.stop(t + rel + 0.05); } catch (e) {} });
   }
@@ -625,7 +783,7 @@ body:not([data-tab="epad"]) .only-epad { display: none !important; }
 
   /* ---------- Piano: note state, lights, recording ---------- */
   var active = {}, pedalHeld = [], lit = {}, keyEls = {};
-  var recording = false, recStart = 0, rec = [], playing = false, pbTimers = [];
+  var recording = false, recStart = 0, rec = [], recTab = '', playing = false, pbTimers = [];
 
   function light(midi, d) {
     lit[midi] = Math.max(0, (lit[midi] || 0) + d);
@@ -890,7 +1048,12 @@ body:not([data-tab="epad"]) .only-epad { display: none !important; }
     uke: { open: [67, 60, 64, 69], shape: 'uke', ks: { sr: 24000, len: 2.2, t60: 2.6, bright: 0.45, pick: 0.2, damp: 0.5 }, body: [[250, 1.3, 5], [520, 1.4, 2]], tone: 6000, gain: 0.42, rel: 0.3 },
     sitar: { open: GTR6, ks: { sr: 32000, len: 3.6, t60: 4, bright: 0.8, pick: 0.1, damp: 0.2, buzz: 0.55, symp: [[12, 0.1], [7, 0.07], [19, 0.06]] }, body: [[180, 2, 4], [1200, 2, 3]], tone: 9000, gain: 0.42, rel: 0.8 }
   };
-  var TANPURA_KS = { sr: 24000, len: 5.5, t60: 7, bright: 0.7, pick: 0.08, damp: 0.25, buzz: 0.6 };
+  // Other plucked strings rendered the same way: the tanpura drone and violin / cello pizzicato
+  var KS_MORE = {
+    tanpura: { sr: 24000, len: 5.5, t60: 7, bright: 0.7, pick: 0.08, damp: 0.25, buzz: 0.6 },
+    pizz: { sr: 24000, len: 1.6, t60: 0.9, bright: 0.45, pick: 0.27, damp: 0.5 },
+    pizzC: { sr: 16000, len: 2.4, t60: 1.5, bright: 0.35, pick: 0.27, damp: 0.5 }
+  };
   var gtr = { chord: 'G', sound: 'acoustic', ring: false, n: 6, strVoice: [], strEls: [], held: {}, ptr: {}, rect: null };
   var ksCache = {}, ksKeys = [];
 
@@ -947,7 +1110,7 @@ body:not([data-tab="epad"]) .only-epad { display: none !important; }
   function ksBuffer(midi, type) {
     var key = type + midi;
     if (ksCache[key]) return ksCache[key];
-    var P = type === 'tanpura' ? TANPURA_KS : GTYPES[type].ks, sr = P.sr, len = Math.floor(sr * P.len);
+    var P = KS_MORE[type] || GTYPES[type].ks, sr = P.sr, len = Math.floor(sr * P.len);
     var buf = ctx.createBuffer(1, len, sr), d = buf.getChannelData(0), i, peak = 0;
     ksLine(d, sr, mtof(midi), P, 1, 0);
     (P.symp || []).forEach(function (s) { ksLine(d, sr, mtof(midi + s[0]), P, s[1], 0.15); });
@@ -1818,12 +1981,537 @@ body:not([data-tab="epad"]) .only-epad { display: none !important; }
       function (v) { return Math.round(v * 100) + '%'; });
   }
 
+  /* ---------- Held voices for harmonica, violin, cello and horn ---------- */
+  // Each finger (or played-back finger) owns one voice, steered by pitch m (MIDI, may be fractional)
+  // and level l. These calls are what the recorder stores, so playback drives the same sound engine.
+  var vmap = {}, ENG = {}, chains = {}, nread = $('nread');
+  var NST = {
+    harmonica: { key: 0, scale: 'major', rev: 0.3 },
+    violin: { key: 2, scale: 'major', rev: 0.35 },
+    cello: { key: 0, scale: 'major', rev: 0.35 },
+    horn: { key: 5, scale: 'major', rev: 0.45 }
+  };
+  function isNew(tab) { return !!NST[tab]; }
+  function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
+  function recNow() { return performance.now() - recStart; }
+
+  function vStart(tab, id, m, l, x, pb) {
+    init();
+    vStop(id, true);
+    if (recording && !pb) rec.push({ t: recNow(), type: 'v', op: 'start', key: id, tab: tab, m: m, l: l, x: x });
+    vmap[id] = { tab: tab, v: ENG[tab].make(m, l, x || {}) };
+    showNote(m, tab);
+  }
+  function vSet(id, m, l, x, pb) {
+    var a = vmap[id];
+    if (!a) return;
+    if (recording && !pb) rec.push({ t: recNow(), type: 'v', op: 'set', key: id, m: m, l: l, x: x });
+    if (a.v.done) return;
+    ENG[a.tab].set(a.v, m, l, x || {});
+    showNote(m, a.tab);
+  }
+  function vStop(id, silent) {
+    var a = vmap[id];
+    if (!a) return;
+    delete vmap[id];
+    if (recording && !silent && String(id).indexOf('pb') !== 0) rec.push({ t: recNow(), type: 'v', op: 'stop', key: id });
+    releaseVoice(a.v, a.v.rel);
+  }
+
+  // Note-name hints: names, or sargam counted from the instrument's key
+  function noteText(m, key) {
+    var r = Math.round(m);
+    if (state.labels === 'off') return '';
+    if (state.labels === 'sargam') return SARGAM12[((r - key) % 12 + 12) % 12];
+    return CHROMA[(r % 12 + 12) % 12];
+  }
+  function showNote(m, tab) {
+    var txt = noteText(m, NST[tab].key);
+    if (txt && state.labels === 'names') txt += Math.floor(Math.round(m) / 12) - 1;
+    if (nread.textContent !== txt) nread.textContent = txt;
+  }
+
+  // Every new instrument ends in a dry path to the mix plus its own send to the hall reverb
+  function chainOut(tab) {
+    var c = { in: ctx.createGain(), out: ctx.createGain(), send: ctx.createGain() };
+    c.send.gain.value = NST[tab].rev;
+    c.out.connect(bus); c.out.connect(c.send); c.send.connect(hall);
+    return c;
+  }
+
+  // Looping breath / bow noise through a bandpass, mixed into node
+  function breath(t, freq, q, level, node, list) {
+    var s = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain();
+    s.buffer = noiseBuf; s.loop = true;
+    f.type = 'bandpass'; f.frequency.value = freq; f.Q.value = q; g.gain.value = level;
+    s.connect(f); f.connect(g); g.connect(node);
+    s.start(t, Math.random() * 1.5); list.push(s);
+    return f;
+  }
+
+  // Slow vibrato that fades in: returns the depth gain to connect to oscillator detune
+  function vibrato(t, rate, cents, delay, list) {
+    var lfo = ctx.createOscillator(), d = ctx.createGain();
+    lfo.frequency.value = rate;
+    d.gain.setValueAtTime(0, t);
+    if (cents) { d.gain.setValueAtTime(0, t + delay); d.gain.linearRampToValueAtTime(cents, t + delay + 0.45); }
+    lfo.connect(d); lfo.start(t); list.push(lfo);
+    return d;
+  }
+
+  /* ---------- Harmonica ---------- */
+  // 10-hole diatonic, Richter tuning: semitones above the harp's key for blow and draw on each hole
+  var HM_BLOW = [0, 4, 7, 12, 16, 19, 24, 28, 31, 36];
+  var HM_DRAW = [2, 7, 11, 14, 17, 21, 23, 26, 29, 33];
+  var HM_BEND = [1, 2, 3, 1, 0.5, 1, 0.5, 0.5, 0.5, 0.5]; // how far each draw note bends down, in semitones
+  var hm = { cols: [], ptr: {}, rect: null, wah: false, trem: false };
+  var harp = $('harp');
+
+  function hmRoot() { return 55 + (NST.harmonica.key + 5) % 12; } // harps run from G (lowest) up to F#
+
+  function hmChain() {
+    if (chains.harmonica) return chains.harmonica;
+    var c = chainOut('harmonica'), sum = ctx.createGain();
+    // A reed in a cupped mouth: a lowpassed dry path plus three vowel-like formant peaks
+    [['lowpass', 3200, 0.7, 0.55], ['bandpass', 750, 2.5, 1.3], ['bandpass', 1450, 3, 0.9], ['bandpass', 2800, 4, 0.5]].forEach(function (b) {
+      var f = ctx.createBiquadFilter(), fg = ctx.createGain();
+      f.type = b[0]; f.frequency.value = b[1]; f.Q.value = b[2]; fg.gain.value = b[3];
+      c.in.connect(f); f.connect(fg); fg.connect(sum);
+    });
+    // Tremolo: a gain wobbled by an LFO; depth 0 when off
+    c.trem = ctx.createGain(); c.tremD = ctx.createGain(); c.tremD.gain.value = 0;
+    var lfo = ctx.createOscillator(); lfo.frequency.value = 5.5;
+    lfo.connect(c.tremD); c.tremD.connect(c.trem.gain); lfo.start();
+    sum.connect(c.trem); c.trem.connect(c.out);
+    chains.harmonica = c; hmTrem();
+    return c;
+  }
+  function hmTrem() {
+    var c = chains.harmonica, d = hm.trem ? 0.3 : 0;
+    if (!c) return;
+    glideTo(c.trem.gain, 1 - d, 0.05); glideTo(c.tremD.gain, d, 0.05);
+  }
+  function hmBright(f, l) { return Math.min(9000, f * 7 + 1200) * (0.55 + 0.45 * l); }
+
+  ENG.harmonica = {
+    make: function (m, l, x) {
+      var c = hmChain(), t = ctx.currentTime, f = mtof(m), all = [], os = [];
+      var g = ctx.createGain(), lv = ctx.createGain(), lp = ctx.createBiquadFilter();
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.42, t + 0.03);
+      lv.gain.value = l;
+      lp.type = 'lowpass';
+      [['sawtooth', 0.55, 0], ['square', 0.2, 5]].forEach(function (h) {
+        var o = ctx.createOscillator(), og = ctx.createGain();
+        o.type = h[0]; o.frequency.value = f; o.detune.value = h[2]; og.gain.value = h[1];
+        o.connect(og); og.connect(lp); o.start(t); os.push(o); all.push(o);
+      });
+      if (x.wah) { // hands open around the harp on each note ("wah"), then flutter slowly
+        lp.Q.value = 4;
+        lp.frequency.setValueAtTime(420, t);
+        lp.frequency.setTargetAtTime(2300, t + 0.02, 0.08);
+        var wl = ctx.createOscillator(), wg = ctx.createGain();
+        wl.frequency.value = 3; wg.gain.setValueAtTime(0, t); wg.gain.linearRampToValueAtTime(900, t + 0.45);
+        wl.connect(wg); wg.connect(lp.frequency); wl.start(t); all.push(wl);
+      } else { lp.Q.value = 0.7; lp.frequency.value = hmBright(f, l); }
+      breath(t, Math.min(6000, f * 3), 0.8, 0.07, lv, all);
+      lp.connect(lv); lv.connect(g); g.connect(c.in);
+      var v = { g: g, lv: lv, lp: lp, os: os, oscs: all, rel: 0.09, done: false, wah: x.wah };
+      os[0].onended = function () { v.done = true; g.disconnect(); };
+      track(v);
+      return v;
+    },
+    set: function (v, m, l) {
+      var t = ctx.currentTime, f = mtof(m);
+      v.os.forEach(function (o) { o.frequency.setTargetAtTime(f, t, 0.018); });
+      v.lv.gain.setTargetAtTime(l, t, 0.03);
+      if (!v.wah) v.lp.frequency.setTargetAtTime(hmBright(f, l), t, 0.03);
+    }
+  };
+
+  function buildHarp() {
+    newStopAll();
+    var root = hmRoot(), key = NST.harmonica.key;
+    harp.innerHTML = ''; hm.cols = [];
+    for (var i = 0; i < 10; i++) {
+      var col = document.createElement('div');
+      col.className = 'hcol';
+      col.innerHTML = '<div class="hb">' + noteText(root + HM_BLOW[i], key) + (i === 0 ? '<small>blow</small>' : '') + '</div>' +
+        '<div class="hn"><span>' + (i + 1) + '</span></div>' +
+        '<div class="hd">' + noteText(root + HM_DRAW[i], key) + '<small>' + (i === 0 ? 'draw ' : '') + (HM_BEND[i] >= 1 ? 'bend ↓' : '') + '</small></div>';
+      harp.appendChild(col); hm.cols.push(col);
+    }
+  }
+
+  function hmLights() {
+    hm.cols.forEach(function (c) { c.children[0].classList.remove('on'); c.children[2].classList.remove('on'); });
+    Object.keys(hm.ptr).forEach(function (id) {
+      var p = hm.ptr[id], c = hm.cols[p.col];
+      if (c) c.children[p.draw ? 2 : 0].classList.add('on');
+    });
+  }
+  function hmCol(x) { var r = hm.rect; return clamp(Math.floor((x - r.left) / r.width * 10), 0, 9); }
+  function hmPitch(p) {
+    var base = hmRoot() + (p.draw ? HM_DRAW[p.col] : HM_BLOW[p.col]);
+    return { m: base - (p.draw ? HM_BEND[p.col] * p.bend : 0), l: 0.9 - 0.25 * p.bend };
+  }
+
+  harp.addEventListener('pointerdown', function (e) {
+    e.preventDefault();
+    try { harp.setPointerCapture(e.pointerId); } catch (err) {}
+    var r = hm.rect = harp.getBoundingClientRect();
+    // Breath direction is chosen by where the finger lands and stays fixed while it slides
+    var p = hm.ptr[e.pointerId] = { col: hmCol(e.clientX), draw: e.clientY > r.top + r.height / 2, y0: e.clientY, bend: 0 };
+    var a = hmPitch(p);
+    vStart('harmonica', e.pointerId, a.m, a.l, { wah: hm.wah });
+    hmLights();
+  });
+  harp.addEventListener('pointermove', function (e) {
+    var p = hm.ptr[e.pointerId];
+    if (!p) return;
+    var col = hmCol(e.clientX), bend = p.draw ? clamp((e.clientY - p.y0) / (hm.rect.height * 0.22), 0, 1) : 0;
+    if (col === p.col && Math.abs(bend - p.bend) < 0.01) return;
+    var moved = col !== p.col;
+    p.col = col; p.bend = bend;
+    var a = hmPitch(p);
+    vSet(e.pointerId, a.m, a.l); // sliding along the row glides from hole to hole
+    if (moved) hmLights();
+  });
+  harp.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+  function hmUp(id) {
+    if (!hm.ptr[id]) return;
+    delete hm.ptr[id];
+    vStop(id); hmLights();
+  }
+
+  /* ---------- Violin and cello ---------- */
+  // open: string tuning, low string first. body: resonance peaks [Hz, Q, dB]. lp: brightness [base, + per bow level].
+  var BOWCFG = {
+    violin: { open: [55, 62, 69, 76], names: ['G', 'D', 'A', 'E'], th: [3.4, 2.8, 2.2, 1.6], att: 0.07, rel: 0.16,
+              vib: [5.8, 16], lp: [1500, 5500], body: [[280, 1.4, 5], [1050, 1.2, 3], [2800, 1.1, 5]], top: 7500, gain: 0.3, pizz: 'pizz' },
+    cello: { open: [36, 43, 50, 57], names: ['C', 'G', 'D', 'A'], th: [4.8, 4, 3.2, 2.5], att: 0.16, rel: 0.24,
+             vib: [5, 20], lp: [600, 2600], body: [[110, 1.2, 5], [400, 1.2, 4], [1400, 1, 3]], top: 4200, gain: 0.42, pizz: 'pizzC' }
+  };
+  var BOW_SPAN = 14; // semitones above the open string along the fingerboard
+  var bw = { tab: 'violin', ptr: {}, rows: [], rect: null, snap: false, vib: true, pizz: false, raf: 0 };
+  var bowed = $('bowed'), bdot = $('bdot');
+
+  function bowChain(tab) {
+    if (chains[tab]) return chains[tab];
+    var C = BOWCFG[tab], c = chainOut(tab), prev = c.in;
+    C.body.forEach(function (b) {
+      var f = ctx.createBiquadFilter();
+      f.type = 'peaking'; f.frequency.value = b[0]; f.Q.value = b[1]; f.gain.value = b[2];
+      prev.connect(f); prev = f;
+    });
+    var top = ctx.createBiquadFilter(); top.type = 'lowpass'; top.frequency.value = C.top; top.Q.value = 0.5;
+    prev.connect(top); top.connect(c.out);
+    return chains[tab] = c;
+  }
+
+  function bowEngine(tab) {
+    var C = BOWCFG[tab];
+    return {
+      make: function (m, l, x) {
+        var c = bowChain(tab), t = ctx.currentTime, g = ctx.createGain(), lv = ctx.createGain(), v;
+        lv.gain.value = l; lv.connect(g); g.connect(c.in);
+        if (x.pizz) { // plucked: a rendered string that rings down on its own
+          var r = Math.round(m), s = ctx.createBufferSource();
+          s.buffer = ksBuffer(r, C.pizz);
+          s.playbackRate.value = Math.pow(2, (m - r) / 12);
+          g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(C.gain * 1.8, t + 0.003);
+          s.connect(lv); s.start(t);
+          v = { g: g, lv: lv, src: s, base: r, oscs: [s], rel: 0.25, done: false, pizz: true };
+          s.onended = function () { v.done = true; g.disconnect(); };
+        } else { // bowed: two sawtooths through the body, brighter the harder the bow
+          var f = mtof(m), lp = ctx.createBiquadFilter(), os = [], all = [];
+          lp.type = 'lowpass'; lp.Q.value = 0.6; lp.frequency.value = C.lp[0] + C.lp[1] * l;
+          g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(C.gain, t + C.att);
+          var vd = vibrato(t, C.vib[0], x.vib ? C.vib[1] : 0, 0.25, all);
+          [-5, 6].forEach(function (cents) {
+            var o = ctx.createOscillator(), og = ctx.createGain();
+            o.type = 'sawtooth'; o.frequency.value = f; o.detune.value = cents; og.gain.value = 0.5;
+            vd.connect(o.detune); o.connect(og); og.connect(lp); o.start(t); os.push(o); all.push(o);
+          });
+          breath(t, Math.min(8000, f * 4), 1.2, 0.05, lv, all); // bow hair on the string
+          lp.connect(lv);
+          v = { g: g, lv: lv, lp: lp, os: os, oscs: all, rel: C.rel, done: false };
+          os[0].onended = function () { v.done = true; g.disconnect(); };
+        }
+        track(v);
+        return v;
+      },
+      set: function (v, m, l) {
+        var t = ctx.currentTime;
+        v.lv.gain.setTargetAtTime(l, t, v.pizz ? 0.01 : 0.05);
+        if (v.pizz) { v.src.playbackRate.setTargetAtTime(Math.pow(2, (m - v.base) / 12), t, 0.01); return; }
+        var f = mtof(m);
+        v.os.forEach(function (o) { o.frequency.setTargetAtTime(f, t, 0.012); });
+        v.lp.frequency.setTargetAtTime(C.lp[0] + C.lp[1] * l, t, 0.05);
+      }
+    };
+  }
+  ENG.violin = bowEngine('violin');
+  ENG.cello = bowEngine('cello');
+
+  function bowX(s) { return (s + 0.5) / (BOW_SPAN + 1); } // where semitone s sits across the board, 0-1
+
+  function buildBowed() {
+    newStopAll();
+    var C = BOWCFG[bw.tab], st = NST[bw.tab], sc = SCALES[st.scale], i, s;
+    bowed.querySelectorAll('.brow, .btick').forEach(function (el) { el.remove(); });
+    for (s = 1; s <= BOW_SPAN; s++) {
+      var tk = document.createElement('div');
+      tk.className = 'btick'; tk.style.left = (s / (BOW_SPAN + 1) * 100) + '%';
+      bowed.insertBefore(tk, bdot);
+    }
+    bw.rows = [];
+    for (i = 0; i < 4; i++) {
+      var row = document.createElement('div');
+      row.className = 'brow';
+      var h = '<i style="height:' + C.th[i] + 'px"></i><span class="sn">' + C.names[i] + '</span>';
+      // Scale guide marks with note names; the key's root is gold
+      for (s = 1; s <= BOW_SPAN; s++) {
+        var m = C.open[i] + s, rel = ((m - st.key) % 12 + 12) % 12;
+        if (sc.indexOf(rel) < 0) continue;
+        h += '<span class="bmark' + (rel === 0 ? ' root' : '') + '" style="left:' + (bowX(s) * 100).toFixed(2) + '%"><b>' + noteText(m, st.key) + '</b></span>';
+      }
+      row.innerHTML = h;
+      bowed.insertBefore(row, bdot); bw.rows.push(row);
+    }
+    $('bhint').textContent = bw.pizz ? 'Tap a string to pluck · slide to change pitch'
+      : 'Hold a spot for the note · rub up and down across the string to bow, faster is louder';
+  }
+
+  function bowPitch(i, x) {
+    var C = BOWCFG[bw.tab], s = clamp(x * (BOW_SPAN + 1) - 0.5, 0, BOW_SPAN), m = C.open[i] + s;
+    if (!bw.snap) return m;
+    var st = NST[bw.tab], sc = SCALES[st.scale], r = Math.round(m), best = r, bd = 99;
+    for (var k = Math.max(C.open[i], r - 6); k <= Math.min(C.open[i] + BOW_SPAN, r + 6); k++) {
+      if (sc.indexOf(((k - st.key) % 12 + 12) % 12) >= 0 && Math.abs(k - m) < bd) { bd = Math.abs(k - m); best = k; }
+    }
+    return best;
+  }
+
+  function bwDraw() {
+    var ids = Object.keys(bw.ptr), on = {};
+    ids.forEach(function (id) { on[bw.ptr[id].str] = 1; });
+    bw.rows.forEach(function (r, i) { r.classList.toggle('on', !!on[i]); });
+    var p = ids.length ? bw.ptr[ids[ids.length - 1]] : null;
+    if (!p) { bdot.style.display = 'none'; return; }
+    bdot.style.display = 'block';
+    bdot.style.transform = 'translate(' + (p.x - bw.rect.left) + 'px,' + ((p.str + 0.5) / 4 * bw.rect.height) + 'px)';
+  }
+
+  // Bow level follows how fast the finger rubs across the string, and settles back when it stops
+  function bwTick() {
+    bw.raf = 0;
+    var ids = Object.keys(bw.ptr);
+    if (!ids.length) return;
+    ids.forEach(function (id) {
+      var p = bw.ptr[id];
+      var target = p.pizz ? p.l : 0.2 + 0.8 * clamp(p.sp / 1.1, 0, 1);
+      p.sp *= 0.88;
+      if (p.dirty || Math.abs(target - p.l) > 0.01) { p.l = target; p.dirty = false; vSet(id, p.m, p.l); }
+    });
+    bwDraw();
+    bw.raf = requestAnimationFrame(bwTick);
+  }
+
+  bowed.addEventListener('pointerdown', function (e) {
+    e.preventDefault();
+    try { bowed.setPointerCapture(e.pointerId); } catch (err) {}
+    var r = bw.rect = bowed.getBoundingClientRect();
+    var i = clamp(Math.floor((e.clientY - r.top) / r.height * 4), 0, 3);
+    var p = bw.ptr[e.pointerId] = { str: i, x: e.clientX, px: e.clientX, y: e.clientY, t: e.timeStamp, sp: 0, pizz: bw.pizz, l: bw.pizz ? 0.9 : 0.35 };
+    p.m = bowPitch(i, (e.clientX - r.left) / r.width);
+    vStart(bw.tab, e.pointerId, p.m, p.l, { pizz: bw.pizz, vib: bw.vib });
+    bwDraw();
+    if (!bw.raf) bw.raf = requestAnimationFrame(bwTick);
+  });
+  bowed.addEventListener('pointermove', function (e) {
+    var p = bw.ptr[e.pointerId];
+    if (!p) return;
+    var dt = Math.max(1, e.timeStamp - p.t), sp = Math.abs(e.clientY - p.y) / dt;
+    p.sp = p.sp * 0.6 + sp * 0.4;
+    p.y = e.clientY; p.t = e.timeStamp; p.x = e.clientX;
+    if (Math.abs(p.x - p.px) > 3) { // small sideways wobble while bowing doesn't move the note
+      p.px = p.x;
+      var m = bowPitch(p.str, (p.x - bw.rect.left) / bw.rect.width);
+      if (m !== p.m) { p.m = m; p.dirty = true; }
+    }
+  });
+  bowed.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+  function bwUp(id) {
+    if (!bw.ptr[id]) return;
+    delete bw.ptr[id];
+    vStop(id); bwDraw();
+  }
+
+  /* ---------- French horn ---------- */
+  // Monophonic like the flute: the most recent finger plays and lifting it hands back to a finger still down
+  var hn = { notes: [], cells: [], stack: [], pos: {}, rect: null, raf: 0, cur: -1, stop: false, slide: 0.35 };
+  var horn = $('horn'), hdot = $('hdot');
+
+  function hnChain() {
+    if (chains.horn) return chains.horn;
+    var c = chainOut('horn');
+    var body = ctx.createBiquadFilter(); body.type = 'peaking'; body.frequency.value = 450; body.Q.value = 0.9; body.gain.value = 4;
+    var sh = ctx.createWaveShaper(), curve = new Float32Array(1024); // a touch of brassy edge
+    for (var i = 0; i < 1024; i++) curve[i] = Math.tanh((i / 511.5 - 1) * 1.6) / Math.tanh(1.6);
+    sh.curve = curve;
+    // Hand-stop: a hand deep in the bell makes the tone thin, buzzy and quieter
+    c.hp = ctx.createBiquadFilter(); c.hp.type = 'highpass'; c.hp.frequency.value = 30; c.hp.Q.value = 0.7;
+    c.pk = ctx.createBiquadFilter(); c.pk.type = 'peaking'; c.pk.frequency.value = 2900; c.pk.Q.value = 2.5; c.pk.gain.value = 0;
+    c.lvl = ctx.createGain();
+    c.in.connect(body); body.connect(sh); sh.connect(c.hp); c.hp.connect(c.pk); c.pk.connect(c.lvl); c.lvl.connect(c.out);
+    chains.horn = c; hnStopTone();
+    return c;
+  }
+  function hnStopTone() {
+    var c = chains.horn;
+    if (!c) return;
+    glideTo(c.pk.gain, hn.stop ? 14 : 0, 0.05);
+    glideTo(c.hp.frequency, hn.stop ? 420 : 30, 0.05);
+    glideTo(c.lvl.gain, hn.stop ? 0.55 : 1, 0.05);
+  }
+  function hnBright(f, l) { return Math.min(7000, f * (1.6 + 4.5 * l * l)); } // more breath, brighter brass
+
+  ENG.horn = {
+    make: function (m, l) {
+      var c = hnChain(), t = ctx.currentTime, f = mtof(m), all = [], os = [];
+      var g = ctx.createGain(), lv = ctx.createGain(), lp = ctx.createBiquadFilter();
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.36, t + 0.16); // slow, soft attack
+      lv.gain.value = l;
+      lp.type = 'lowpass'; lp.Q.value = 1.1;
+      lp.frequency.setValueAtTime(f * 1.2, t);
+      lp.frequency.setTargetAtTime(hnBright(f, l), t + 0.04, 0.09); // the tone blooms as the air column speaks
+      var vd = vibrato(t, 4.8, 7, 0.5, all);
+      [['sawtooth', 0.5, -3], ['sawtooth', 0.32, 4], ['sine', 0.45, 0]].forEach(function (h) {
+        var o = ctx.createOscillator(), og = ctx.createGain();
+        o.type = h[0]; o.frequency.value = f; o.detune.value = h[2]; og.gain.value = h[1];
+        vd.connect(o.detune); o.connect(og); og.connect(lp); o.start(t); os.push(o); all.push(o);
+      });
+      breath(t, 1100, 0.7, 0.012, lv, all);
+      lp.connect(lv); lv.connect(g); g.connect(c.in);
+      var v = { g: g, lv: lv, lp: lp, os: os, oscs: all, rel: 0.2, done: false };
+      os[0].onended = function () { v.done = true; g.disconnect(); };
+      track(v);
+      return v;
+    },
+    set: function (v, m, l, x) {
+      var t = ctx.currentTime, f = mtof(m);
+      v.os.forEach(function (o) { o.frequency.setTargetAtTime(f, t, x.glide || 0.02); });
+      v.lv.gain.setTargetAtTime(l, t, 0.06);
+      v.lp.frequency.setTargetAtTime(hnBright(f, l), t, 0.06);
+    }
+  };
+
+  function buildHorn() {
+    newStopAll();
+    var st = NST.horn, root = 48 + st.key, sc = SCALES[st.scale];
+    hn.cells.forEach(function (c) { c.remove(); });
+    hn.cells = []; hn.notes = [];
+    for (var o = 0; o < 2; o++) sc.forEach(function (s) { hn.notes.push(root + 12 * o + s); });
+    hn.notes.push(root + 24);
+    hn.notes.forEach(function (m) {
+      var c = document.createElement('div');
+      c.className = 'hcell' + ((m - root) % 12 === 0 ? ' root' : '');
+      c.textContent = noteText(m, st.key);
+      horn.insertBefore(c, hdot); hn.cells.push(c);
+    });
+  }
+
+  function hnApply() {
+    hn.raf = 0;
+    var id = hn.stack[hn.stack.length - 1];
+    if (id === undefined) { hnSilence(); return; }
+    var p = hn.pos[id], r = hn.rect;
+    var x = clamp(p.x - r.left, 0, r.width - 1), y = clamp(p.y - r.top, 0, r.height);
+    var idx = clamp(Math.floor(x / r.width * hn.notes.length), 0, hn.notes.length - 1), m = hn.notes[idx];
+    var l = 0.3 + 0.7 * (1 - y / r.height);
+    if (!vmap.horn || vmap.horn.v.done) vStart('horn', 'horn', m, l, {});
+    else vSet('horn', m, l, { glide: 0.012 + 0.12 * hn.slide });
+    if (hn.cur !== idx) {
+      if (hn.cells[hn.cur]) hn.cells[hn.cur].classList.remove('on');
+      hn.cur = idx; hn.cells[idx].classList.add('on');
+    }
+    hdot.style.display = 'block';
+    hdot.style.transform = 'translate(' + x + 'px,' + y + 'px)';
+  }
+  function hnSilence() {
+    vStop('horn');
+    if (hn.cells[hn.cur]) hn.cells[hn.cur].classList.remove('on');
+    hn.cur = -1; hdot.style.display = 'none';
+  }
+  function hnUp(id) {
+    if (!hn.pos[id]) return;
+    delete hn.pos[id];
+    hn.stack = hn.stack.filter(function (x) { return x !== id; });
+    hnApply();
+  }
+  function hnStopAll() { hn.stack = []; hn.pos = {}; hnSilence(); }
+
+  horn.addEventListener('pointerdown', function (e) {
+    e.preventDefault();
+    try { horn.setPointerCapture(e.pointerId); } catch (err) {}
+    hn.rect = horn.getBoundingClientRect();
+    hn.pos[e.pointerId] = { x: e.clientX, y: e.clientY };
+    hn.stack.push(e.pointerId);
+    hnApply();
+  });
+  horn.addEventListener('pointermove', function (e) {
+    if (!hn.pos[e.pointerId]) return;
+    hn.pos[e.pointerId] = { x: e.clientX, y: e.clientY };
+    if (!hn.raf) hn.raf = requestAnimationFrame(hnApply);
+  });
+  horn.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+
+  // Lift every finger on the four new instruments (playback keeps going)
+  function newStopAll() {
+    Object.keys(vmap).forEach(function (k) { if (k.indexOf('pb') !== 0) vStop(k); });
+    hm.ptr = {}; bw.ptr = {};
+    hnStopAll(); hmLights(); bwDraw();
+  }
+
+  // Toolbar for the new instruments: key, scale and reverb are remembered per instrument
+  function syncNewControls(tab) {
+    var st = NST[tab], nk = $('nkey');
+    nk.innerHTML = '';
+    CHROMA.forEach(function (n, i) {
+      var o = document.createElement('option'); o.value = i;
+      o.textContent = (tab === 'harmonica' ? 'Harp in ' : 'Key ') + n; nk.appendChild(o);
+    });
+    nk.value = st.key; $('nscale').value = st.scale; $('irev').value = st.rev;
+    nread.textContent = '';
+    if (tab === 'harmonica') buildHarp();
+    else if (tab === 'horn') buildHorn();
+    else { bw.tab = tab; buildBowed(); }
+  }
+  $('nkey').onchange = function () { NST[state.tab].key = +this.value; syncNewControls(state.tab); };
+  $('nscale').onchange = function () { NST[state.tab].scale = this.value; syncNewControls(state.tab); };
+  $('irev').oninput = function () {
+    var st = NST[state.tab], c = chains[state.tab];
+    st.rev = +this.value;
+    if (c) glideTo(c.send.gain, st.rev, 0.05);
+  };
+  function toggleBtn(id, flip) {
+    $(id).onclick = function () { this.setAttribute('aria-pressed', flip()); };
+  }
+  toggleBtn('hwah', function () { return hm.wah = !hm.wah; });
+  toggleBtn('htrem', function () { hm.trem = !hm.trem; hmTrem(); return hm.trem; });
+  toggleBtn('bsnap', function () { return bw.snap = !bw.snap; });
+  toggleBtn('bvib', function () { return bw.vib = !bw.vib; });
+  toggleBtn('bpizz', function () { bw.pizz = !bw.pizz; buildBowed(); return bw.pizz; });
+  toggleBtn('hstop', function () { hn.stop = !hn.stop; hnStopTone(); return hn.stop; });
+  $('hslide').oninput = function () { hn.slide = +this.value; };
+
   /* ---------- Releasing notes: every path that ends a touch ---------- */
   function releasePointer(id) {
     noteOff(id);
     gtrRelease(id);
     fluteUp(id);
     tablaUp(id);
+    hmUp(id); bwUp(id); hnUp(id);
   }
   // Silence everything a finger, mouse or key is holding (not piano playback)
   function releaseAllHeld() {
@@ -1832,6 +2520,7 @@ body:not([data-tab="epad"]) .only-epad { display: none !important; }
     Object.keys(gtr.held).forEach(gtrRelease);
     fluteStopAll();
     tb.bend = {}; tb.slide = {};
+    newStopAll();
   }
 
   window.addEventListener('pointerup', function (e) { releasePointer(e.pointerId); });
@@ -1853,6 +2542,8 @@ body:not([data-tab="epad"]) .only-epad { display: none !important; }
     Object.keys(gtr.held).forEach(function (k) { if (/^\d+$/.test(k)) gtrRelease(k); });
     fluteStopAll();
     tb.bend = {}; tb.slide = {};
+    Object.keys(vmap).forEach(function (k) { if (/^\d+$/.test(k)) vStop(k); });
+    hm.ptr = {}; bw.ptr = {}; hnStopAll(); hmLights(); bwDraw();
   }
   window.addEventListener('touchend', noTouchesLeft, { passive: true });
   window.addEventListener('touchcancel', noTouchesLeft, { passive: true });
@@ -1864,10 +2555,15 @@ body:not([data-tab="epad"]) .only-epad { display: none !important; }
   var PADKEYS = {};
   PADS.forEach(function (p) { PADKEYS[p.key] = p.id; });
   window.addEventListener('keydown', function (e) {
-    if (e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
     var tag = (e.target.tagName || '').toLowerCase();
-    if (tag === 'select' || tag === 'input') return;
+    if (state.screen === 'home') { galleryKey(e); return; }
+    if (e.repeat || tag === 'select' || tag === 'input') return;
     var k = e.key.toLowerCase();
+    if (k === 'escape') {
+      if ($('panel').classList.contains('open')) $('more').click(); else goHome();
+      return;
+    }
     if (state.tab === 'piano') {
       if (KEYMAP[k] !== undefined) noteOn('kb' + k, baseMidi() + 12 + KEYMAP[k], 0.85, state.inst, CHORDS[state.chord]);
       else if (k === 'z') setOctave(state.octave - 1);
@@ -1896,28 +2592,234 @@ body:not([data-tab="epad"]) .only-epad { display: none !important; }
     gtrRelease(k === ' ' ? 'kb ' : 'kb' + k);
   });
 
-  /* ---------- Tabs ---------- */
-  function setTab(tab) {
+  /* ---------- Home screen: instrument gallery ---------- */
+  // Flat, cheerful drawings made of plain shapes, so the app stays small and works offline
+  function svg(body) { return '<svg viewBox="0 0 120 120" aria-hidden="true">' + body + '</svg>'; }
+  function fiddleArt(wood, rot, cello) {
+    var cut = 'style="fill:var(--c)"';
+    return '<g transform="rotate(' + rot + ' 60 60)">' +
+      (cello ? '<path d="M60 96v20" stroke="#5c6670" stroke-width="2.5" stroke-linecap="round"/>' : '') +
+      '<rect x="57" y="10" width="6" height="30" fill="#7a4424"/><circle cx="60" cy="9" r="5.5" fill="#7a4424"/><circle cx="60" cy="9" r="2" fill="#4e2a13"/>' +
+      '<ellipse cx="60" cy="50" rx="17" ry="15" fill="' + wood + '"/><ellipse cx="60" cy="80" rx="21" ry="19" fill="' + wood + '"/>' +
+      '<rect x="46" y="52" width="28" height="24" fill="' + wood + '"/>' +
+      '<circle cx="40.5" cy="64" r="7" ' + cut + '/><circle cx="79.5" cy="64" r="7" ' + cut + '/>' +
+      '<path d="M57 20h6l1.5 48h-9z" fill="#1f1d1b"/>' +
+      '<path d="M48 69c-3 4 3 8 0 13M72 69c3 4-3 8 0 13" stroke="#3a2414" stroke-width="2" fill="none" stroke-linecap="round"/>' +
+      '<rect x="52" y="76" width="16" height="3" rx="1" fill="#f3e2c0"/><path d="M56 83h8l-1.5 13h-5z" fill="#1f1d1b"/>' +
+      '<path d="M58.4 14v68M59.5 14v68M60.5 14v68M61.6 14v68" stroke="#e9dfc8" stroke-width=".6"/></g>';
+  }
+  function bowArt(rot) {
+    return '<g transform="rotate(' + rot + ' 60 60)"><rect x="14" y="88" width="92" height="3" rx="1.5" fill="#7a4424"/>' +
+      '<path d="M20 94h84" stroke="#fff6e0" stroke-width="1.6"/><rect x="17" y="87" width="7" height="9" rx="1.5" fill="#1f1d1b"/></g>';
+  }
+  function tablaDayan(x, top, bot, w) { // a laced wooden drum; x centre, top / bottom y, top half-width
+    var b = w * 0.78, lace = '';
+    for (var i = 0; i <= 5; i++) {
+      var tx = x - w + 2 + i * (w * 2 - 4) / 5, bx = x - b + 2 + i * (b * 2 - 4) / 5;
+      lace += 'M' + tx.toFixed(1) + ' ' + (top + 2) + 'L' + bx.toFixed(1) + ' ' + (bot - 2);
+    }
+    var blocks = '';
+    for (var k = 0; k < 4; k++) blocks += '<rect x="' + (x - b + 3 + k * (b * 2 - 6) / 4).toFixed(1) + '" y="' + (bot - 30) + '" width="' + ((b * 2 - 6) / 4 - 2).toFixed(1) + '" height="11" rx="2" fill="#5a3a1e"/>';
+    return '<ellipse cx="' + x + '" cy="' + (bot + 1) + '" rx="' + (b + 4) + '" ry="5" fill="#c8463a"/>' +
+      '<path d="M' + (x - w) + ' ' + top + 'L' + (x + w) + ' ' + top + 'L' + (x + b) + ' ' + bot + 'L' + (x - b) + ' ' + bot + 'Z" fill="#8a5a33"/>' +
+      '<path d="' + lace + '" stroke="#e9dfc8" stroke-width="1.5"/>' + blocks +
+      '<ellipse cx="' + x + '" cy="' + top + '" rx="' + w + '" ry="' + (w * 0.33).toFixed(1) + '" fill="#ece0c2"/>' +
+      '<ellipse cx="' + x + '" cy="' + top + '" rx="' + (w * 0.4).toFixed(1) + '" ry="' + (w * 0.13).toFixed(1) + '" fill="#1f1d1b"/>';
+  }
+  function note(x, y, col) {
+    return '<path d="M' + (x + 4.5) + ' ' + (y - 18) + 'v18" stroke="' + col + '" stroke-width="3"/><path d="M' + (x + 4.5) + ' ' + (y - 18) + 'l9 4" stroke="' + col + '" stroke-width="3" stroke-linecap="round"/>' +
+      '<ellipse cx="' + x + '" cy="' + y + '" rx="5.5" ry="4.2" fill="' + col + '" transform="rotate(-20 ' + x + ' ' + y + ')"/>';
+  }
+  var ART = {
+    piano: svg('<rect x="20" y="20" width="80" height="50" rx="9" fill="#3d405b"/><rect x="30" y="28" width="60" height="18" rx="4" fill="#fff6e0"/>' +
+      '<path d="M38 34h16M38 40h10M62 34h18M62 40h12" stroke="#c9b98f" stroke-width="2.5" stroke-linecap="round"/>' +
+      '<rect x="14" y="62" width="92" height="26" rx="5" fill="#fff"/>' +
+      '<path d="M25.5 62v26M37 62v26M48.5 62v26M60 62v26M71.5 62v26M83 62v26M94.5 62v26" stroke="#d8d1bd" stroke-width="1.6"/>' +
+      '<path d="M22 62h7v15h-7zM33.5 62h7v15h-7zM56.5 62h7v15h-7zM68 62h7v15h-7zM79.5 62h7v15h-7z" fill="#1f1d1b"/>' +
+      '<rect x="16" y="88" width="88" height="8" rx="3" fill="#3d405b"/><rect x="22" y="94" width="7" height="15" rx="3" fill="#3d405b"/><rect x="91" y="94" width="7" height="15" rx="3" fill="#3d405b"/>'),
+    drums: svg('<path d="M94 30v78" stroke="#5c6670" stroke-width="3"/><ellipse cx="94" cy="30" rx="20" ry="5" fill="#f3b33d"/><ellipse cx="94" cy="29" rx="5" ry="1.6" fill="#c98a1c"/>' +
+      '<circle cx="64" cy="76" r="30" fill="#e4572e"/><circle cx="64" cy="76" r="23" fill="#fff6e0"/><circle cx="64" cy="76" r="8" fill="#f3b33d"/>' +
+      '<rect x="52" y="34" width="26" height="15" rx="3" fill="#2a9d8f"/><ellipse cx="65" cy="34" rx="13" ry="4" fill="#fff6e0"/>' +
+      '<rect x="10" y="66" width="30" height="18" fill="#e4572e"/><ellipse cx="25" cy="84" rx="15" ry="4.5" fill="#e4572e"/><ellipse cx="25" cy="66" rx="15" ry="4.5" fill="#fff6e0"/>' +
+      '<path d="M15 70v13M22 71v14M29 71v14M36 70v13" stroke="#fff6e0" stroke-width="1.5" opacity=".7"/>' +
+      '<path d="M16 30l18 28M40 22l-5 34" stroke="#c8743a" stroke-width="4" stroke-linecap="round"/>'),
+    guitar: svg('<g transform="rotate(-38 60 60)"><rect x="56" y="6" width="8" height="58" fill="#7a4424"/>' +
+      '<path d="M56 18h8M56 28h8M56 37h8M56 45h8" stroke="#c9b98f" stroke-width="1.2"/>' +
+      '<rect x="53" y="0" width="14" height="14" rx="3" fill="#5a2f17"/><circle cx="51" cy="4" r="2" fill="#c9b98f"/><circle cx="69" cy="4" r="2" fill="#c9b98f"/><circle cx="51" cy="10" r="2" fill="#c9b98f"/><circle cx="69" cy="10" r="2" fill="#c9b98f"/>' +
+      '<circle cx="60" cy="72" r="17" fill="#f39c3d"/><circle cx="60" cy="96" r="22" fill="#f39c3d"/><circle cx="60" cy="80" r="7" fill="#3a2414"/>' +
+      '<rect x="51" y="98" width="18" height="5" rx="2" fill="#5a2f17"/><path d="M58 8v92M60 8v92M62 8v92" stroke="#fff6e0" stroke-width=".7"/></g>'),
+    flute: svg(note(26, 40, '#7b2cbf') + note(44, 30, '#9d4edd') +
+      '<g transform="rotate(-28 60 64)"><rect x="6" y="58" width="108" height="13" rx="6.5" fill="#e3e7eb"/><rect x="10" y="59" width="100" height="4" rx="2" fill="#fff"/>' +
+      '<rect x="18" y="56" width="6" height="17" rx="2" fill="#aab1b9"/><rect x="98" y="56" width="6" height="17" rx="2" fill="#aab1b9"/>' +
+      '<ellipse cx="32" cy="64.5" rx="3.8" ry="2.6" fill="#3d405b"/><circle cx="52" cy="64.5" r="2.8" fill="#3d405b"/><circle cx="61" cy="64.5" r="2.8" fill="#3d405b"/>' +
+      '<circle cx="70" cy="64.5" r="2.8" fill="#3d405b"/><circle cx="80" cy="64.5" r="2.8" fill="#3d405b"/><circle cx="89" cy="64.5" r="2.8" fill="#3d405b"/></g>'),
+    tabla2: svg('<ellipse cx="36" cy="104" rx="25" ry="6" fill="#c8463a"/>' +
+      '<path d="M10 66C10 100 24 106 36 106C48 106 62 100 62 66Z" fill="#b87333"/><path d="M17 80C23 92 49 92 55 80" stroke="#d99a5b" stroke-width="3" fill="none"/>' +
+      '<ellipse cx="36" cy="66" rx="26" ry="8" fill="#ece0c2"/><ellipse cx="31" cy="66" rx="9" ry="3" fill="#1f1d1b"/>' + tablaDayan(89, 46, 104, 18)),
+    tabla1: svg(note(98, 30, '#c8463a') + tablaDayan(56, 36, 106, 24)),
+    epad: svg((function () {
+      var cols = ['#e4572e', '#2fb3a8', '#f3b33d', '#9a7bd8'], s = '<rect x="14" y="20" width="92" height="82" rx="12" fill="#223232"/>';
+      for (var r = 0; r < 4; r++) for (var c = 0; c < 4; c++) {
+        s += '<rect x="' + (24 + c * 18.5) + '" y="' + (28 + r * 18) + '" width="16" height="14" rx="3" fill="' + (r === 1 && c === 2 ? '#fff6e0' : cols[r]) + '"/>';
+      }
+      return s;
+    })()),
+    harmonica: svg(note(52, 30, '#2a9d8f') + note(74, 22, '#e4572e') +
+      '<rect x="10" y="46" width="100" height="34" rx="7" fill="#c8463a"/><rect x="10" y="42" width="100" height="16" rx="6" fill="#d5dbe1"/>' +
+      '<rect x="10" y="68" width="100" height="16" rx="6" fill="#b6bec6"/><rect x="16" y="45" width="88" height="3" rx="1.5" fill="#fff" opacity=".8"/>' +
+      (function () { var h = ''; for (var i = 0; i < 10; i++) h += '<rect x="' + (15.5 + i * 9.3).toFixed(1) + '" y="60" width="6" height="6" rx="1.5" fill="#1f1d1b"/>'; return h; })()),
+    violin: svg(fiddleArt('#d9822b', 28, false) + bowArt(-24)),
+    cello: svg(fiddleArt('#9c5426', 0, true) + bowArt(-14)),
+    horn: svg('<path d="M27 27l11 12" stroke="#d99a1e" stroke-width="4" stroke-linecap="round"/><circle cx="25" cy="25" r="4.5" fill="#b77d14"/>' +
+      '<circle cx="58" cy="62" r="30" fill="none" stroke="#e8a92a" stroke-width="9"/><circle cx="58" cy="62" r="17" fill="none" stroke="#f3c45a" stroke-width="6"/>' +
+      '<rect x="45" y="25" width="7" height="13" rx="2" fill="#c9d0d7"/><rect x="55" y="23" width="7" height="13" rx="2" fill="#c9d0d7"/><rect x="65" y="25" width="7" height="13" rx="2" fill="#c9d0d7"/>' +
+      '<path d="M82.8 77.2Q95 85 111.3 88.7L88.7 111.3Q85 95 77.2 82.8Z" fill="#f3b33d"/>' +
+      '<ellipse cx="100" cy="100" rx="16" ry="5" transform="rotate(-45 100 100)" fill="#b77d14"/>')
+  };
+
+  var INSTR = [
+    { tab: 'piano', name: 'Piano', cat: 'keys', c: '#ffd6a5' },
+    { tab: 'drums', name: 'Drums', cat: 'perc', c: '#bde0fe' },
+    { tab: 'guitar', name: 'Guitar', cat: 'strings', c: '#caffbf' },
+    { tab: 'flute', name: 'Flute', cat: 'wind', c: '#e2ccff' },
+    { tab: 'tabla2', name: 'Tabla (dual)', cat: 'perc', c: '#ffc8dd' },
+    { tab: 'tabla1', name: 'Tabla (single)', cat: 'perc', c: '#ffe5b4' },
+    { tab: 'epad', name: 'Electric drum pad', cat: 'perc', c: '#a0e7e5' },
+    { tab: 'harmonica', name: 'Harmonica', cat: 'wind', c: '#fdffb6' },
+    { tab: 'violin', name: 'Violin', cat: 'strings', c: '#ffcfd2' },
+    { tab: 'cello', name: 'Cello', cat: 'strings', c: '#cfe8d5' },
+    { tab: 'horn', name: 'French horn', cat: 'wind', c: '#d7e3fc' }
+  ];
+  var TAB_NAMES = {}, gallery = $('gallery'), cards = [], centred = null, opening = false;
+  INSTR.forEach(function (it) {
+    TAB_NAMES[it.tab] = it.name;
+    var b = document.createElement('button');
+    b.className = 'card'; b.dataset.tab = it.tab; b.dataset.cat = it.cat;
+    b.style.setProperty('--c', it.c);
+    b.innerHTML = '<span class="art">' + ART[it.tab] + '</span><span class="cname">' + it.name + '</span>';
+    gallery.appendChild(b); cards.push(b);
+  });
+  function cardFor(tab) { return cards.filter(function (c) { return c.dataset.tab === tab; })[0]; }
+  function shown() { return cards.filter(function (c) { return !c.hidden; }); }
+
+  function markCenter(card) {
+    centred = card;
+    cards.forEach(function (c) { c.classList.toggle('center', c === card); });
+  }
+  function centerOn(card, smooth) {
+    if (!card) return;
+    var left = card.offsetLeft - (gallery.clientWidth - card.offsetWidth) / 2;
+    if (smooth) gallery.scrollTo({ left: left, behavior: 'smooth' }); else gallery.scrollLeft = left;
+    markCenter(card);
+  }
+  function nearestCard() {
+    var mid = gallery.scrollLeft + gallery.clientWidth / 2, best = null, bd = Infinity;
+    shown().forEach(function (c) {
+      var d = Math.abs(c.offsetLeft + c.offsetWidth / 2 - mid);
+      if (d < bd) { bd = d; best = c; }
+    });
+    return best;
+  }
+  var scrollRaf = 0;
+  gallery.addEventListener('scroll', function () {
+    if (!scrollRaf) scrollRaf = requestAnimationFrame(function () { scrollRaf = 0; markCenter(nearestCard()); });
+  }, { passive: true });
+
+  function step(dir, to) {
+    var list = shown();
+    if (!list.length) return;
+    var i = to !== undefined ? to : list.indexOf(centred) + dir;
+    var card = list[clamp(i, 0, list.length - 1)];
+    centerOn(card, true);
+    card.focus({ preventScroll: true });
+  }
+
+  // Mouse wheel: one card per notch (sideways trackpad swipes scroll natively)
+  var wheelAcc = 0, wheelLast = 0, wheelStep = 0;
+  $('homeScr').addEventListener('wheel', function (e) {
+    if (Math.abs(e.deltaX) >= Math.abs(e.deltaY)) return;
+    e.preventDefault();
+    var now = performance.now();
+    if (now - wheelLast > 250) wheelAcc = 0;
+    wheelLast = now;
+    wheelAcc += e.deltaY * (e.deltaMode === 1 ? 30 : 1);
+    if (Math.abs(wheelAcc) >= 40 && now - wheelStep > 180) { step(wheelAcc > 0 ? 1 : -1); wheelAcc = 0; wheelStep = now; }
+  }, { passive: false });
+
+  function galleryKey(e) {
+    var k = e.key;
+    if (k === 'ArrowRight' || k === 'ArrowDown') step(1);
+    else if (k === 'ArrowLeft' || k === 'ArrowUp') step(-1);
+    else if (k === 'Home') step(0, 0);
+    else if (k === 'End') step(0, shown().length - 1);
+    else if ((k === 'Enter' || k === ' ') && !(e.target.closest && e.target.closest('button')) && centred) openCard(centred);
+    else return;
+    e.preventDefault();
+  }
+
+  function openCard(card) {
+    if (opening) return;
+    opening = true;
+    init(); // the tap unlocks audio, so the first note plays straight away
+    card.classList.remove('pop'); void card.offsetWidth; card.classList.add('pop');
+    setTimeout(function () {
+      opening = false;
+      card.classList.remove('pop');
+      openInstrument(card.dataset.tab);
+    }, 160);
+  }
+  gallery.addEventListener('click', function (e) {
+    var card = e.target.closest('.card');
+    if (card) openCard(card);
+  });
+
+  function setCat(cat) {
+    document.querySelectorAll('.chip').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.cat === cat); });
+    cards.forEach(function (c) { c.hidden = cat !== 'all' && c.dataset.cat !== cat; });
+    centerOn(centred && !centred.hidden ? centred : shown()[0], false);
+  }
+  $('chips').addEventListener('click', function (e) {
+    var b = e.target.closest('.chip');
+    if (b) setCat(b.dataset.cat);
+  });
+  window.addEventListener('resize', function () { if (state.screen === 'home') centerOn(centred, false); });
+
+  /* ---------- Switching instruments ---------- */
+  // Leaving an instrument: every sound fades out quickly, nothing keeps ringing into the next one
+  function silenceAll() {
     releaseAllHeld();
     if (playing) stopPlayback();
     if (recording) $('rec').click();
-    if (!/^tabla/.test(tab)) setDrone(false);
-    if (tab !== 'epad') seqPlay(false);
-    state.tab = tab;
+    setDrone(false); seqPlay(false);
+    if (ctx) live.forEach(function (v) { releaseVoice(v, Math.min(v.rel || 0.1, 0.12)); });
+    live = []; pedalHeld = [];
+    nread.textContent = '';
+  }
+
+  function openInstrument(tab) {
+    silenceAll();
+    state.tab = tab; state.screen = 'play';
     document.body.dataset.tab = tab;
-    document.querySelectorAll('.tab').forEach(function (b) {
-      var on = b.dataset.tab === tab;
-      b.setAttribute('aria-selected', on);
-      if (on && b.scrollIntoView) b.scrollIntoView({ block: 'nearest', inline: 'nearest' });
-    });
+    document.body.dataset.screen = 'play';
+    $('iname').textContent = TAB_NAMES[tab];
+    if (isNew(tab)) syncNewControls(tab);
     if (tab === 'guitar') gtrPrewarm();
     rects = {};
+    refreshButtons();
     try { localStorage.setItem('pb-tab', tab); } catch (e) {}
   }
-  document.querySelector('.tabs').addEventListener('click', function (e) {
-    var b = e.target.closest('.tab');
-    if (b) setTab(b.dataset.tab);
-  });
+
+  function goHome() {
+    silenceAll();
+    state.screen = 'home';
+    document.body.dataset.screen = 'home';
+    $('panel').classList.remove('open'); $('more').setAttribute('aria-pressed', false);
+    var card = cardFor(state.tab);
+    if (card.hidden) setCat('all');
+    centerOn(card, false);
+    card.focus({ preventScroll: true });
+  }
+  $('home').onclick = goHome;
 
   /* ---------- Toolbar ---------- */
   $('inst').onchange = function () { state.inst = this.value; stopAll(); };
@@ -1934,7 +2836,7 @@ body:not([data-tab="epad"]) .only-epad { display: none !important; }
     $('rec').setAttribute('aria-pressed', recording);
     $('rec').textContent = recording ? 'Stop recording' : 'Record';
     $('play').textContent = playing ? 'Stop' : 'Play';
-    $('play').disabled = !playing && (recording || rec.length === 0);
+    $('play').disabled = !playing && (recording || rec.length === 0 || recTab !== state.tab);
   }
 
   $('rec').onclick = function () {
@@ -1947,7 +2849,7 @@ body:not([data-tab="epad"]) .only-epad { display: none !important; }
         rec.forEach(function (ev) { ev.t -= t0; });
       }
     } else {
-      rec = []; recording = true; recStart = performance.now();
+      rec = []; recTab = state.tab; recording = true; recStart = performance.now();
     }
     refreshButtons();
   };
@@ -1955,6 +2857,7 @@ body:not([data-tab="epad"]) .only-epad { display: none !important; }
   function stopPlayback() {
     pbTimers.forEach(clearTimeout); pbTimers = [];
     Object.keys(active).forEach(function (k) { if (String(k).indexOf('pb') === 0) noteOff(k, true); });
+    Object.keys(vmap).forEach(function (k) { if (k.indexOf('pb') === 0) vStop(k, true); });
     playing = false; refreshButtons();
   }
 
@@ -1967,7 +2870,10 @@ body:not([data-tab="epad"]) .only-epad { display: none !important; }
       pbTimers.push(setTimeout(function () {
         var id = 'pb' + ev.key;
         if (ev.type === 'on') noteOn(id, ev.midi, ev.vel, ev.inst, ev.iv, true);
-        else noteOff(id, true);
+        else if (ev.type === 'off') noteOff(id, true);
+        else if (ev.op === 'start') vStart(ev.tab, id, ev.m, ev.l, ev.x, true);
+        else if (ev.op === 'set') vSet(id, ev.m, ev.l, ev.x, true);
+        else vStop(id, true);
       }, ev.t));
     });
     pbTimers.push(setTimeout(stopPlayback, rec[rec.length - 1].t + 1200));
@@ -2025,7 +2931,10 @@ body:not([data-tab="epad"]) .only-epad { display: none !important; }
   $('vib').oninput = function () { state.vib = +this.value; if (lfoDepth) lfoDepth.gain.value = state.vib * 35; };
   $('range').onchange = function () { state.range = +this.value; setOctave(state.octave); };
   $('chord').onchange = function () { state.chord = this.value; };
-  $('labels').onchange = function () { state.labels = this.value; buildPiano(); buildFlute(); };
+  $('labels').onchange = function () {
+    state.labels = this.value; buildPiano(); buildFlute();
+    if (isNew(state.tab)) syncNewControls(state.tab);
+  };
   $('vel').onchange = function () { state.velocity = this.value === 'on'; };
   $('maxv').onchange = function () { MAX_VOICES = +this.value; };
 
@@ -2038,9 +2947,11 @@ body:not([data-tab="epad"]) .only-epad { display: none !important; }
   buildTabla();
   buildEpad();
   refreshButtons();
+  // The last instrument played opens straight away; otherwise start on the gallery
   var saved = null;
   try { saved = localStorage.getItem('pb-tab'); } catch (e) {}
-  if (saved && /^(piano|drums|guitar|flute|tabla2|tabla1|epad)$/.test(saved)) setTab(saved);
+  if (saved && TAB_NAMES[saved]) openInstrument(saved);
+  else markCenter(cards[0]);
 
   if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
     window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
