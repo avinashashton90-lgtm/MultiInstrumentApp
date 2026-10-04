@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Pocket Band</title>
-<meta name="description" content="Piano, drums, guitar and flute in one landscape app.">
+<meta name="description" content="Piano, drums, guitars, flute, tabla and an electric drum pad in one landscape app.">
 <meta name="theme-color" content="#ded6c4" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#172424" media="(prefers-color-scheme: dark)">
 <meta name="mobile-web-app-capable" content="yes">
@@ -40,6 +40,14 @@
   --string-hit: #f2b134;
   --flute: #fffdf7;
   --flute-alt: #f4eee0;
+  --skin: #ece0c2;
+  --kinar: #d2bf94;
+  --syahi: #1f1d1b;
+  --shell: #7a4e2c;
+  --shell-2: #8d8f94;
+  --skin-ink: #3a2a18;
+  --epad: #223232;
+  --epad-ink: #e9f3f1;
   box-sizing: border-box;
   padding-top: env(safe-area-inset-top, 0px);
   padding-bottom: env(safe-area-inset-bottom, 0px);
@@ -52,6 +60,8 @@
     --pad: #1c2b2b; --pad-ring: #2fb3a8;
     --wood: #4a2f1b; --wood-2: #2f1d10; --fret: #8f8262; --string: #d9cfb6; --string-hit: #f2b134;
     --flute: #1c2b2b; --flute-alt: #213333;
+    --skin: #cfc3a6; --kinar: #b09f78; --syahi: #141312; --shell: #573720; --shell-2: #5f6166; --skin-ink: #2a1d10;
+    --epad: #1a2828; --epad-ink: #e9f3f1;
   }
 }
 :root[data-theme="dark"] {
@@ -61,6 +71,8 @@
   --pad: #1c2b2b; --pad-ring: #2fb3a8;
   --wood: #4a2f1b; --wood-2: #2f1d10; --fret: #8f8262; --string: #d9cfb6; --string-hit: #f2b134;
   --flute: #1c2b2b; --flute-alt: #213333;
+  --skin: #cfc3a6; --kinar: #b09f78; --syahi: #141312; --shell: #573720; --shell-2: #5f6166; --skin-ink: #2a1d10;
+  --epad: #1a2828; --epad-ink: #e9f3f1;
 }
 html { scroll-padding-top: env(safe-area-inset-top, 0px); height: 100%; }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -89,19 +101,26 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px s
 .oct { min-width: 38px; font-weight: 700; }
 .lbl { font-size: .8rem; color: var(--muted); flex: 0 0 auto; }
 
-/* Instrument tabs */
+/* Instrument tabs: scroll sideways when there are more than fit */
 .tabs {
-  display: flex; flex: 0 0 auto; padding: 2px; gap: 2px;
+  display: flex; flex: 0 1 auto; min-width: min(250px, 36vw); max-width: min(560px, 58vw); padding: 2px; gap: 2px;
   background: var(--bg); border: 2px solid var(--edge); border-radius: 12px;
+  overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; touch-action: pan-x;
 }
-.tab { border: 0; border-radius: 8px; min-height: 32px; padding: 2px 12px; background: transparent; font-weight: 700; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab { flex: 0 0 auto; border: 0; border-radius: 8px; min-height: 32px; padding: 2px 12px; background: transparent; font-weight: 700; }
 .tab[aria-selected="true"] { background: var(--ink); color: var(--bg); }
 
 /* Per-instrument visibility */
 body:not([data-tab="piano"]) .only-piano,
 body:not([data-tab="drums"]) .only-drums,
 body:not([data-tab="guitar"]) .only-guitar,
-body:not([data-tab="flute"]) .only-flute { display: none !important; }
+body:not([data-tab="flute"]) .only-flute,
+body:not([data-tab="tabla2"]) .only-tabla2,
+body:not([data-tab="tabla1"]) .only-tabla1,
+body:not([data-tab="tabla2"]):not([data-tab="tabla1"]) .only-tabla,
+body:not([data-tab="epad"]) .only-epad { display: none !important; }
+.fine { width: 90px; accent-color: var(--accent); flex: 0 0 auto; }
 @media (display-mode: fullscreen), (display-mode: standalone) { #full { display: none; } }
 
 .stage { position: relative; flex: 1 1 auto; min-height: 0; padding: 4px 8px 10px; }
@@ -186,6 +205,62 @@ body:not([data-tab="flute"]) .only-flute { display: none !important; }
 }
 .flute .fhint { position: absolute; left: 12px; top: 8px; font-size: .75rem; color: var(--muted); pointer-events: none; }
 
+/* Tabla */
+.tabla { height: 100%; display: flex; align-items: stretch; gap: 8px; }
+.drum { position: relative; flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; }
+.drum svg { flex: 1 1 auto; min-height: 0; width: 100%; touch-action: none; display: block; }
+.drum .dname { flex: 0 0 auto; font-size: .75rem; color: var(--muted); padding-top: 2px; }
+.drum .bol {
+  position: absolute; top: 4px; right: 8px; font-size: 1.5rem; font-weight: 700; color: var(--accent);
+  opacity: 0; transition: opacity .35s; pointer-events: none;
+}
+.drum .bol.show { opacity: 1; transition: none; }
+.tabla .z { transition: fill .25s; }
+.tabla .z.on { fill: var(--key-on) !important; transition: none; }
+.tabla text { font: 700 11px "Familjen Grotesk", system-ui, sans-serif; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+.tabla .lt { fill: var(--skin); }
+.tabla .dt { fill: var(--skin-ink); }
+.combos { flex: 0 0 auto; display: flex; flex-direction: column; justify-content: center; gap: 8px; width: 92px; }
+.combos button { min-height: 0; flex: 1 1 0; max-height: 72px; font-weight: 700; font-size: 1rem; }
+.combos button small { display: block; font-size: .68rem; font-weight: 500; color: var(--muted); }
+.combos button.on { background: var(--key-on); border-color: var(--key-on); color: #1d2a2a; }
+
+/* Electric drum pad */
+.epad { height: 100%; display: flex; gap: 10px; }
+.egrid-wrap { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.steps { flex: 0 0 12px; display: grid; grid-template-columns: repeat(16, 1fr); gap: 3px; }
+.steps i { border-radius: 3px; background: var(--edge); opacity: .45; }
+.steps i:nth-child(4n+1) { opacity: .7; }
+.steps i.has { background: var(--accent); opacity: .8; }
+.steps i.sel { background: var(--key-on); opacity: 1; }
+.steps i.now { outline: 2px solid var(--ink); outline-offset: 0; opacity: 1; }
+.egrid { flex: 1 1 auto; min-height: 0; display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(4, 1fr); gap: 6px; touch-action: none; }
+.epadb {
+  min-height: 0; padding: 2px; border-radius: 10px; border: 2px solid transparent; background: var(--epad); color: var(--epad-ink);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700;
+  touch-action: none; box-shadow: inset 0 -5px 0 rgba(0,0,0,.25); overflow: hidden; line-height: 1.1;
+}
+.epadb small { font-size: .62rem; font-weight: 500; opacity: .7; }
+.epadb[data-row="0"] { border-color: color-mix(in srgb, #e0692a 55%, transparent); }
+.epadb[data-row="1"] { border-color: color-mix(in srgb, #2fb3a8 55%, transparent); }
+.epadb[data-row="2"] { border-color: color-mix(in srgb, #f2b134 55%, transparent); }
+.epadb[data-row="3"] { border-color: color-mix(in srgb, #9a7bd8 55%, transparent); }
+.epadb.sel { outline: 2px solid var(--ink); outline-offset: 1px; }
+.epadb.on { background: var(--key-on); color: #1d2a2a; box-shadow: none; }
+.eside { flex: 0 0 auto; width: 132px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
+.eside .pname { font-weight: 700; font-size: .9rem; text-align: center; }
+.kwrap { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: .75rem; color: var(--muted); }
+.knob {
+  --a: 0deg; width: 58px; height: 58px; border-radius: 50%; position: relative; touch-action: none; cursor: ns-resize;
+  background: radial-gradient(circle at 50% 38%, var(--bg) 0 52%, var(--bar) 53%); border: 2px solid var(--edge);
+}
+.knob::after {
+  content: ""; position: absolute; left: 50%; top: 6px; width: 4px; height: 18px; margin-left: -2px; border-radius: 2px;
+  background: var(--accent); transform-origin: 50% 21px; transform: rotate(var(--a));
+}
+.knob:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.kval { font-variant-numeric: tabular-nums; color: var(--ink); }
+
 .panel {
   position: absolute; z-index: 5; right: 8px; top: 4px; width: min(420px, calc(100% - 16px));
   background: var(--bar); border: 2px solid var(--edge); border-radius: 14px; padding: 10px 12px;
@@ -215,6 +290,9 @@ body:not([data-tab="flute"]) .only-flute { display: none !important; }
     <button class="tab" role="tab" data-tab="drums" aria-selected="false">Drums</button>
     <button class="tab" role="tab" data-tab="guitar" aria-selected="false">Guitar</button>
     <button class="tab" role="tab" data-tab="flute" aria-selected="false">Flute</button>
+    <button class="tab" role="tab" data-tab="tabla2" aria-selected="false">Tabla pair</button>
+    <button class="tab" role="tab" data-tab="tabla1" aria-selected="false">Tabla solo</button>
+    <button class="tab" role="tab" data-tab="epad" aria-selected="false">Drum pad</button>
   </div>
 
   <select id="inst" class="only-piano" aria-label="Piano sound">
@@ -239,8 +317,14 @@ body:not([data-tab="flute"]) .only-flute { display: none !important; }
 
   <select id="gsound" class="only-guitar" aria-label="Guitar sound">
     <option value="acoustic">Steel acoustic</option>
-    <option value="nylon">Nylon</option>
-    <option value="electric">Electric</option>
+    <option value="twelve">12-string</option>
+    <option value="nylon">Nylon classical</option>
+    <option value="clean">Clean electric</option>
+    <option value="crunch">Crunch electric</option>
+    <option value="jazz">Jazz hollow-body</option>
+    <option value="bass">Bass guitar (E A D G)</option>
+    <option value="uke">Ukulele (G C E A)</option>
+    <option value="sitar">Sitar</option>
   </select>
   <button id="ring" class="only-guitar" aria-pressed="false">Let ring</button>
 
@@ -258,6 +342,23 @@ body:not([data-tab="flute"]) .only-flute { display: none !important; }
     <option value="snap">Snap</option>
     <option value="free">Free</option>
   </select>
+
+  <select id="sa" class="only-tabla" aria-label="Tabla tuning (Sa)"></select>
+  <span class="lbl only-tabla">Fine</span>
+  <input type="range" id="tfine" class="fine only-tabla" min="-50" max="50" step="1" value="0" aria-label="Fine tuning in cents">
+  <button id="drone" class="only-tabla" aria-pressed="false">Tanpura</button>
+
+  <select id="ekit" class="only-epad" aria-label="Drum pad kit">
+    <option value="electro">Electro</option>
+    <option value="trap">Trap</option>
+    <option value="house">House</option>
+    <option value="lofi">Lo-fi</option>
+  </select>
+  <button id="eplay" class="only-epad" aria-pressed="false">Play loop</button>
+  <button id="erec" class="rec only-epad" aria-pressed="false">Record</button>
+  <button id="eclear" class="only-epad">Clear</button>
+  <span class="lbl only-epad" id="bpmLbl">100 BPM</span>
+  <input type="range" id="bpm" class="fine only-epad" min="60" max="180" step="1" value="100" aria-label="Tempo">
 
   <span class="sep"></span>
   <button id="more" aria-pressed="false">Settings</button>
@@ -282,6 +383,38 @@ body:not([data-tab="flute"]) .only-flute { display: none !important; }
     <div class="flute" id="flute" aria-label="Flute: slide left and right to change pitch">
       <span class="fhint">Slide sideways for pitch · higher up is louder</span>
       <div class="fdot" id="fdot"></div>
+    </div>
+  </div>
+
+  <div class="view only-tabla2">
+    <div class="tabla" id="tabla2">
+      <div class="drum"><span class="bol" id="bolB"></span><svg id="bayan2" viewBox="-112 -112 224 224" aria-label="Bayan, bass drum: centre Ke, edge Ge, rim Ga. Drag up or down after a hit to bend"></svg><span class="dname">Bayan · drag to bend</span></div>
+      <div class="combos" id="combos">
+        <button data-combo="dha">Dha<small>Na + Ge</small></button>
+        <button data-combo="dhin">Dhin<small>Tin + Ge</small></button>
+        <button data-combo="tirakita">Tirakita<small>Ti Ra Ki Ta</small></button>
+      </div>
+      <div class="drum"><span class="bol" id="bolD"></span><svg id="dayan2" viewBox="-112 -112 224 224" aria-label="Dayan, treble drum: centre Tun, inner ring Te and Ti, outer Tin, rim Na"></svg><span class="dname">Dayan</span></div>
+    </div>
+  </div>
+
+  <div class="view only-tabla1">
+    <div class="tabla" id="tabla1">
+      <div class="drum"><span class="bol" id="bolS"></span><svg id="dayan1" viewBox="-112 -112 224 224" aria-label="Dayan: centre Tun, inner ring Te and Ti, outer Tin, rim Na"></svg><span class="dname">Dayan · tap with several fingers for rolls</span></div>
+    </div>
+  </div>
+
+  <div class="view only-epad">
+    <div class="epad">
+      <div class="egrid-wrap">
+        <div class="steps" id="steps" aria-hidden="true"></div>
+        <div class="egrid" id="egrid" aria-label="Drum pads: hit lower on a pad for louder"></div>
+      </div>
+      <div class="eside">
+        <div class="pname" id="pname">Kick</div>
+        <div class="kwrap"><div class="knob" id="kpitch" role="slider" tabindex="0" aria-label="Pad pitch"></div><span>Pitch <b class="kval" id="vpitch">0</b></span></div>
+        <div class="kwrap"><div class="knob" id="kdecay" role="slider" tabindex="0" aria-label="Pad decay"></div><span>Decay <b class="kval" id="vdecay">100%</b></span></div>
+      </div>
     </div>
   </div>
 
@@ -334,7 +467,7 @@ body:not([data-tab="flute"]) .only-flute { display: none !important; }
 <script>
 (function () {
   var AC = window.AudioContext || window.webkitAudioContext;
-  var ctx, bus, master, wet, lfoDepth, noiseBuf, drive;
+  var ctx, bus, master, wet, lfoDepth, noiseBuf, drive, conv, gch, eOut;
   var $ = function (id) { return document.getElementById(id); };
 
   var state = {
@@ -350,7 +483,7 @@ body:not([data-tab="flute"]) .only-flute { display: none !important; }
     var comp = ctx.createDynamicsCompressor();
     master.connect(comp); comp.connect(ctx.destination);
     bus = ctx.createGain(); bus.connect(master);
-    var conv = ctx.createConvolver();
+    conv = ctx.createConvolver();
     var len = Math.floor(ctx.sampleRate * 1.8);
     var ir = ctx.createBuffer(2, len, ctx.sampleRate);
     for (var c = 0; c < 2; c++) {
@@ -378,15 +511,42 @@ body:not([data-tab="flute"]) .only-flute { display: none !important; }
     var tone = ctx.createBiquadFilter(); tone.type = 'lowpass'; tone.frequency.value = 4200;
     var trim = ctx.createGain(); trim.gain.value = 0.3;
     drive.connect(shaper); shaper.connect(tone); tone.connect(trim); trim.connect(bus);
+
+    // Shared guitar chain: body resonance -> tone -> dry / overdrive / light reverb send
+    gch = { in: ctx.createGain(), b1: ctx.createBiquadFilter(), b2: ctx.createBiquadFilter(), tone: ctx.createBiquadFilter(),
+            dry: ctx.createGain(), drv: ctx.createGain(), rev: ctx.createGain() };
+    gch.b1.type = 'peaking'; gch.b2.type = 'peaking'; gch.tone.type = 'lowpass';
+    gch.in.connect(gch.b1); gch.b1.connect(gch.b2); gch.b2.connect(gch.tone);
+    gch.tone.connect(gch.dry); gch.tone.connect(gch.drv); gch.tone.connect(gch.rev);
+    gch.dry.connect(bus); gch.drv.connect(drive); gch.rev.connect(conv);
+    setGuitarChain();
+
+    // Drum pad output: a per-kit tone filter (the Lo-fi kit rolls off the top)
+    eOut = ctx.createBiquadFilter(); eOut.type = 'lowpass'; eOut.Q.value = 0.4;
+    eOut.connect(bus); setEpadKitTone();
+  }
+
+  // Move an AudioParam smoothly from wherever it is now, even mid-ramp
+  function glideTo(param, value, tc) {
+    var now = ctx.currentTime;
+    if (param.cancelAndHoldAtTime) param.cancelAndHoldAtTime(now);
+    else { param.cancelScheduledValues(now); param.setValueAtTime(param.value, now); }
+    param.setTargetAtTime(value, now, tc);
   }
 
   // Every sounding note, from every instrument, lives here so the total stays bounded.
   var live = [], MAX_VOICES = 14;
 
+  // Pinned voices (the tanpura drone) count toward the limit but are never the one stolen.
   function track(v) {
     live = live.filter(function (x) { return !x.done; });
     live.push(v);
-    while (live.length > MAX_VOICES) releaseVoice(live.shift(), 0.05);
+    while (live.length > MAX_VOICES) {
+      var k = 0;
+      while (k < live.length && live[k].pinned) k++;
+      if (k >= live.length - 1) break;
+      releaseVoice(live.splice(k, 1)[0], 0.05);
+    }
   }
 
   function mtof(m) { return 440 * Math.pow(2, (m - 69) / 12); }
@@ -703,71 +863,185 @@ body:not([data-tab="flute"]) .only-flute { display: none !important; }
   }
 
   /* ---------- Guitar ---------- */
-  var GTR_OPEN = [40, 45, 50, 55, 59, 64]; // E2 A2 D3 G3 B3 E4, drawn low string on top
+  var GTR6 = [40, 45, 50, 55, 59, 64]; // E2 A2 D3 G3 B3 E4, drawn low string on top
   var SHAPES = {
     C: [-1, 3, 2, 0, 1, 0], D: [-1, -1, 0, 2, 3, 2], E: [0, 2, 2, 1, 0, 0], F: [1, 3, 3, 2, 1, 1],
     G: [3, 2, 0, 0, 0, 3], A: [-1, 0, 2, 2, 2, 0], Am: [-1, 0, 2, 2, 1, 0], Dm: [-1, -1, 0, 2, 3, 1],
     Em: [0, 2, 2, 0, 0, 0], Bm: [-1, 2, 4, 4, 3, 2]
   };
+  // Ukulele frets for re-entrant G4 C4 E4 A4. Bass uses the guitar's lower four strings, an octave down.
+  var UKE = {
+    C: [0, 0, 0, 3], D: [2, 2, 2, 0], E: [1, 4, 0, 2], F: [2, 0, 1, 0], G: [0, 2, 3, 2],
+    A: [2, 1, 0, 0], Am: [2, 0, 0, 0], Dm: [2, 2, 1, 0], Em: [0, 4, 3, 2], Bm: [4, 2, 2, 2]
+  };
   var CHORD_ORDER = ['C', 'D', 'E', 'F', 'G', 'A', 'Am', 'Dm', 'Em', 'Bm'];
-  var gtr = { chord: 'G', sound: 'acoustic', ring: false, strVoice: [], strEls: [], held: {}, ptr: {}, rect: null };
+
+  // Each sound: tuning, Karplus-Strong recipe, body resonance (two peaks: Hz, Q, dB), tone and level.
+  // ks: sr render rate, len seconds, t60 sustain, bright pluck, pick position, damp loop lowpass (0-0.5),
+  //     buzz curved-bridge buzz, symp sympathetic strings [semitones, level]
+  var GTYPES = {
+    acoustic: { open: GTR6, ks: { sr: 24000, len: 3, t60: 4.5, bright: 0.65, pick: 0.13, damp: 0.5 }, body: [[110, 1.2, 5], [220, 1.5, 3]], tone: 7000, gain: 0.42, rel: 0.45 },
+    twelve: { open: GTR6, course: true, ks: { sr: 28000, len: 3, t60: 4.5, bright: 0.7, pick: 0.12, damp: 0.45 }, body: [[110, 1.2, 5], [230, 1.5, 3]], tone: 8500, gain: 0.34, rel: 0.5 },
+    nylon: { open: GTR6, ks: { sr: 22050, len: 2.4, t60: 2.6, bright: 0.3, pick: 0.2, damp: 0.5 }, body: [[100, 1.2, 5], [200, 1.4, 3]], tone: 3600, gain: 0.45, rel: 0.4 },
+    clean: { open: GTR6, ks: { sr: 24000, len: 3.4, t60: 6, bright: 0.55, pick: 0.1, damp: 0.4 }, body: [[400, 0.7, -2], [2500, 1, 3]], tone: 5500, gain: 0.38, rel: 0.35 },
+    crunch: { open: GTR6, drive: 4.5, ks: { sr: 24000, len: 3.4, t60: 6, bright: 0.6, pick: 0.1, damp: 0.4 }, body: [[120, 1, 2], [1800, 0.8, 4]], tone: 5000, gain: 0.5, rel: 0.3 },
+    jazz: { open: GTR6, ks: { sr: 22050, len: 2.8, t60: 3.2, bright: 0.25, pick: 0.25, damp: 0.5 }, body: [[140, 1, 5], [320, 1.3, 2]], tone: 2200, gain: 0.5, rel: 0.4 },
+    bass: { open: [28, 33, 38, 43], shape: 'bass', ks: { sr: 16000, len: 3.2, t60: 5, bright: 0.35, pick: 0.18, damp: 0.5 }, body: [[80, 1, 4], [700, 1, -3]], tone: 2500, gain: 0.6, rel: 0.3 },
+    uke: { open: [67, 60, 64, 69], shape: 'uke', ks: { sr: 24000, len: 2.2, t60: 2.6, bright: 0.45, pick: 0.2, damp: 0.5 }, body: [[250, 1.3, 5], [520, 1.4, 2]], tone: 6000, gain: 0.42, rel: 0.3 },
+    sitar: { open: GTR6, ks: { sr: 32000, len: 3.6, t60: 4, bright: 0.8, pick: 0.1, damp: 0.2, buzz: 0.55, symp: [[12, 0.1], [7, 0.07], [19, 0.06]] }, body: [[180, 2, 4], [1200, 2, 3]], tone: 9000, gain: 0.42, rel: 0.8 }
+  };
+  var TANPURA_KS = { sr: 24000, len: 5.5, t60: 7, bright: 0.7, pick: 0.08, damp: 0.25, buzz: 0.6 };
+  var gtr = { chord: 'G', sound: 'acoustic', ring: false, n: 6, strVoice: [], strEls: [], held: {}, ptr: {}, rect: null };
   var ksCache = {}, ksKeys = [];
 
-  function gtrMidi(i) { var f = SHAPES[gtr.chord][i]; return f < 0 ? -1 : GTR_OPEN[i] + f; }
+  function gType() { return GTYPES[gtr.sound]; }
+  function gShape() {
+    var t = gType();
+    return t.shape === 'uke' ? UKE[gtr.chord] : t.shape === 'bass' ? SHAPES[gtr.chord].slice(0, 4) : SHAPES[gtr.chord];
+  }
+  function gtrMidi(i) { var f = gShape()[i]; return f < 0 ? -1 : gType().open[i] + f; }
 
-  // Karplus-Strong plucked string, rendered once per note and cached.
-  // Rendered at 22.05 kHz to keep memory low; playbackRate fixes the tuning exactly.
-  function ksBuffer(midi, sound) {
-    var key = sound + midi;
-    if (ksCache[key]) return ksCache[key];
-    var sr = 22050, f = mtof(midi), N = Math.max(2, Math.round(sr / f - 0.5));
-    var nylon = sound === 'nylon';
-    var len = Math.floor(sr * (nylon ? 2.2 : 2.8));
-    var buf = ctx.createBuffer(1, len, sr), d = buf.getChannelData(0);
-    var bright = nylon ? 0.3 : 0.65, decay = nylon ? 0.993 : 0.9965, prev = 0, mean = 0, i;
-    for (i = 0; i < N; i++) { prev += bright * ((Math.random() * 2 - 1) - prev); d[i] = prev; mean += prev; }
-    mean /= N;
-    for (i = 0; i < N; i++) d[i] = (d[i] - mean) * 1.6;
-    d[N] = decay * 0.5 * (d[0] + d[N - 1]);
-    for (i = N + 1; i < len; i++) d[i] = decay * 0.5 * (d[i - N] + d[i - N - 1]);
-    var fade = Math.floor(sr * 0.05);
-    for (i = 0; i < fade; i++) d[len - 1 - i] *= i / fade;
-    var entry = { buf: buf, rate: f * (N + 0.5) / sr };
-    ksCache[key] = entry; ksKeys.push(key);
-    if (ksKeys.length > 48) delete ksCache[ksKeys.shift()];
-    return entry;
+  function setGuitarChain() {
+    if (!gch) return;
+    var t = gType();
+    gch.b1.frequency.value = t.body[0][0]; gch.b1.Q.value = t.body[0][1]; gch.b1.gain.value = t.body[0][2];
+    gch.b2.frequency.value = t.body[1][0]; gch.b2.Q.value = t.body[1][1]; gch.b2.gain.value = t.body[1][2];
+    gch.tone.frequency.value = t.tone;
+    gch.dry.gain.value = t.drive ? 0 : 1;
+    gch.drv.gain.value = t.drive ? 1 : 0;
+    drive.gain.value = t.drive || 2.5;
+    gch.rev.gain.value = 0.22; // light room on every guitar, on top of the global reverb
   }
 
-  function pluck(i, vel, owner) {
-    init();
-    var el = gtr.strEls[i];
-    if (el && el.firstChild.animate) {
+  // One plucked string mixed into d: a delay line with a lowpass for decay and an allpass for exact tuning.
+  function ksLine(d, sr, f, P, amp, bloom) {
+    var S = P.damp, period = sr / f;
+    var N = Math.max(2, Math.floor(period - S - 0.1)), D = period - S - N, C = (1 - D) / (1 + D);
+    var loopGain = Math.sqrt(1 - 2 * S * (1 - S) * (1 - Math.cos(2 * Math.PI * f / sr)));
+    var t60 = P.t60 * Math.pow(220 / f, 0.35);
+    var g = Math.min(0.9999, Math.pow(0.001, 1 / (t60 * f)) / loopGain);
+    var line = new Float32Array(N), x = new Float32Array(N), prev = 0, mean = 0, i;
+    for (i = 0; i < N; i++) { prev += P.bright * ((Math.random() * 2 - 1) - prev); x[i] = prev; }
+    var M = Math.max(1, Math.round(N * P.pick)); // pick position notches out some harmonics
+    for (i = 0; i < N; i++) { line[i] = x[i] - (i >= M ? x[i - M] : 0); mean += line[i]; }
+    mean /= N;
+    for (i = 0; i < N; i++) line[i] -= mean;
+    var idx = 0, last = 0, apx = 0, apy = 0, pk = 0, len = d.length, buzz = P.buzz || 0;
+    var bl = bloom ? 1 / (bloom * sr) : 0;
+    for (i = 0; i < len; i++) {
+      var cur = line[idx];
+      d[i] += cur * amp * (bl ? Math.min(1, i * bl) : 1);
+      var lp = g * ((1 - S) * cur + S * last); last = cur;
+      var ap = C * lp + apx - C * apy; apx = lp; apy = ap;
+      if (buzz) { // jawari: the string grazes a curved bridge and folds back above a moving threshold
+        var a = ap < 0 ? -ap : ap; pk = a > pk ? a : pk * 0.9997;
+        var th = pk * 0.5;
+        if (ap > th) ap = th - (ap - th) * buzz;
+      }
+      line[idx] = ap;
+      if (++idx === N) idx = 0;
+    }
+  }
+
+  // Rendered once per note and sound, then cached. Playback rate stays 1 apart from tiny detune.
+  function ksBuffer(midi, type) {
+    var key = type + midi;
+    if (ksCache[key]) return ksCache[key];
+    var P = type === 'tanpura' ? TANPURA_KS : GTYPES[type].ks, sr = P.sr, len = Math.floor(sr * P.len);
+    var buf = ctx.createBuffer(1, len, sr), d = buf.getChannelData(0), i, peak = 0;
+    ksLine(d, sr, mtof(midi), P, 1, 0);
+    (P.symp || []).forEach(function (s) { ksLine(d, sr, mtof(midi + s[0]), P, s[1], 0.15); });
+    for (i = 0; i < len; i++) { var a = Math.abs(d[i]); if (a > peak) peak = a; }
+    var norm = peak > 0 ? 0.9 / peak : 1, fin = Math.floor(sr * 0.002), fout = Math.floor(sr * 0.3);
+    for (i = 0; i < len; i++) {
+      var w = norm, r = len - 1 - i;
+      if (i < fin) w *= i / fin;
+      if (r < fout) w *= 0.5 - 0.5 * Math.cos(Math.PI * r / fout);
+      d[i] *= w;
+    }
+    ksCache[key] = buf; ksKeys.push(key);
+    if (ksKeys.length > 60) delete ksCache[ksKeys.shift()];
+    return buf;
+  }
+
+  // Render the current chord's notes ahead of time, one per tick so the UI never stalls
+  function gtrPrewarm() {
+    if (!ctx) return;
+    var type = gtr.sound, list = [];
+    for (var i = 0; i < gtr.n; i++) {
+      var m = gtrMidi(i);
+      if (m >= 0) { list.push(m); if (gType().course && i < 4) list.push(m + 12); }
+    }
+    (function next() {
+      if (!list.length || type !== gtr.sound) return;
+      ksBuffer(list.shift(), type);
+      setTimeout(next, 0);
+    })();
+  }
+
+  function gtrFlash(el) {
+    if (el.firstChild.animate) {
       el.firstChild.animate([{ transform: 'translateY(-50%) scaleY(2.4)' }, { transform: 'translateY(-50%)' }], { duration: 220 });
     }
-    var m = gtrMidi(i);
+    el.classList.add('hit'); clearTimeout(el._t);
+    el._t = setTimeout(function () { el.classList.remove('hit'); }, 160);
+  }
+
+  // delay: seconds from now (strum stagger). A few ms of random timing and cents of detune keep it human.
+  function pluck(i, vel, owner, delay) {
+    init();
+    var t = gType(), m = gtrMidi(i), el = gtr.strEls[i];
+    var at = Math.max(0, delay || 0) + Math.random() * 0.005;
+    if (el) setTimeout(function () { gtrFlash(el); }, at * 1000);
     if (m < 0) return;
-    releaseVoice(gtr.strVoice[i], 0.03); // a string can only ring once
-    var ks = ksBuffer(m, gtr.sound), t = ctx.currentTime;
-    var src = ctx.createBufferSource(); src.buffer = ks.buf; src.playbackRate.value = ks.rate;
-    var flt = ctx.createBiquadFilter(); flt.type = 'lowpass';
-    flt.frequency.value = gtr.sound === 'nylon' ? 2600 : gtr.sound === 'electric' ? 3500 : 6000;
-    var g = ctx.createGain(); g.gain.value = (gtr.sound === 'electric' ? 0.5 : 0.42) * vel;
-    src.connect(flt); flt.connect(g); g.connect(gtr.sound === 'electric' ? drive : bus);
-    src.start(t);
-    var v = { g: g, oscs: [src], rel: 0.5, done: false };
-    src.onended = function () { v.done = true; if (gtr.strVoice[i] === v) gtr.strVoice[i] = null; };
+    releaseVoice(gtr.strVoice[i], 0.04); // a string can only ring once
+    var when = ctx.currentTime + at, g = ctx.createGain(), srcs = [];
+    g.gain.setValueAtTime(0, when);
+    g.gain.linearRampToValueAtTime(t.gain * vel, when + 0.004); // fade-in, no click
+    g.connect(gch.in);
+    function play(midi, cents, offs, level) {
+      var s = ctx.createBufferSource(), sg = g;
+      s.buffer = ksBuffer(midi, gtr.sound);
+      s.playbackRate.value = Math.pow(2, cents / 1200);
+      if (level !== 1) { sg = ctx.createGain(); sg.gain.value = level; sg.connect(g); }
+      s.connect(sg); s.start(when + offs); srcs.push(s);
+    }
+    play(m, (Math.random() * 2 - 1) * 4, 0, 1);
+    // 12-string: each course has a partner string, an octave up on the low four
+    if (t.course) play(i < 4 ? m + 12 : m, 3 + Math.random() * 4, 0.006 + Math.random() * 0.006, i < 4 ? 0.55 : 0.7);
+    var v = { g: g, oscs: srcs, rel: t.rel, done: false };
+    srcs[srcs.length - 1].onended = function () {
+      v.done = true; g.disconnect();
+      if (gtr.strVoice[i] === v) gtr.strVoice[i] = null;
+    };
     gtr.strVoice[i] = v;
-    if (el) { el.classList.add('hit'); clearTimeout(el._t); el._t = setTimeout(function () { el.classList.remove('hit'); }, 160); }
     track(v);
     if (owner !== undefined) (gtr.held[owner] || (gtr.held[owner] = [])).push(v);
   }
 
-  // Finger lifted: strings it played fade out unless "Let ring" is on
+  // Finger lifted: strings it played fade out gently unless "Let ring" is on
   function gtrRelease(owner) {
     var list = gtr.held[owner];
     if (!list) return;
     delete gtr.held[owner]; delete gtr.ptr[owner];
     if (!gtr.ring) list.forEach(function (v) { releaseVoice(v, v.rel); });
+  }
+
+  function buildStrings() {
+    var neck = $('neck');
+    gtr.strVoice.forEach(function (v) { releaseVoice(v, 0.08); });
+    gtr.strEls.forEach(function (el) { el.remove(); });
+    gtr.strEls = []; gtr.strVoice = []; gtr.held = {}; gtr.ptr = {};
+    var n = gtr.n = gType().open.length;
+    for (var i = 0; i < n; i++) {
+      var s = document.createElement('div');
+      s.className = 'gstr';
+      s.style.top = ((i + 0.5) / n * 100) + '%';
+      var th = gtr.sound === 'bass' ? 7 - i * 1.1 : gtr.sound === 'uke' ? [2.4, 3.6, 3, 2.2][i] : 5 - i * 0.6;
+      s.innerHTML = '<i style="height:' + th.toFixed(1) + 'px"></i><b></b>';
+      neck.appendChild(s); gtr.strEls.push(s);
+    }
+    labelStrings();
   }
 
   function buildGuitar() {
@@ -783,29 +1057,22 @@ body:not([data-tab="flute"]) .only-flute { display: none !important; }
       if (!b) return;
       gtr.chord = b.dataset.chord;
       chords.querySelectorAll('[data-chord]').forEach(function (x) { x.setAttribute('aria-pressed', x === b); });
-      labelStrings();
+      labelStrings(); gtrPrewarm();
     });
-    for (var i = 0; i < 6; i++) {
-      var s = document.createElement('div');
-      s.className = 'gstr';
-      s.style.top = ((i + 0.5) / 6 * 100) + '%';
-      s.innerHTML = '<i style="height:' + (5 - i * 0.6).toFixed(1) + 'px"></i><b></b>';
-      neck.appendChild(s); gtr.strEls.push(s);
-    }
-    labelStrings();
+    buildStrings();
 
     function yOf(e) { return e.clientY - gtr.rect.top; }
-    function lineY(i) { return (i + 0.5) / 6 * gtr.rect.height; }
+    function lineY(i) { return (i + 0.5) / gtr.n * gtr.rect.height; }
 
     neck.addEventListener('pointerdown', function (e) {
       e.preventDefault();
       try { neck.setPointerCapture(e.pointerId); } catch (err) {}
       gtr.rect = neck.getBoundingClientRect();
-      var y = yOf(e), i = Math.max(0, Math.min(5, Math.floor(y / gtr.rect.height * 6)));
+      var y = yOf(e), i = Math.max(0, Math.min(gtr.n - 1, Math.floor(y / gtr.rect.height * gtr.n)));
       // Snap the tracked position onto the string we just plucked so moving off it doesn't re-pluck it
-      gtr.ptr[e.pointerId] = { y: lineY(i), t: e.timeStamp, last: [] };
-      gtr.ptr[e.pointerId].last[i] = e.timeStamp;
-      pluck(i, 0.8, e.pointerId);
+      var p = gtr.ptr[e.pointerId] = { y: lineY(i), t: e.timeStamp, last: [], speed: 0, next: 0, dir: 0 };
+      p.last[i] = e.timeStamp;
+      pluck(i, 0.7, e.pointerId);
     });
 
     neck.addEventListener('pointermove', function (e) {
@@ -815,14 +1082,20 @@ body:not([data-tab="flute"]) .only-flute { display: none !important; }
       if (!evs.length) evs = [e];
       evs.forEach(function (ev) {
         var y = yOf(ev), dt = Math.max(1, ev.timeStamp - p.t);
-        var vel = Math.max(0.45, Math.min(1, 0.45 + 0.25 * Math.abs(y - p.y) / dt));
-        var down = y > p.y;
-        for (var k = 0; k < 6; k++) {
-          var i = down ? k : 5 - k, ly = lineY(i);
+        p.speed = p.speed * 0.5 + 0.5 * Math.abs(y - p.y) / dt; // px per ms, smoothed
+        var fast = Math.max(0, Math.min(1, (p.speed - 0.2) / 3));
+        var vel = 0.35 + 0.65 * fast;        // faster swipe = louder
+        var gap = 0.025 - 0.015 * fast;      // strum stagger: 25 ms slow, 10 ms fast
+        var down = y > p.y, dir = down ? 1 : -1;
+        if (dir !== p.dir) { p.dir = dir; p.next = 0; }
+        for (var k = 0; k < gtr.n; k++) {
+          var i = down ? k : gtr.n - 1 - k, ly = lineY(i);
           var crossed = down ? (p.y < ly && y >= ly) : (p.y > ly && y <= ly);
           if (crossed && !(ev.timeStamp - (p.last[i] || -1e9) < 70)) {
             p.last[i] = ev.timeStamp;
-            pluck(i, vel, e.pointerId);
+            var now = ctx.currentTime, when = Math.max(now, p.next);
+            pluck(i, vel, e.pointerId, when - now);
+            p.next = when + gap;
           }
         }
         p.y = y; p.t = ev.timeStamp;
@@ -832,7 +1105,7 @@ body:not([data-tab="flute"]) .only-flute { display: none !important; }
   }
 
   function labelStrings() {
-    for (var i = 0; i < 6; i++) {
+    for (var i = 0; i < gtr.n; i++) {
       var m = gtrMidi(i), el = gtr.strEls[i];
       el.classList.toggle('mute', m < 0);
       el.lastChild.textContent = m < 0 ? '×' : CHROMA[m % 12];
@@ -840,9 +1113,7 @@ body:not([data-tab="flute"]) .only-flute { display: none !important; }
   }
 
   function strum(owner) {
-    for (var i = 0; i < 6; i++) (function (i) {
-      setTimeout(function () { pluck(i, 0.8, owner); }, i * 14);
-    })(i);
+    for (var i = 0; i < gtr.n; i++) pluck(i, 0.8, owner, i * 0.018);
   }
 
   /* ---------- Flute ---------- */
@@ -967,11 +1238,592 @@ body:not([data-tab="flute"]) .only-flute { display: none !important; }
   });
   flute.addEventListener('contextmenu', function (e) { e.preventDefault(); });
 
+  /* ---------- Tabla ---------- */
+  // Partials are [ratio to the drum's pitch, level, decay seconds]; the syahi makes the dayan nearly harmonic.
+  // n is a noise layer: [filter type, Hz, Q, seconds, level]. glide: strike pitch that settles back down.
+  var BOLS = {
+    Na: { d: 1, p: [[1, 0.15, 0.25], [2, 0.9, 0.8], [3, 0.55, 0.55], [4, 0.3, 0.4], [5, 0.18, 0.25], [6.02, 0.08, 0.15]], n: ['highpass', 3200, 0.7, 0.018, 0.35] },
+    Tin: { d: 1, p: [[1, 0.7, 1.2], [2, 0.45, 0.85], [3, 0.22, 0.5], [4, 0.1, 0.3]], n: ['bandpass', 2600, 0.8, 0.012, 0.2] },
+    Tun: { d: 1, p: [[1, 1, 1.7], [2, 0.3, 0.8], [3, 0.1, 0.35]], n: ['lowpass', 1400, 0.7, 0.015, 0.25] },
+    Te: { d: 1, p: [[1, 0.45, 0.07], [2, 0.3, 0.05], [3, 0.15, 0.04]], n: ['bandpass', 1100, 0.9, 0.07, 0.6] },
+    Ti: { d: 1, p: [[1, 0.25, 0.06], [2, 0.35, 0.05], [3, 0.25, 0.04]], n: ['bandpass', 2300, 1, 0.05, 0.55] },
+    Ge: { glide: 1.2, p: [[1, 1, 1.6], [2, 0.22, 0.6], [3, 0.07, 0.3]], n: ['lowpass', 350, 0.7, 0.05, 0.5] },
+    Ga: { ratio: 1.12, glide: 1.1, p: [[1, 0.8, 1.1], [2, 0.35, 0.5], [3, 0.15, 0.3]], n: ['bandpass', 900, 0.8, 0.025, 0.35] },
+    Ke: { p: [[1, 0.6, 0.06], [1.6, 0.3, 0.04]], n: ['lowpass', 700, 0.7, 0.07, 0.8] }
+  };
+  // Zones by distance from the centre (skin radius 100); Te and Ti split the syahi ring left / right.
+  var DAYAN_Z = [
+    { bol: 'Tun', r: [0, 25], c: 'sy', lx: 0, ly: 0 },
+    { bol: 'Te', r: [25, 55], half: 'L', c: 'sy2', lx: -40, ly: 0 },
+    { bol: 'Ti', r: [25, 55], half: 'R', c: 'sy2', lx: 40, ly: 0 },
+    { bol: 'Tin', r: [55, 82], c: 'mai', lx: 0, ly: -68 },
+    { bol: 'Na', r: [82, 108], c: 'kin', lx: 0, ly: -91 }
+  ];
+  var BAYAN_Z = [
+    { bol: 'Ke', r: [0, 40], c: 'sy', lx: 0, ly: 0 },
+    { bol: 'Ge', r: [40, 82], c: 'mai', lx: 0, ly: -61 },
+    { bol: 'Ga', r: [82, 108], c: 'kin', lx: 0, ly: -91 }
+  ];
+  var ZFILL = { sy: 'var(--syahi)', sy2: 'color-mix(in srgb, var(--syahi) 86%, var(--skin))', mai: 'var(--skin)', kin: 'var(--kinar)' };
+  var TANPURA = [-17, -12, -12, -24], TANPURA_GAP = [0.7, 0.7, 0.7, 1.1]; // Pa, Sa, Sa, low Sa
+  var tb = { sa: 0, fine: 0, dV: null, bV: null, bend: {}, slide: {}, drone: null, droneT: 0, next: 0, step: 0, drums: {} };
+
+  // Sa between F3 and E4 so the dayan stays in its natural range
+  function saMidi() { return (tb.sa <= 4 ? 60 + tb.sa : 48 + tb.sa) + tb.fine / 100; }
+
+  function tablaStroke(bol, vel) {
+    init();
+    var B = BOLS[bol], t = ctx.currentTime;
+    var prev = B.d ? tb.dV : tb.bV;
+    releaseVoice(prev, 0.03); // one skin per drum: a new stroke damps the last one
+    var f0 = mtof(saMidi() - (B.d ? 0 : 17)) * (B.ratio || 1);
+    var g = ctx.createGain(); g.gain.value = vel * 0.38; g.connect(bus);
+    var v = { g: g, oscs: [], parts: [], rel: 0.05, done: false, f0: f0 }, longest = 0, last = null;
+    function fin(src, at) { src.stop(at + 0.03); v.oscs.push(src); if (at > longest) { longest = at; last = src; } }
+    B.p.forEach(function (h) {
+      var o = ctx.createOscillator(), og = ctx.createGain(), f = f0 * h[0];
+      o.frequency.setValueAtTime(f * (B.glide || 1.012), t); // skin tension settles after the strike
+      o.frequency.exponentialRampToValueAtTime(f, t + (B.glide ? 0.07 : 0.04));
+      og.gain.setValueAtTime(0, t);
+      og.gain.linearRampToValueAtTime(h[1], t + 0.002);
+      og.gain.exponentialRampToValueAtTime(0.0001, t + h[2]);
+      o.connect(og); og.connect(g); o.start(t); fin(o, t + h[2]);
+      v.parts.push({ o: o, r: h[0] });
+    });
+    if (B.n) {
+      var s = ctx.createBufferSource(), f = ctx.createBiquadFilter(), ng = ctx.createGain();
+      s.buffer = noiseBuf; f.type = B.n[0]; f.frequency.value = B.n[1]; f.Q.value = B.n[2];
+      ng.gain.setValueAtTime(0, t);
+      ng.gain.linearRampToValueAtTime(B.n[4], t + 0.001);
+      ng.gain.exponentialRampToValueAtTime(0.0001, t + B.n[3]);
+      s.connect(f); f.connect(ng); ng.connect(g); s.start(t, Math.random() * 1.5); fin(s, t + B.n[3]);
+    }
+    last.onended = function () { v.done = true; g.disconnect(); };
+    if (B.d) tb.dV = v; else tb.bV = v;
+    track(v);
+    return v;
+  }
+
+  // Heel of the palm on the bayan: raises the pitch of the ringing Ge
+  function bendBayan(v, semis) {
+    if (!v || v.done) return;
+    var k = Math.pow(2, semis / 12);
+    v.parts.forEach(function (p) { glideTo(p.o.frequency, v.f0 * p.r * k, 0.03); });
+  }
+
+  function svgEl(tag, attrs) {
+    var e = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+  function zonePath(z) {
+    var a = z.r[0], b = Math.min(z.r[1], 100);
+    if (z.half) {
+      var s1 = z.half === 'L' ? 0 : 1, s2 = 1 - s1;
+      return 'M0 ' + (-b) + 'A' + b + ' ' + b + ' 0 0 ' + s1 + ' 0 ' + b + 'L0 ' + a + 'A' + a + ' ' + a + ' 0 0 ' + s2 + ' 0 ' + (-a) + 'Z';
+    }
+    var p = 'M' + b + ' 0A' + b + ' ' + b + ' 0 1 0 ' + (-b) + ' 0A' + b + ' ' + b + ' 0 1 0 ' + b + ' 0Z';
+    if (a > 0) p += 'M' + a + ' 0A' + a + ' ' + a + ' 0 1 1 ' + (-a) + ' 0A' + a + ' ' + a + ' 0 1 1 ' + a + ' 0Z';
+    return p;
+  }
+
+  // Draws a drum and wires its touch handling. kind: 'd' dayan or 'b' bayan.
+  function buildDrum(id, kind, bolId, opts) {
+    var svg = $(id), zones = kind === 'd' ? DAYAN_Z : BAYAN_Z;
+    var dr = { svg: svg, kind: kind, bolEl: $(bolId), els: {}, rect: null };
+    svg.appendChild(svgEl('circle', { r: 110, fill: kind === 'd' ? 'var(--shell)' : 'var(--shell-2)' }));
+    for (var k = 0; k < 16; k++) {
+      var a = k / 16 * Math.PI * 2;
+      svg.appendChild(svgEl('circle', { cx: (105.5 * Math.cos(a)).toFixed(1), cy: (105.5 * Math.sin(a)).toFixed(1), r: 2.2, fill: 'rgba(0,0,0,.3)' }));
+    }
+    zones.forEach(function (z) {
+      var p = svgEl('path', { d: zonePath(z), 'fill-rule': 'evenodd', fill: ZFILL[z.c], stroke: 'rgba(0,0,0,.28)', 'stroke-width': 0.6, class: 'z' });
+      svg.appendChild(p); dr.els[z.bol] = p;
+    });
+    zones.forEach(function (z) {
+      var tx = svgEl('text', { x: z.lx, y: z.ly, class: z.c.indexOf('sy') === 0 ? 'lt' : 'dt' });
+      tx.textContent = z.bol; svg.appendChild(tx);
+    });
+
+    function zoneAt(x, y) {
+      var r = dr.rect, sc = Math.min(r.width, r.height) / 224;
+      var dx = (x - r.left - r.width / 2) / sc, dy = (y - r.top - r.height / 2) / sc, d = Math.sqrt(dx * dx + dy * dy);
+      for (var i = 0; i < zones.length; i++) {
+        var z = zones[i];
+        if (d >= z.r[0] && d < z.r[1] && (!z.half || (z.half === 'L') === (dx < 0))) return z;
+      }
+      return null;
+    }
+
+    svg.addEventListener('pointerdown', function (e) {
+      dr.rect = svg.getBoundingClientRect();
+      var z = zoneAt(e.clientX, e.clientY);
+      if (!z) return;
+      e.preventDefault();
+      try { svg.setPointerCapture(e.pointerId); } catch (err) {}
+      var v = tablaHit(z.bol, dr);
+      if (kind === 'b') tb.bend[e.pointerId] = { y: e.clientY, h: dr.rect.height, v: v };
+      if (opts && opts.slide) tb.slide[e.pointerId] = { dr: dr, bol: z.bol, zoneAt: zoneAt };
+    });
+    svg.addEventListener('pointermove', function (e) {
+      var b = tb.bend[e.pointerId];
+      if (b) bendBayan(b.v, Math.max(-3, Math.min(8, (b.y - e.clientY) / (b.h * 0.4) * 8)));
+      var s = tb.slide[e.pointerId];
+      if (s) { // sliding into another zone strikes it: one finger can roll across the skin
+        var z = s.zoneAt(e.clientX, e.clientY);
+        if (z && z.bol !== s.bol) { s.bol = z.bol; tablaHit(z.bol, dr, null, 0.7); }
+      }
+    });
+    svg.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+    return dr;
+  }
+
+  function flashZone(dr, bol, label) {
+    var el = dr.els[bol];
+    if (el) { el.classList.add('on'); clearTimeout(el._t); el._t = setTimeout(function () { el.classList.remove('on'); }, 120); }
+    dr.bolEl.textContent = label;
+    dr.bolEl.classList.add('show'); clearTimeout(dr.bolEl._t);
+    dr.bolEl._t = setTimeout(function () { dr.bolEl.classList.remove('show'); }, 260);
+  }
+
+  function tablaHit(bol, dr, label, vel) {
+    var v = tablaStroke(bol, (vel || 0.92) + (Math.random() - 0.5) * 0.08);
+    if (dr) flashZone(dr, bol, label || bol);
+    return v;
+  }
+
+  // Strokes played together or in quick succession: [bol, drum, label, ms]
+  var COMBOS = {
+    dha: [['Na', 'd', 'Dha', 0], ['Ge', 'b', 'Dha', 0]],
+    dhin: [['Tin', 'd', 'Dhin', 0], ['Ge', 'b', 'Dhin', 0]],
+    tirakita: [['Te', 'd', 'Ti', 0], ['Ti', 'd', 'Ra', 85], ['Ke', 'b', 'Ki', 170], ['Na', 'd', 'Ta', 255]]
+  };
+  function playCombo(name) {
+    COMBOS[name].forEach(function (s) {
+      var go = function () { tablaHit(s[0], s[1] === 'd' ? tb.drums.d2 : tb.drums.b2, s[2]); };
+      if (s[3]) setTimeout(go, s[3]); else go();
+    });
+  }
+
+  function tablaUp(id) { delete tb.bend[id]; delete tb.slide[id]; }
+
+  // Tanpura drone: Pa Sa Sa low-Sa, plucked in a cycle. One pinned voice in the shared limit.
+  function droneTick() {
+    var v = tb.drone;
+    if (!v || v.done) return;
+    while (tb.next < ctx.currentTime + 0.4) {
+      var k = tb.step % 4, sm = saMidi(), base = Math.round(sm);
+      var s = ctx.createBufferSource(), sg = ctx.createGain();
+      s.buffer = ksBuffer(base + TANPURA[k], 'tanpura');
+      s.playbackRate.value = Math.pow(2, (sm - base) / 12);
+      sg.gain.value = k === 3 ? 0.9 : 0.65;
+      s.connect(sg); sg.connect(v.g); s.start(tb.next);
+      v.oscs.push(s);
+      s.onended = (function (s, sg) {
+        return function () { sg.disconnect(); var i = v.oscs.indexOf(s); if (i >= 0) v.oscs.splice(i, 1); };
+      })(s, sg);
+      tb.next += TANPURA_GAP[k]; tb.step++;
+    }
+  }
+  function setDrone(on) {
+    if (on && !tb.drone) {
+      init();
+      var t = ctx.currentTime, g = ctx.createGain();
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.32, t + 0.4); g.connect(bus);
+      tb.drone = { g: g, oscs: [], rel: 0.9, done: false, pinned: true };
+      track(tb.drone);
+      tb.step = 0; tb.next = t + 0.05;
+      droneTick(); tb.droneT = setInterval(droneTick, 150);
+    } else if (!on && tb.drone) {
+      clearInterval(tb.droneT);
+      releaseVoice(tb.drone, tb.drone.rel);
+      tb.drone = null;
+    }
+    $('drone').setAttribute('aria-pressed', !!tb.drone);
+  }
+
+  function buildTabla() {
+    tb.drums.b2 = buildDrum('bayan2', 'b', 'bolB');
+    tb.drums.d2 = buildDrum('dayan2', 'd', 'bolD');
+    tb.drums.d1 = buildDrum('dayan1', 'd', 'bolS', { slide: true });
+    var combos = $('combos');
+    combos.addEventListener('pointerdown', function (e) {
+      var b = e.target.closest('[data-combo]');
+      if (!b) return;
+      e.preventDefault();
+      playCombo(b.dataset.combo);
+      b.classList.add('on'); clearTimeout(b._t);
+      b._t = setTimeout(function () { b.classList.remove('on'); }, 140);
+    });
+    combos.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+    var sa = $('sa');
+    CHROMA.forEach(function (n, i) {
+      var o = document.createElement('option'); o.value = i; o.textContent = 'Sa = ' + n; sa.appendChild(o);
+    });
+  }
+
+  /* ---------- Electric drum pad ---------- */
+  // 16 pads per kit, top row first: [name, recipe, params]. lp is the kit's overall tone.
+  var EKITS = {
+    electro: { lp: 18000, pads: [
+      ['Kick', 'kick', { f0: 140, f1: 45, sw: 0.25, d: 0.8, click: 0.25 }],
+      ['Kick 2', 'kick', { f0: 220, f1: 55, sw: 0.08, d: 0.35, click: 0.5 }],
+      ['Snare', 'snare', { tf: 210, td: 0.12, nt: 'bandpass', nf: 2500, nq: 0.6, d: 0.2, nl: 0.9 }],
+      ['Clap', 'clap', { f: 1200, d: 0.22 }],
+      ['Closed hat', 'hat', { d: 0.05, metal: 1 }],
+      ['Open hat', 'hat', { d: 0.4, metal: 1 }],
+      ['Rim', 'rim', { f: 1700, d: 0.04 }],
+      ['Crash', 'cym', { d: 1.3, metal: 1 }],
+      ['Tom low', 'tom', { f0: 130, f1: 70, d: 0.6 }],
+      ['Tom mid', 'tom', { f0: 190, f1: 105, d: 0.5 }],
+      ['Tom high', 'tom', { f0: 270, f1: 150, d: 0.4 }],
+      ['Cowbell', 'cow', { f: 540, d: 0.35 }],
+      ['Zap', 'zap', { f0: 2400, f1: 90, d: 0.18 }],
+      ['Blip', 'blip', { f: 880, d: 0.15, type: 'square' }],
+      ['Sub', 'sub', { f: 55, d: 1 }],
+      ['Stab', 'stab', { m: 57, iv: [0, 3, 7, 10], d: 0.35, type: 'sawtooth', lp: 2200 }]
+    ] },
+    trap: { lp: 18000, pads: [
+      ['808', 'sub', { f: 50, d: 1.4, click: 0.4 }],
+      ['808 slide', 'sub', { f: 55, d: 1.6, glide: 1.8 }],
+      ['Kick', 'kick', { f0: 180, f1: 48, sw: 0.07, d: 0.3, click: 0.6 }],
+      ['Snare', 'snare', { tf: 240, td: 0.08, nt: 'highpass', nf: 3500, nq: 0.7, d: 0.16, nl: 0.9 }],
+      ['Closed hat', 'hat', { d: 0.035 }],
+      ['Hat roll', 'roll', { n: 3, gap: 0.055 }],
+      ['Open hat', 'hat', { d: 0.35 }],
+      ['Clap', 'clap', { f: 1500, d: 0.25 }],
+      ['Rim', 'rim', { f: 1900, d: 0.035 }],
+      ['Snap', 'snap', {}],
+      ['Perc', 'blip', { f: 620, d: 0.1, type: 'triangle' }],
+      ['Tom', 'tom', { f0: 160, f1: 80, d: 0.7 }],
+      ['Shaker', 'shaker', { d: 0.09 }],
+      ['Bell', 'kalimba', { f: 1046, d: 1.1 }],
+      ['Crash', 'cym', { d: 1.5 }],
+      ['Stab', 'stab', { m: 58, iv: [0, 3, 7], d: 0.4, type: 'sawtooth', lp: 1800 }]
+    ] },
+    house: { lp: 16000, pads: [
+      ['Kick', 'kick', { f0: 160, f1: 50, sw: 0.1, d: 0.5, click: 0.35 }],
+      ['Deep kick', 'kick', { f0: 110, f1: 42, sw: 0.18, d: 0.75, click: 0.15 }],
+      ['Clap', 'clap', { f: 1100, d: 0.3 }],
+      ['Snare', 'snare', { tf: 190, td: 0.1, nt: 'highpass', nf: 1800, nq: 0.6, d: 0.18, nl: 0.7 }],
+      ['Closed hat', 'hat', { d: 0.05 }],
+      ['Open hat', 'hat', { d: 0.32 }],
+      ['Ride', 'cym', { d: 1.1, metal: 1 }],
+      ['Shaker', 'shaker', { d: 0.1 }],
+      ['Conga low', 'conga', { f: 200, d: 0.35 }],
+      ['Conga high', 'conga', { f: 300, d: 0.25 }],
+      ['Rim', 'rim', { f: 1600, d: 0.04 }],
+      ['Tom', 'tom', { f0: 180, f1: 110, d: 0.45 }],
+      ['Bass', 'stab', { m: 36, iv: [0], d: 0.3, type: 'sawtooth', lp: 500 }],
+      ['Organ', 'stab', { m: 60, iv: [0, 4, 7], d: 0.3, type: 'square', lp: 1800 }],
+      ['Chord', 'stab', { m: 57, iv: [0, 3, 7, 10, 14], d: 0.45, type: 'sawtooth', lp: 2600 }],
+      ['Crash', 'cym', { d: 1.4 }]
+    ] },
+    lofi: { lp: 3200, pads: [
+      ['Kick', 'kick', { f0: 100, f1: 45, sw: 0.12, d: 0.45, click: 0.1 }],
+      ['Kick 2', 'kick', { f0: 130, f1: 50, sw: 0.06, d: 0.3, click: 0.2 }],
+      ['Snare', 'snare', { tf: 180, td: 0.12, nt: 'bandpass', nf: 1500, nq: 0.5, d: 0.25, nl: 0.6 }],
+      ['Rim', 'rim', { f: 1400, d: 0.05 }],
+      ['Closed hat', 'hat', { d: 0.05 }],
+      ['Open hat', 'hat', { d: 0.3 }],
+      ['Shaker', 'shaker', { d: 0.12 }],
+      ['Tamb', 'tamb', { d: 0.18 }],
+      ['Snap', 'snap', {}],
+      ['Clap', 'clap', { f: 1000, d: 0.2 }],
+      ['Tom', 'tom', { f0: 150, f1: 90, d: 0.5 }],
+      ['Kalimba', 'kalimba', { f: 523, d: 0.9 }],
+      ['Keys', 'stab', { m: 60, iv: [0, 4, 7, 11], d: 0.9, type: 'triangle', lp: 1500, a: 0.012 }],
+      ['Sub', 'sub', { f: 49, d: 0.9 }],
+      ['Crackle', 'crackle', { d: 1.2 }],
+      ['Crash', 'cym', { d: 1.2 }]
+    ] }
+  };
+  var EKEYS = '1234qwerasdfzxcv';
+  var ep = { kit: 'electro', sel: 0, tune: {}, steps: [], playing: false, rec: false, bpm: 100, n: 0, next: 0, timer: 0, raf: 0, cur: -1, els: [], stepEls: [] };
+  Object.keys(EKITS).forEach(function (k) {
+    ep.tune[k] = [];
+    for (var i = 0; i < 16; i++) ep.tune[k].push({ p: 0, d: 1 });
+  });
+  for (var es = 0; es < 16; es++) ep.steps.push([]);
+
+  function setEpadKitTone() { if (eOut) eOut.frequency.value = EKITS[ep.kit].lp; }
+
+  // One pad hit, optionally scheduled ahead (the loop). Pitch and decay knobs scale every recipe.
+  function ehit(i, vel, when) {
+    init();
+    var pad = EKITS[ep.kit].pads[i], P = pad[2], tune = ep.tune[ep.kit][i];
+    var pk = Math.pow(2, tune.p / 12), dk = tune.d, t = Math.max(when || 0, ctx.currentTime);
+    var g = ctx.createGain(); g.gain.value = vel * 0.85; g.connect(eOut);
+    var v = { g: g, oscs: [], rel: 0.04, done: false }, longest = 0, last = null;
+
+    function fin(src, at) { src.stop(at + 0.02); v.oscs.push(src); if (at > longest) { longest = at; last = src; } }
+    function env(node, level, attack, dur, at0) {
+      var st = t + (at0 || 0);
+      node.gain.setValueAtTime(0, t);
+      node.gain.setValueAtTime(0, st);
+      node.gain.linearRampToValueAtTime(level, st + attack);
+      node.gain.exponentialRampToValueAtTime(0.0001, st + attack + dur * dk);
+      return st + attack + dur * dk;
+    }
+    function tone(type, f0, f1, sweep, dur, level, at0) {
+      var o = ctx.createOscillator(), og = ctx.createGain(), st = t + (at0 || 0);
+      o.type = type; o.frequency.setValueAtTime(f0 * pk, st);
+      if (f1 !== f0) o.frequency.exponentialRampToValueAtTime(f1 * pk, st + sweep);
+      var end = env(og, level, 0.002, dur, at0);
+      o.connect(og); og.connect(g); o.start(st); fin(o, end);
+    }
+    function noise(type, freq, q, dur, level, at0, attack) {
+      var s = ctx.createBufferSource(), f = ctx.createBiquadFilter(), ng = ctx.createGain();
+      s.buffer = noiseBuf; s.loop = true;
+      f.type = type; f.frequency.value = Math.min(18000, freq * pk); f.Q.value = q;
+      var end = env(ng, level, attack || 0.001, dur, at0);
+      s.connect(f); f.connect(ng); ng.connect(g); s.start(t + (at0 || 0), Math.random() * 1.5); fin(s, end);
+    }
+    function metal(dur, level) {
+      var hp = ctx.createBiquadFilter(), mg = ctx.createGain();
+      hp.type = 'highpass'; hp.frequency.value = Math.min(16000, 7000 * pk);
+      var end = env(mg, level, 0.001, dur);
+      hp.connect(mg); mg.connect(g);
+      [205.3, 304.4, 369.6, 522.7, 540, 800].forEach(function (f) {
+        var o = ctx.createOscillator(); o.type = 'square'; o.frequency.value = f * 1.5 * pk;
+        o.connect(hp); o.start(t); fin(o, end);
+      });
+    }
+    function chord(type, freqs, lp, attack, dur, level) {
+      var f = ctx.createBiquadFilter(), cg = ctx.createGain();
+      f.type = 'lowpass'; f.frequency.value = lp; f.Q.value = 0.8;
+      var end = env(cg, level, attack, dur);
+      f.connect(cg); cg.connect(g);
+      freqs.forEach(function (fr, k) {
+        var o = ctx.createOscillator(); o.type = type; o.frequency.value = fr * pk;
+        o.detune.value = (k % 2 ? 6 : -6);
+        o.connect(f); o.start(t); fin(o, end);
+      });
+    }
+
+    switch (pad[1]) {
+      case 'kick':
+        tone('sine', P.f0, P.f1, P.sw, P.d, 1);
+        if (P.click) noise('highpass', 1500, 0.7, 0.015, P.click);
+        break;
+      case 'sub':
+        tone('sine', P.f * (P.glide || 1.25), P.f, P.glide ? 0.25 : 0.04, P.d, 1);
+        tone('triangle', P.f * 2, P.f * 2, 0, P.d * 0.5, 0.12);
+        if (P.click) noise('highpass', 2000, 0.7, 0.012, P.click);
+        break;
+      case 'snare':
+        tone('triangle', P.tf, P.tf * 0.85, 0.05, P.td, 0.5);
+        noise(P.nt, P.nf, P.nq, P.d, P.nl);
+        break;
+      case 'clap':
+        noise('bandpass', P.f, 1.2, 0.03, 0.9, 0); noise('bandpass', P.f, 1.2, 0.03, 0.9, 0.011);
+        noise('bandpass', P.f, 1.2, 0.03, 0.9, 0.022); noise('bandpass', P.f, 1.1, P.d, 0.8, 0.033);
+        break;
+      case 'rim':
+        tone('triangle', P.f, P.f, 0, P.d, 0.55); noise('bandpass', P.f * 1.4, 4, P.d * 0.6, 0.4);
+        break;
+      case 'hat':
+        if (P.metal) metal(P.d, 0.35); else noise('highpass', 7000, 0.8, P.d, 0.6);
+        break;
+      case 'roll':
+        for (var r = 0; r < P.n; r++) noise('highpass', 8000, 0.8, 0.035, 0.35 + 0.15 * r, r * P.gap);
+        break;
+      case 'cym':
+        noise('highpass', 5000, 0.5, P.d, 0.45); noise('bandpass', 9000, 1, P.d * 0.7, 0.3);
+        if (P.metal) metal(P.d * 0.9, 0.12);
+        break;
+      case 'tom':
+        tone('sine', P.f0, P.f1, P.d * 0.5, P.d, 0.9); noise('lowpass', 1200, 0.7, 0.02, 0.2);
+        break;
+      case 'conga':
+        tone('sine', P.f * 1.15, P.f, 0.03, P.d, 0.8); noise('bandpass', P.f * 4, 1, 0.015, 0.3);
+        break;
+      case 'cow':
+        chord('square', [P.f, P.f * 1.48], 2600, 0.001, P.d, 0.3);
+        break;
+      case 'zap':
+        tone('sine', P.f0, P.f1, P.d * 0.8, P.d, 0.6);
+        break;
+      case 'blip':
+        tone(P.type, P.f, P.f, 0, P.d, 0.35);
+        break;
+      case 'kalimba':
+        tone('sine', P.f, P.f, 0, P.d, 0.45); tone('sine', P.f * 5.4, P.f * 5.4, 0, P.d * 0.12, 0.1);
+        break;
+      case 'stab':
+        chord(P.type, P.iv.map(function (s) { return mtof(P.m + s); }), P.lp, P.a || 0.004, P.d, 0.5 / Math.sqrt(P.iv.length));
+        break;
+      case 'shaker':
+        noise('bandpass', 6000, 1.2, P.d, 0.5, 0, 0.012);
+        break;
+      case 'tamb':
+        noise('highpass', 7500, 1, 0.08, 0.45); noise('bandpass', 9500, 3, P.d, 0.5, 0.008);
+        break;
+      case 'snap':
+        noise('bandpass', 2200, 2, 0.05, 0.9); tone('sine', 1800, 1800, 0, 0.03, 0.2);
+        break;
+      case 'crackle':
+        noise('bandpass', 3000, 0.5, P.d, 0.08);
+        for (var c = 0; c < 9; c++) noise('highpass', 2500, 0.7, 0.004, 0.3 + Math.random() * 0.5, Math.random() * P.d);
+        break;
+    }
+    last.onended = function () { v.done = true; g.disconnect(); };
+    track(v);
+    var el = ep.els[i];
+    setTimeout(function () {
+      el.classList.add('on'); clearTimeout(el._t);
+      el._t = setTimeout(function () { el.classList.remove('on'); }, 100);
+    }, Math.max(0, (t - ctx.currentTime) * 1000));
+  }
+
+  function epadHit(i, vel) {
+    ehit(i, vel);
+    selectPad(i);
+    recordHit(i, vel);
+  }
+
+  function labelPads() {
+    var pads = EKITS[ep.kit].pads;
+    ep.els.forEach(function (el, i) { el.innerHTML = pads[i][0] + '<small>' + EKEYS[i].toUpperCase() + '</small>'; });
+    selectPad(ep.sel);
+  }
+
+  /* 16-step loop recorder: hits played while recording land on the nearest step */
+  function stepDur() { return 60 / ep.bpm / 4; }
+  function seqPos(time) { return ep.n - (ep.next - time) / stepDur(); }
+
+  function seqTick() {
+    var ahead = ctx.currentTime + 0.12;
+    while (ep.next < ahead) {
+      var n = ep.n;
+      ep.steps[n % 16].forEach(function (h) {
+        if (h.skip === n) { h.skip = -1; return; } // just played live, don't double it
+        ehit(h.pad, h.vel, ep.next);
+      });
+      ep.next += stepDur(); ep.n++;
+    }
+  }
+
+  function seqDraw() {
+    ep.raf = requestAnimationFrame(seqDraw);
+    var p = Math.floor(seqPos(ctx.currentTime - (ctx.outputLatency || 0)));
+    var cur = ((p % 16) + 16) % 16;
+    if (cur === ep.cur) return;
+    if (ep.stepEls[ep.cur]) ep.stepEls[ep.cur].classList.remove('now');
+    ep.cur = cur; ep.stepEls[cur].classList.add('now');
+  }
+
+  function seqPlay(on) {
+    if (on && !ep.playing) {
+      init();
+      ep.playing = true; ep.n = 0; ep.next = ctx.currentTime + 0.06;
+      seqTick(); ep.timer = setInterval(seqTick, 25);
+      ep.raf = requestAnimationFrame(seqDraw);
+    } else if (!on && ep.playing) {
+      ep.playing = false; ep.rec = false;
+      clearInterval(ep.timer); cancelAnimationFrame(ep.raf);
+      if (ep.stepEls[ep.cur]) ep.stepEls[ep.cur].classList.remove('now');
+      ep.cur = -1;
+    }
+    $('eplay').setAttribute('aria-pressed', ep.playing);
+    $('eplay').textContent = ep.playing ? 'Stop loop' : 'Play loop';
+    $('erec').setAttribute('aria-pressed', ep.rec);
+  }
+
+  function recordHit(pad, vel) {
+    if (!ep.playing || !ep.rec) return;
+    var a = Math.round(seqPos(ctx.currentTime)), list = ep.steps[((a % 16) + 16) % 16];
+    var h = null;
+    list.forEach(function (x) { if (x.pad === pad) h = x; });
+    if (!h) { h = { pad: pad, vel: vel, skip: -1 }; list.push(h); } else h.vel = vel;
+    if (a >= ep.n) h.skip = a; // that step is still to be scheduled
+    drawSteps();
+  }
+
+  function drawSteps() {
+    ep.stepEls.forEach(function (el, s) {
+      var list = ep.steps[s];
+      el.classList.toggle('has', list.length > 0);
+      el.classList.toggle('sel', list.some(function (h) { return h.pad === ep.sel; }));
+    });
+  }
+
+  var knobDraw = [];
+  function selectPad(i) {
+    if (ep.els[ep.sel]) ep.els[ep.sel].classList.remove('sel');
+    ep.sel = i; ep.els[i].classList.add('sel');
+    $('pname').textContent = EKITS[ep.kit].pads[i][0];
+    knobDraw.forEach(function (f) { f(); });
+    drawSteps();
+  }
+
+  // Rotary knob: drag up / down, arrow keys, double-tap to reset
+  function makeKnob(el, out, min, max, step, def, get, set, fmt) {
+    var drag = null;
+    function draw() {
+      var v = get();
+      el.style.setProperty('--a', (-135 + 270 * (v - min) / (max - min)) + 'deg');
+      el.setAttribute('aria-valuemin', min); el.setAttribute('aria-valuemax', max);
+      el.setAttribute('aria-valuenow', v); el.setAttribute('aria-valuetext', fmt(v));
+      out.textContent = fmt(v);
+    }
+    function put(v) { set(Math.max(min, Math.min(max, Math.round(v / step) * step))); draw(); }
+    el.addEventListener('pointerdown', function (e) {
+      e.preventDefault();
+      try { el.setPointerCapture(e.pointerId); } catch (err) {}
+      drag = { id: e.pointerId, y: e.clientY, v: get() };
+    });
+    el.addEventListener('pointermove', function (e) {
+      if (drag && drag.id === e.pointerId) put(drag.v + (drag.y - e.clientY) / 140 * (max - min));
+    });
+    el.addEventListener('pointerup', function () { drag = null; });
+    el.addEventListener('pointercancel', function () { drag = null; });
+    el.addEventListener('dblclick', function () { put(def); });
+    el.addEventListener('keydown', function (e) {
+      var k = e.key, v = get();
+      if (k === 'ArrowUp' || k === 'ArrowRight') put(v + step);
+      else if (k === 'ArrowDown' || k === 'ArrowLeft') put(v - step);
+      else if (k === 'Home') put(min);
+      else if (k === 'End') put(max);
+      else return;
+      e.preventDefault(); e.stopPropagation();
+    });
+    knobDraw.push(draw);
+    draw();
+  }
+
+  function buildEpad() {
+    var grid = $('egrid'), steps = $('steps');
+    for (var i = 0; i < 16; i++) {
+      var b = document.createElement('button');
+      b.className = 'epadb'; b.dataset.i = i; b.dataset.row = Math.floor(i / 4);
+      grid.appendChild(b); ep.els.push(b);
+      var st = document.createElement('i'); steps.appendChild(st); ep.stepEls.push(st);
+    }
+    labelPads();
+    grid.addEventListener('pointerdown', function (e) {
+      var el = e.target.closest('[data-i]');
+      if (!el) return;
+      e.preventDefault();
+      var r = el.getBoundingClientRect(), y = Math.max(0, Math.min(1, (e.clientY - r.top) / r.height));
+      epadHit(+el.dataset.i, 0.3 + 0.7 * y); // lower on the pad = harder hit
+    });
+    grid.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+    function cur() { return ep.tune[ep.kit][ep.sel]; }
+    makeKnob($('kpitch'), $('vpitch'), -12, 12, 1, 0,
+      function () { return cur().p; }, function (v) { cur().p = v; },
+      function (v) { return (v > 0 ? '+' : '') + v; });
+    makeKnob($('kdecay'), $('vdecay'), 0.25, 2, 0.05, 1,
+      function () { return cur().d; }, function (v) { cur().d = v; },
+      function (v) { return Math.round(v * 100) + '%'; });
+  }
+
   /* ---------- Releasing notes: every path that ends a touch ---------- */
   function releasePointer(id) {
     noteOff(id);
     gtrRelease(id);
     fluteUp(id);
+    tablaUp(id);
   }
   // Silence everything a finger, mouse or key is holding (not piano playback)
   function releaseAllHeld() {
@@ -979,6 +1831,7 @@ body:not([data-tab="flute"]) .only-flute { display: none !important; }
     Object.keys(active).forEach(function (k) { if (k.indexOf('pb') !== 0) noteOff(k); });
     Object.keys(gtr.held).forEach(gtrRelease);
     fluteStopAll();
+    tb.bend = {}; tb.slide = {};
   }
 
   window.addEventListener('pointerup', function (e) { releasePointer(e.pointerId); });
@@ -987,7 +1840,10 @@ body:not([data-tab="flute"]) .only-flute { display: none !important; }
     if (e.pointerType === 'mouse') releasePointer(e.pointerId);
   });
   window.addEventListener('blur', releaseAllHeld);
-  document.addEventListener('visibilitychange', function () { if (document.hidden) releaseAllHeld(); });
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden) return;
+    releaseAllHeld(); setDrone(false); seqPlay(false);
+  });
 
   // Safety net: when no finger is on the screen, nothing touch-driven may keep sounding
   function noTouchesLeft(e) {
@@ -996,6 +1852,7 @@ body:not([data-tab="flute"]) .only-flute { display: none !important; }
     Object.keys(active).forEach(function (k) { if (/^\d+$/.test(k)) noteOff(k); });
     Object.keys(gtr.held).forEach(function (k) { if (/^\d+$/.test(k)) gtrRelease(k); });
     fluteStopAll();
+    tb.bend = {}; tb.slide = {};
   }
   window.addEventListener('touchend', noTouchesLeft, { passive: true });
   window.addEventListener('touchcancel', noTouchesLeft, { passive: true });
@@ -1019,9 +1876,20 @@ body:not([data-tab="flute"]) .only-flute { display: none !important; }
       if (PADKEYS[k]) hitPad(PADKEYS[k], 0.9);
     } else if (state.tab === 'guitar') {
       if (k === ' ') { e.preventDefault(); strum('kb '); }
-      else if (k >= '1' && k <= '6') pluck(+k - 1, 0.8, 'kb' + k);
+      else if (k >= '1' && k <= String(gtr.n)) pluck(+k - 1, 0.8, 'kb' + k);
+    } else if (state.tab === 'tabla2' || state.tab === 'tabla1') {
+      var two = state.tab === 'tabla2', d = two ? tb.drums.d2 : tb.drums.d1;
+      if (TABLA_KEYS[k]) tablaHit(TABLA_KEYS[k], d);
+      else if (two && BAYAN_KEYS[k]) tablaHit(BAYAN_KEYS[k], tb.drums.b2);
+      else if (two && COMBO_KEYS[k]) playCombo(COMBO_KEYS[k]);
+    } else if (state.tab === 'epad') {
+      if (k === ' ') { e.preventDefault(); seqPlay(!ep.playing); }
+      else if (EKEYS.indexOf(k) >= 0 && k !== ' ') epadHit(EKEYS.indexOf(k), 0.85);
     }
   });
+  var TABLA_KEYS = { j: 'Na', k: 'Tin', l: 'Tun', u: 'Te', i: 'Ti' };
+  var BAYAN_KEYS = { a: 'Ge', s: 'Ke', q: 'Ga' };
+  var COMBO_KEYS = { d: 'dha', f: 'dhin', g: 'tirakita' };
   window.addEventListener('keyup', function (e) {
     var k = e.key.toLowerCase();
     noteOff('kb' + k);
@@ -1033,9 +1901,16 @@ body:not([data-tab="flute"]) .only-flute { display: none !important; }
     releaseAllHeld();
     if (playing) stopPlayback();
     if (recording) $('rec').click();
+    if (!/^tabla/.test(tab)) setDrone(false);
+    if (tab !== 'epad') seqPlay(false);
     state.tab = tab;
     document.body.dataset.tab = tab;
-    document.querySelectorAll('.tab').forEach(function (b) { b.setAttribute('aria-selected', b.dataset.tab === tab); });
+    document.querySelectorAll('.tab').forEach(function (b) {
+      var on = b.dataset.tab === tab;
+      b.setAttribute('aria-selected', on);
+      if (on && b.scrollIntoView) b.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    });
+    if (tab === 'guitar') gtrPrewarm();
     rects = {};
     try { localStorage.setItem('pb-tab', tab); } catch (e) {}
   }
@@ -1099,7 +1974,24 @@ body:not([data-tab="flute"]) .only-flute { display: none !important; }
   };
 
   $('kit').onchange = function () { drumKit = this.value; };
-  $('gsound').onchange = function () { gtr.sound = this.value; };
+
+  $('sa').onchange = function () { tb.sa = +this.value; };
+  $('tfine').oninput = function () { tb.fine = +this.value; };
+  $('drone').onclick = function () { setDrone(!tb.drone); };
+
+  $('ekit').onchange = function () { ep.kit = this.value; setEpadKitTone(); labelPads(); };
+  $('eplay').onclick = function () { seqPlay(!ep.playing); };
+  $('erec').onclick = function () {
+    ep.rec = !ep.rec;
+    if (ep.rec && !ep.playing) { seqPlay(true); ep.rec = true; }
+    this.setAttribute('aria-pressed', ep.rec);
+  };
+  $('eclear').onclick = function () { ep.steps.forEach(function (l) { l.length = 0; }); drawSteps(); };
+  $('bpm').oninput = function () { ep.bpm = +this.value; $('bpmLbl').textContent = ep.bpm + ' BPM'; };
+  $('gsound').onchange = function () {
+    gtr.sound = this.value;
+    buildStrings(); setGuitarChain(); gtrPrewarm();
+  };
   $('ring').onclick = function () {
     gtr.ring = !gtr.ring;
     this.setAttribute('aria-pressed', gtr.ring);
@@ -1143,10 +2035,12 @@ body:not([data-tab="flute"]) .only-flute { display: none !important; }
   buildPads();
   buildGuitar();
   buildFlute();
+  buildTabla();
+  buildEpad();
   refreshButtons();
   var saved = null;
   try { saved = localStorage.getItem('pb-tab'); } catch (e) {}
-  if (saved && /^(piano|drums|guitar|flute)$/.test(saved)) setTab(saved);
+  if (saved && /^(piano|drums|guitar|flute|tabla2|tabla1|epad)$/.test(saved)) setTab(saved);
 
   if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
     window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
