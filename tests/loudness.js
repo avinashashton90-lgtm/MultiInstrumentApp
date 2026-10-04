@@ -42,6 +42,7 @@ async function measureAll(vol) {
       if (s.setup) s.setup();
       P.reset();
       window.__pbSeconds = PRE + (s.seconds || 2);
+      window.__pbSeed = k + 1;           // a different, repeatable random draw each time
       P.init(); P.setVolume(vol);
       const steps = [[PRE, s.on]];
       if (s.off) steps.push([PRE + (s.hold || 0.8), s.off]);

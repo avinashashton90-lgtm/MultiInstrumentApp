@@ -707,25 +707,25 @@ body[data-screen="home"] .rotate { display: none !important; }
   // Loudness trims, measured with tests/loudness.js so a medium-velocity note from every instrument and
   // pad peaks near -3 dBFS at the default master volume (see TESTING.md). Multiplies each sound's own level.
   var LEVEL = /*LEVEL*/{
-    piano: { piano: 1.69, epiano: 1.58, organ: 1.64, synth: 1.9, pad: 1.63, bell: 1.66 },
+    piano: { piano: 1.72, epiano: 1.57, organ: 1.64, synth: 1.9, pad: 1.65, bell: 1.68 },
     drums: { 
-      acoustic: { kick: 0.408, snare: 0.471, hatC: 0.897, hatO: 0.834, tomL: 0.594, tomH: 0.569, clap: 2.18, crash: 0.827 }, 
-      electro: { kick: 0.443, snare: 0.678, hatC: 0.485, hatO: 0.565, tomL: 0.602, tomH: 0.566, clap: 2.29, crash: 0.708 }
+      acoustic: { kick: 0.397, snare: 0.465, hatC: 0.753, hatO: 0.884, tomL: 0.592, tomH: 0.569, clap: 2.02, crash: 0.722 }, 
+      electro: { kick: 0.437, snare: 0.785, hatC: 0.485, hatO: 0.564, tomL: 0.604, tomH: 0.577, clap: 2.02, crash: 0.709 }
     },
-    guitar: { acoustic: 1.76, twelve: 2.48, nylon: 1.65, clean: 1.68, crunch: 1.04, jazz: 1.4, bass: 0.912, uke: 1.92, sitar: 1.92 },
-    tabla: { Na: 0.919, Tin: 1.47, Tun: 1.45, Te: 2.43, Ti: 2.41, Ge: 1.37, Ga: 1.49, Ke: 2.12 },
+    guitar: { acoustic: 1.88, twelve: 1.99, nylon: 1.73, clean: 1.73, crunch: 0.95, jazz: 1.37, bass: 0.899, uke: 1.84, sitar: 1.94 },
+    tabla: { Na: 0.904, Tin: 1.47, Tun: 1.46, Te: 2.43, Ti: 2.58, Ge: 1.39, Ga: 1.51, Ke: 2.07 },
     epad: { 
-      electro: [0.579, 0.615, 0.895, 2.68, 1.5, 1.36, 1.38, 1.05, 0.759, 0.788, 0.752, 1.11, 1.18, 1.9, 0.456, 1.91], 
-      trap: [0.448, 0.538, 0.523, 0.574, 1.07, 0.915, 0.947, 2.1, 1.38, 1.96, 2.05, 0.746, 2.49, 1.3, 1.02, 2.06], 
-      house: [0.59, 0.554, 2.48, 0.627, 1.14, 0.983, 1.09, 2.44, 0.949, 0.889, 1.3, 0.792, 1.61, 1.3, 1.49, 1.06], 
-      lofi: [0.578, 0.682, 1.15, 1.41, 6.98, 6.59, 6.39, 10.7, 1.92, 2.76, 0.773, 1.36, 1.18, 0.482, 2.4, 4.49]
+      electro: [0.634, 0.607, 0.842, 2.41, 1.5, 1.36, 1.4, 0.995, 0.751, 0.791, 0.753, 1.11, 1.18, 1.91, 0.461, 1.9], 
+      trap: [0.45, 0.53, 0.532, 0.559, 1.07, 0.913, 0.961, 2.17, 1.37, 2, 2.04, 0.751, 2.27, 1.3, 1.02, 2.09], 
+      house: [0.628, 0.564, 2.51, 0.617, 1.09, 0.947, 0.941, 2.15, 0.929, 0.868, 1.33, 0.798, 1.6, 1.31, 1.49, 0.991], 
+      lofi: [0.61, 0.718, 1.32, 1.33, 8.31, 6.09, 5.89, 11.8, 2.03, 2.66, 0.769, 1.37, 1.19, 0.483, 2.1, 4.1]
     },
-    violin: { bow: 0.657, pizz: 0.66 },
-    cello: { bow: 0.821, pizz: 0.595 },
-    flute: 1.64,
-    harmonica: 0.775,
-    horn: 1.08,
-    tanpura: 3.12
+    violin: { bow: 0.659, pizz: 0.62 },
+    cello: { bow: 0.833, pizz: 0.683 },
+    flute: 1.59,
+    harmonica: 0.799,
+    horn: 1.11,
+    tanpura: 3.47
   }/*END LEVEL*/;
 
   var state = {

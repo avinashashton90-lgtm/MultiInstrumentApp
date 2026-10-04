@@ -52,6 +52,11 @@ P('  strings) and vibrato this is the average pitch a listener hears; on a clean
 P('- Peak is the sample peak at the app\'s output, in dBFS. RMS is measured while the note sounds: from its start to');
 P('  the last sample within 20 dB of its peak (reverb tail excluded, at most 1 s). "Phone-band RMS" is the RMS above');
 P('  200 Hz (12 dB/octave high-pass), roughly what a phone speaker can reproduce.');
+P('- Every render is repeatable. `Math.random` (noise, humanising, oscillator start phases) is replaced by a seeded');
+P('  generator that restarts with each audio context, and work the app defers to the next animation frame (pointer');
+P('  moves, breath, bow) runs straight after the action that queued it, at that action\'s audio time. Measurements that');
+P('  depend on how detuned copies of a note happen to beat (string and horn attack, brightness) take the median of five');
+P('  seeds.');
 P('- A new Web Audio compressor starts fully clamped and takes about 0.2 s to open, so every measured note starts');
 P('  0.3 s into the render. The app now bridges that window itself (see "First note after start-up" below).');
 P('');
