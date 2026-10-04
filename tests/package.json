@@ -1,0 +1,17 @@
+{
+  "name": "pocket-band-tests",
+  "private": true,
+  "description": "Headless audio tests for Pocket Band: renders notes in an OfflineAudioContext and measures pitch and loudness",
+  "scripts": {
+    "pitch": "node pitch.js",
+    "instruments": "node instruments.js",
+    "loudness": "node loudness.js",
+    "calibrate": "node loudness.js --calibrate",
+    "baseline": "node baseline.js",
+    "report": "node report.js",
+    "test": "node instruments.js && node pitch.js"
+  },
+  "devDependencies": {
+    "playwright": "^1.56.1"
+  }
+}
