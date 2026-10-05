@@ -104,7 +104,9 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px s
 /* Instrument screen header: Home button and the instrument's name */
 .homeb { display: flex; align-items: center; justify-content: center; min-width: 40px; min-height: 40px; padding: 0; }
 .homeb svg { width: 22px; height: 22px; }
-.iname { font-weight: 700; font-size: .95rem; flex: 0 0 auto; padding-right: 4px; }
+.ihead { display: flex; flex-direction: column; justify-content: center; flex: 0 0 auto; padding-right: 4px; line-height: 1.15; }
+.iname { font-weight: 700; font-size: .95rem; }
+.tonal { font-size: .7rem; font-weight: 700; color: var(--accent); white-space: nowrap; }
 
 /* Per-instrument visibility */
 body:not([data-tab="piano"]) .only-piano,
@@ -129,7 +131,9 @@ body:not([data-tab="trumpet"]):not([data-tab="sax"]) .only-windrow,
 body:not([data-g~="bowed"]) .only-bowed,
 body:not([data-g~="keyed"]) .only-keyed,
 body:not([data-g~="new"]) .only-new,
-body:not([data-g~="rec"]) .only-rec { display: none !important; }
+body:not([data-g~="rec"]) .only-rec,
+body:not([data-g~="keys"]) .only-keys,
+body:not([data-g~="strum"]) .only-strum { display: none !important; }
 .fine { width: 90px; accent-color: var(--accent); flex: 0 0 auto; }
 @media (display-mode: fullscreen), (display-mode: standalone) { #full { display: none; } }
 
@@ -145,7 +149,15 @@ body:not([data-g~="rec"]) .only-rec { display: none !important; }
   font-size: .7rem; color: var(--muted); touch-action: none;
 }
 .key.root { color: var(--accent); font-weight: 700; }
-.key.scale { border-radius: 0 0 10px 10px; }
+.key.out { background: linear-gradient(var(--key-shade), var(--key-shade) 82%, var(--edge)); color: transparent; }
+.key.insc::before, .bkey.insc::before, .mkey.insc::before {
+  content: ""; position: absolute; left: 50%; bottom: 26px; width: 8px; height: 8px; margin-left: -4px; border-radius: 50%; background: var(--accent); opacity: .85;
+}
+.key.root::before, .bkey.root::before, .mkey.root::before { background: var(--key-on); opacity: 1; }
+.key, .mkey { position: relative; }
+.bkey.insc::before { bottom: 10px; }
+.bkey.out { background: #4a5252; }
+body[data-chroma="true"] .insc:not(.root)::before { display: none; }
 .key.on { background: var(--key-on); }
 .bkey {
   position: absolute; top: 0; height: 60%; background: var(--black); border: 0;
@@ -281,6 +293,7 @@ body:not([data-g~="rec"]) .only-rec { display: none !important; }
 .panel.open { display: block; }
 .panel .r { display: grid; grid-template-columns: 96px 1fr; align-items: center; gap: 8px; margin-bottom: 8px; }
 .panel .r span { font-size: .85rem; }
+.btnlink { display: inline-flex; align-items: center; justify-content: center; min-height: 36px; padding: 4px 10px; border: 2px solid var(--edge); border-radius: 10px; color: var(--ink); text-decoration: none; font-size: .85rem; }
 .panel input[type=range] { width: 100%; accent-color: var(--accent); }
 .panel select { width: 100%; }
 
@@ -383,6 +396,10 @@ body:not([data-g~="rec"]) .only-rec { display: none !important; }
   font-size: .7rem; color: var(--muted); background: linear-gradient(var(--key), var(--key) 80%, var(--key-shade)); border: 1px solid var(--edge); touch-action: none;
 }
 .mkey.sharp { background: linear-gradient(#3a4646, var(--black)); color: #c9d0d0; }
+.mkey.out { background: linear-gradient(var(--key-shade), var(--key-shade) 80%, var(--edge)); }
+.mkey.sharp.out { background: #4a5252; }
+.mkey.insc::before { bottom: 24px; }
+.mkey.out.on, .mkey.sharp.out.on { background: var(--key-on); }
 .mkey.root { color: var(--accent); font-weight: 700; }
 .mkey.on { background: var(--key-on); color: #1d2a2a; }
 .synth { height: 100%; display: flex; gap: 10px; }
@@ -500,10 +517,11 @@ body[data-screen="home"] .rotate { display: none !important; }
 
 <div class="bar" id="bar">
   <button id="home" class="homeb" aria-label="Home: choose an instrument"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg></button>
-  <span class="iname" id="iname">Piano</span>
+  <span class="ihead"><span class="iname" id="iname">Piano</span><span class="tonal only-keyed" id="tonal" aria-live="polite"></span></span>
 
   <select id="key" class="only-keyed" aria-label="Key"></select>
   <select id="scale" class="only-keyed" aria-label="Scale"></select>
+  <button id="slock" class="only-keys" aria-pressed="true" title="Keys outside the scale play the nearest scale note">Scale lock</button>
 
   <select id="inst" class="only-piano" aria-label="Piano sound">
     <option value="piano">Grand piano</option>
@@ -777,6 +795,8 @@ body[data-screen="home"] .rotate { display: none !important; }
         <option value="14" selected>14</option>
         <option value="20">20</option>
       </select></div>
+    <div class="r"><span>Check the app</span><a class="btnlink" id="selftest" href="selftest.html">Self-test</a></div>
+    <div class="r"><span>Version</span><b class="kval" id="ver"></b></div>
   </div>
 </div>
 
@@ -793,6 +813,8 @@ body[data-screen="home"] .rotate { display: none !important; }
 (function () {
   var AC = window.AudioContext || window.webkitAudioContext;
   var ctx, bus, master, limiter, makeup, wet, lfoDepth, noiseBuf, drive, conv, gch, eOut, hall;
+  // App version: matches the service worker's cache name (sw.js), shown in Settings so a phone can be checked
+  var APP_VERSION = 6;
   var MAKEUP = 1.26; // +2 dB after the limiter (Chrome's compressor adds its own make-up on top: see TESTING.md)
   var $ = function (id) { return document.getElementById(id); };
 
@@ -873,7 +895,11 @@ body[data-screen="home"] .rotate { display: none !important; }
       return NAMES[pc(m)];
     }
     function name(m) { return NAMES[pc(m)] + (Math.floor(Math.round(m) / 12) - 1); }
-    return { NAMES: NAMES, SARGAM: SARGAM, SCALES: SCALES, ORDER: ORDER, pc: pc, rel: rel, iv: iv, hepta: hepta, mtof: mtof,
+    // Header text for a key and scale, e.g. "D Major: D E F♯ G A B C♯" (chromatic lists all twelve)
+    function describe(key, scale) {
+      return NAMES[key] + ' ' + SCALES[scale].name + ': ' + iv(scale).map(function (i) { return NAMES[(key + i) % 12]; }).join(' ');
+    }
+    return { describe: describe, NAMES: NAMES, SARGAM: SARGAM, SCALES: SCALES, ORDER: ORDER, pc: pc, rel: rel, iv: iv, hepta: hepta, mtof: mtof,
              rootFrom: rootFrom, degree: degree, run: run, inScale: inScale, snap: snap, seventh: seventh, chord: chord,
              triadOn: triadOn, label: label, name: name };
   })();
@@ -886,12 +912,30 @@ body[data-screen="home"] .rotate { display: none !important; }
     organ: { key: 0, scale: 'major' }, sax: { key: 3, scale: 'major' }, xylo: { key: 0, scale: 'major' },
     synth: { key: 9, scale: 'minor' }, ebass: { key: 4, scale: 'minpenta' }, rhythm: { key: 7, scale: 'major' }
   };
+  // Scale lock on the keyboard instruments: a key outside the scale plays the nearest scale note
+  var LOCK = { piano: true, organ: true, synth: true };
+  // Key, scale and scale lock are remembered per instrument across visits (the phone may close the app in between)
+  (function () {
+    try {
+      var sv = JSON.parse(localStorage.getItem('pb-tonal') || '{}');
+      Object.keys(sv.t || {}).forEach(function (k) {
+        var v = sv.t[k];
+        if (TONAL[k] && v && v.key >= 0 && v.key < 12 && T.SCALES[v.scale]) { TONAL[k].key = v.key | 0; TONAL[k].scale = v.scale; }
+      });
+      Object.keys(sv.l || {}).forEach(function (k) { if (k in LOCK) LOCK[k] = !!sv.l[k]; });
+    } catch (e) {}
+  })();
+  function saveTonal() { try { localStorage.setItem('pb-tonal', JSON.stringify({ t: TONAL, l: LOCK })); } catch (e) {} }
+  function lockNote(tab, m) { var st = TONAL[tab]; return LOCK[tab] ? T.snap(m, st.key, st.scale) : m; }
+
   // Which shared toolbar controls each instrument shows (CSS reads these from <body data-g>)
   var GROUPS = {
     keyed: ['piano', 'guitar', 'flute', 'harmonica', 'violin', 'cello', 'horn', 'trumpet', 'viola', 'organ', 'sax', 'xylo', 'synth', 'ebass', 'rhythm'],
     new: ['harmonica', 'violin', 'cello', 'horn', 'trumpet', 'viola', 'organ', 'sax', 'xylo', 'synth', 'ebass', 'rhythm'],
     rec: ['piano', 'harmonica', 'violin', 'cello', 'horn', 'trumpet', 'viola', 'organ', 'sax', 'xylo', 'synth', 'ebass', 'rhythm'],
-    bowed: ['violin', 'viola', 'cello']
+    bowed: ['violin', 'viola', 'cello'],
+    keys: ['piano', 'organ', 'synth'],
+    strum: ['guitar', 'rhythm']
   };
   function groupsOf(tab) { return Object.keys(GROUPS).filter(function (g) { return GROUPS[g].indexOf(tab) >= 0; }).join(' '); }
 
@@ -950,6 +994,8 @@ body[data-screen="home"] .rotate { display: none !important; }
     }
     ceil.curve = cv; ceil.oversample = 'none'; // oversampling filters ring past the ceiling on hard transients
     if (window.__PB_TEST__) { window.__pbMaster = master; window.__pbLimiter = limiter; }
+    // Test tap on the final output: an analyser the desktop tests and the self-test page listen to
+    var tap = ctx.createAnalyser(); tap.fftSize = 32768; ceil.connect(tap); window.__testTap = tap; window.__testCtx = ctx;
     master.connect(limiter); limiter.connect(makeup); makeup.connect(ceil); ceil.connect(ctx.destination);
     // A new compressor starts fully clamped and needs ~0.2 s to open up, which would make the first note after
     // the app wakes ~10 dB quiet. Bridge that with a plain gain path (the same +4.8 dB the limiter path gives).
@@ -1158,7 +1204,8 @@ body[data-screen="home"] .rotate { display: none !important; }
   var CHROMA = T.NAMES;
 
   /* ---------- Piano layout ---------- */
-  // Chromatic: a normal keyboard that starts on the key's root. Any other scale: one key per scale note.
+  // A normal keyboard that starts on the key's root. The scale's notes are highlighted; with Scale lock on, a key
+  // outside the scale plays the nearest scale note.
   var piano = $('piano');
   var BLACK = [0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0];
 
@@ -1171,9 +1218,9 @@ body[data-screen="home"] .rotate { display: none !important; }
     return txt;
   }
   function pianoKey(cls, m) {
-    var k = document.createElement('button');
-    k.className = cls + (T.pc(m) === TONAL.piano.key ? ' root' : '');
-    k.dataset.midi = m;
+    var k = document.createElement('button'), st = TONAL.piano;
+    k.className = cls + (T.pc(m) === st.key ? ' root' : '') + (T.inScale(m, st.key, st.scale) ? ' insc' : ' out');
+    k.dataset.midi = m; k.dataset.name = T.NAMES[T.pc(m)];
     k.setAttribute('aria-label', T.name(m));
     piano.appendChild(k); keyEls[m] = k;
     return k;
@@ -1183,22 +1230,16 @@ body[data-screen="home"] .rotate { display: none !important; }
     stopAll();
     piano.innerHTML = '';
     keyEls = {}; lit = {}; rects = {};
-    var st = TONAL.piano, root = pianoRoot(), top = root + 12 * state.range, m;
-    if (st.scale === 'chromatic') {
-      var lo = isBlack(root) ? root - 1 : root, hi = isBlack(top) ? top + 1 : top, whites = [];
-      for (m = lo; m <= hi; m++) if (!isBlack(m)) whites.push(m);
-      var bw = 100 / whites.length;
-      whites.forEach(function (w) { pianoKey('key', w).textContent = pianoLabel(w); });
-      for (m = lo; m <= hi; m++) {
-        if (!isBlack(m)) continue;
-        var b = pianoKey('bkey', m), j = whites.indexOf(m - 1);
-        b.style.width = (bw * 0.62) + '%';
-        b.style.left = ((j + 1) * bw - bw * 0.31) + '%';
-      }
-    } else {
-      T.run(root, st.scale, state.range * T.iv(st.scale).length + 1).forEach(function (n) {
-        pianoKey('key scale', n).textContent = pianoLabel(n);
-      });
+    var root = pianoRoot(), top = root + 12 * state.range, m;
+    var lo = isBlack(root) ? root - 1 : root, hi = isBlack(top) ? top + 1 : top, whites = [];
+    for (m = lo; m <= hi; m++) if (!isBlack(m)) whites.push(m);
+    var bw = 100 / whites.length;
+    whites.forEach(function (w) { pianoKey('key', w).textContent = pianoLabel(w); });
+    for (m = lo; m <= hi; m++) {
+      if (!isBlack(m)) continue;
+      var b = pianoKey('bkey', m), j = whites.indexOf(m - 1);
+      b.style.width = (bw * 0.62) + '%';
+      b.style.left = ((j + 1) * bw - bw * 0.31) + '%';
     }
     $('octLbl').textContent = T.name(root);
   }
@@ -1210,7 +1251,7 @@ body[data-screen="home"] .rotate { display: none !important; }
 
   // Chord intervals for a key press: fixed shapes, or the scale's own chord on that note
   function pianoIv(m) {
-    if (state.chord === 'diatonic') return T.triadOn(m, TONAL.piano.key, TONAL.piano.scale);
+    if (state.chord === 'diatonic') return T.triadOn(T.snap(m, TONAL.piano.key, TONAL.piano.scale), TONAL.piano.key, TONAL.piano.scale);
     return CHORDS[state.chord];
   }
 
@@ -1230,7 +1271,8 @@ body[data-screen="home"] .rotate { display: none !important; }
     if (!el) return;
     e.preventDefault();
     if (el.hasPointerCapture && el.hasPointerCapture(e.pointerId)) el.releasePointerCapture(e.pointerId);
-    noteOn(e.pointerId, +el.dataset.midi, velocityAt(el, e.clientY), state.inst, pianoIv(+el.dataset.midi));
+    var pm = lockNote('piano', +el.dataset.midi);
+    noteOn(e.pointerId, pm, velocityAt(el, e.clientY), state.inst, pianoIv(pm));
   });
 
   var moveQ = {}, moveRaf = 0;
@@ -1242,7 +1284,7 @@ body[data-screen="home"] .rotate { display: none !important; }
       if (!a) return;
       var under = document.elementFromPoint(p.x, p.y);
       if (!under || !under.dataset || under.dataset.midi === undefined) return;
-      var m = +under.dataset.midi;
+      var m = lockNote('piano', +under.dataset.midi);
       if (m !== a.base) noteOn(id, m, velocityAt(under, p.y), state.inst, pianoIv(m));
     });
   }
@@ -3201,26 +3243,27 @@ body[data-screen="home"] .rotate { display: none !important; }
   };
   var sxRow = windRow('sax', $('saxRow'), $('sdot'), 49, { x: function () { return { growl: sx.growl, vib: sx.vib }; } });
 
-  /* ---------- Keyboards of scale notes (pipe organ manuals, synth) ---------- */
-  // One key per scale note (a chromatic scale gives every semitone, sharps drawn dark). Multi-touch; sliding onto
-  // another key plays it. down(id, m, vel) / up(id) start and stop the note.
-  function keyRow(el, label, down, up) {
+  /* ---------- Button keyboards (pipe organ manuals, synth) ---------- */
+  // Every semitone from the root, sharps drawn dark, the scale's notes highlighted. With Scale lock on (the default)
+  // a key outside the scale plays the nearest scale note. Multi-touch; sliding onto another key plays it.
+  // down(id, m, vel) / up(id) start and stop the note; m is the note that sounds.
+  function keyRow(el, label, tab, down, up) {
     var kr = { el: el, keys: [], ptr: {} };
     kr.build = function (notes, key, scale) {
       kr.stopAll();
       el.innerHTML = label ? '<span class="mlbl">' + label + '</span>' : '';
       kr.keys = notes.map(function (m) {
-        var b = document.createElement('button');
-        b.className = 'mkey' + (isBlack(m) && T.iv(scale).length === 12 ? ' sharp' : '') + (T.pc(m) === key ? ' root' : '');
-        b.dataset.m = m; b.textContent = noteText(m, key);
+        var b = document.createElement('button'), ins = T.inScale(m, key, scale);
+        b.className = 'mkey' + (isBlack(m) ? ' sharp' : '') + (T.pc(m) === key ? ' root' : '') + (ins ? ' insc' : ' out');
+        b.dataset.midi = m; b.dataset.name = T.NAMES[T.pc(m)]; b.textContent = ins ? noteText(m, key) : '';
         b.setAttribute('aria-label', T.name(m));
         el.appendChild(b);
         return b;
       });
     };
-    function keyAt(x, y) { var k = document.elementFromPoint(x, y); return k && k.parentNode === el && k.dataset.m !== undefined ? k : null; }
+    function keyAt(x, y) { var k = document.elementFromPoint(x, y); return k && k.parentNode === el && k.dataset.midi !== undefined ? k : null; }
     function vel(k, y) { var r = k.getBoundingClientRect(); return 0.45 + 0.55 * clamp((y - r.top) / r.height, 0, 1); }
-    function on(id, k, y) { kr.ptr[id] = k; k.classList.add('on'); down(id, +k.dataset.m, vel(k, y)); }
+    function on(id, k, y) { kr.ptr[id] = k; k.classList.add('on'); down(id, lockNote(tab, +k.dataset.midi), vel(k, y)); }
     function off(id) { var k = kr.ptr[id]; if (!k) return; delete kr.ptr[id]; k.classList.remove('on'); up(id); }
     el.addEventListener('pointerdown', function (e) {
       var k = e.target.closest('.mkey');
@@ -3239,7 +3282,7 @@ body[data-screen="home"] .rotate { display: none !important; }
     kr.stopAll = function () { Object.keys(kr.ptr).forEach(off); };
     return kr;
   }
-  function scaleKeys(root, scale, octaves) { return T.run(root, scale, octaves * T.iv(scale).length + 1); }
+  function chromKeys(root, octaves) { var out = []; for (var m = root; m <= root + 12 * octaves; m++) out.push(m); return out; }
 
   /* ---------- Pipe organ ---------- */
   // Each key opens one pipe per drawn stop: 8' (unison), 4' (octave), 2 2/3' (twelfth), 2' (fifteenth). The lower
@@ -3311,20 +3354,20 @@ body[data-screen="home"] .rotate { display: none !important; }
     };
   });
   var orgMan = [0, 1].map(function (up) {
-    return keyRow($('man' + up), up ? 'Swell · flutes' : 'Great · principals', function (id, m) {
+    return keyRow($('man' + up), up ? 'Swell · flutes' : 'Great · principals', 'organ', function (id, m) {
       vStart('organ', 'o' + up + '_' + id, m, 1, { stops: org.stops.slice(), up: up });
     }, function (id) { vStop('o' + up + '_' + id); });
   });
   function buildOrgan() {
-    var st = TONAL.organ, root = T.rootFrom(st.key, 48), oct = T.iv(st.scale).length === 12 ? 1 : 2;
-    orgMan[0].build(scaleKeys(root, st.scale, oct), st.key, st.scale);
-    orgMan[1].build(scaleKeys(root + 12, st.scale, oct), st.key, st.scale);
+    var st = TONAL.organ, root = T.rootFrom(st.key, 48);
+    orgMan[0].build(chromKeys(root, 2), st.key, st.scale);
+    orgMan[1].build(chromKeys(root + 12, 2), st.key, st.scale);
   }
 
   /* ---------- Synth ---------- */
   // Four presets; the knobs (filter, attack, release, vibrato) start from the preset and are kept per preset.
   var SYN = {
-    lead: { cut: 62, att: 8, rel: 250, vib: 10, q: 3, osc: [['sawtooth', 0.5, -5], ['square', 0.3, 5]] },
+    lead: { cut: 62, att: 8, rel: 250, vib: 10, q: 3, osc: [['sawtooth', 0.5, -3], ['square', 0.3, 5]] },
     pad: { cut: 48, att: 700, rel: 1600, vib: 0, q: 0.8, osc: [['sawtooth', 0.35, -11], ['sawtooth', 0.35, 10], ['triangle', 0.4, 0]] },
     pluck: { cut: 70, att: 2, rel: 350, vib: 0, q: 2, osc: [['sawtooth', 0.55, 0], ['square', 0.25, 7]] },
     supersaw: { cut: 78, att: 15, rel: 600, vib: 0, q: 0.7, osc: [-26, -15, -7, 0, 7, 15, 26].map(function (c) { return ['sawtooth', 0.2, c]; }) }
@@ -3355,13 +3398,13 @@ body[data-screen="home"] .rotate { display: none !important; }
     },
     set: function () {}
   };
-  var syKeys = keyRow($('synKeys'), '', function (id, m, vel) {
+  var syKeys = keyRow($('synKeys'), '', 'synth', function (id, m, vel) {
     var k = sy.knobs[sy.preset];
     vStart('synth', 's' + id, m, vel, { p: sy.preset, cut: k.cut, att: k.att, rel: k.rel, vib: k.vib });
   }, function (id) { vStop('s' + id); });
   function buildSynth() {
     var st = TONAL.synth;
-    syKeys.build(scaleKeys(12 * (sy.oct + 1) + st.key, st.scale, T.iv(st.scale).length === 12 ? 1 : 2), st.key, st.scale);
+    syKeys.build(chromKeys(12 * (sy.oct + 1) + st.key, 2), st.key, st.scale);
   }
   function syK() { return sy.knobs[sy.preset]; }
   makeKnob($('kcut'), $('vcut'), 0, 100, 1, 62, function () { return syK().cut; }, function (v) { syK().cut = v; },
@@ -3743,6 +3786,11 @@ body[data-screen="home"] .rotate { display: none !important; }
     rebuildTonal(tab);
   }
   function rebuildTonal(tab) {
+    if (tab === state.tab) {
+      $('tonal').textContent = T.describe(TONAL[tab].key, TONAL[tab].scale);
+      document.body.dataset.chroma = TONAL[tab].scale === 'chromatic';
+      if (tab in LOCK) $('slock').setAttribute('aria-pressed', LOCK[tab]);
+    }
     if (tab === 'piano') buildPiano();
     else if (tab === 'guitar') buildChords();
     else if (tab === 'flute') buildFlute();
@@ -3761,8 +3809,12 @@ body[data-screen="home"] .rotate { display: none !important; }
     $('irev').value = NST[tab].rev;
     nread.textContent = '';
   }
-  $('key').onchange = function () { TONAL[state.tab].key = +this.value; rebuildTonal(state.tab); };
-  $('scale').onchange = function () { TONAL[state.tab].scale = this.value; rebuildTonal(state.tab); };
+  $('key').onchange = function () { TONAL[state.tab].key = +this.value; saveTonal(); rebuildTonal(state.tab); };
+  $('scale').onchange = function () { TONAL[state.tab].scale = this.value; saveTonal(); rebuildTonal(state.tab); };
+  $('slock').onclick = function () {
+    LOCK[state.tab] = !LOCK[state.tab]; saveTonal();
+    this.setAttribute('aria-pressed', LOCK[state.tab]);
+  };
   $('irev').oninput = function () {
     var st = NST[state.tab], c = chains[state.tab];
     st.rev = +this.value;
@@ -3834,13 +3886,9 @@ body[data-screen="home"] .rotate { display: none !important; }
 
   /* ---------- Computer keyboard ---------- */
   var KEYMAP = { a: 0, w: 1, s: 2, e: 3, d: 4, f: 5, t: 6, g: 7, y: 8, h: 9, u: 10, j: 11, k: 12, o: 13, l: 14, p: 15 };
-  var SCALEKEYS = 'asdfghjkl;';
-  // Computer keys play from the second octave: chromatic like a keyboard, or one scale note per home-row key
+  // Computer keys play from the second octave, laid out like a keyboard (Scale lock applies as it does to touch)
   function pianoKbMidi(k) {
-    var st = TONAL.piano, root = pianoRoot() + 12;
-    if (st.scale === 'chromatic') return KEYMAP[k] === undefined ? null : root + KEYMAP[k];
-    var i = SCALEKEYS.indexOf(k);
-    return i < 0 ? null : T.degree(root, st.scale, i);
+    return KEYMAP[k] === undefined ? null : lockNote('piano', pianoRoot() + 12 + KEYMAP[k]);
   }
   var PADKEYS = {};
   PADS.forEach(function (p) { PADKEYS[p.key] = p.id; });
@@ -4357,8 +4405,14 @@ body[data-screen="home"] .rotate { display: none !important; }
     };
   }
 
+  $('ver').textContent = 'v' + APP_VERSION;
   if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
     window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+    // A new version took over while the app was open on the home screen: reload once so it runs the new code
+    var hadSw = !!navigator.serviceWorker.controller;
+    navigator.serviceWorker.addEventListener('controllerchange', function () {
+      if (hadSw && state.screen === 'home' && !window.__pbReloaded) { window.__pbReloaded = true; location.reload(); }
+    });
   }
 })();
 </script>
