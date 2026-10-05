@@ -112,6 +112,8 @@ function formatLevel(L) {
       const half = 20 * Math.log10(0.5);
       let worst = 0;
       rows.forEach((r) => {
+        // trumpet, horn and sax are set by RMS (-16 dBFS) with the live loudness check in npm test, not by peak here
+        if (/^(French horn|Trumpet|Saxophone)/.test(r.name)) return;
         const err = (r.target + half) - r.peak;
         worst = Math.max(worst, Math.abs(err));
         setIn(L, r.path, getIn(L, r.path) * Math.pow(10, err / 20));

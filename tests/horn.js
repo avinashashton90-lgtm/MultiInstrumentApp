@@ -117,8 +117,11 @@ async function run() {
     thd: [Math.min(...r.notes.map((q) => q.thd)), Math.max(...r.notes.map((q) => q.thd))] };
   // Pass: nothing clips anywhere, the master stage adds less than -50 dB of distortion (0.3%), no high-frequency
   // burst over 12 dB, and no step in level over 6 dB between 20 ms frames while a note is held (detuned copies
-  // drifting in and out of phase give up to about 4 dB on their own, before and after the fix)
-  const ok = summary.clipOut === 0 && summary.clipPre === 0 && summary.added < -50 && summary.hfBurst < 12 && summary.edgeBurst < 12 && summary.jump < 6;
+  // drifting in and out of phase give up to about 4 dB on their own, before and after the fix).
+  // The burst limit is 14 dB since the round C rebuild: the horn now has a breath noise and a lip "blat" at each
+  // attack by design, and the loudest 2 ms frame of that noise reads 11-13 dB over the median depending on the
+  // random seed. The live brass check in npm test (20 ms frames, relative to the surrounding sound) passes.
+  const ok = summary.clipOut === 0 && summary.clipPre === 0 && summary.added < -50 && summary.hfBurst < 14 && summary.edgeBurst < 14 && summary.jump < 6;
   console.log('\nsummary', JSON.stringify(summary), ok ? 'PASS' : 'FAIL');
   fs.mkdirSync(path.join(__dirname, 'results'), { recursive: true });
   const file = path.join(__dirname, 'results', process.argv[2] || 'horn.json');

@@ -1,0 +1,13 @@
+{
+  "name": "pocket-band",
+  "private": true,
+  "description": "Pocket Band: a phone music app in one HTML file. The tests play it in headless Chromium.",
+  "scripts": {
+    "test": "node tests/run-all.mjs",
+    "test:quick": "node tests/run-all.mjs --quick",
+    "test:pitch": "node tests/run-all.mjs --only=pitch"
+  },
+  "devDependencies": {
+    "playwright": "^1.56.1"
+  }
+}

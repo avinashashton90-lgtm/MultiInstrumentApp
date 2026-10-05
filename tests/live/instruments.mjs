@@ -3,27 +3,27 @@
 //   kind: 'row' (a row of note buttons), 'board' (strings with snap points), 'keys' (a keyboard with scale lock),
 //         'chords' (chord buttons and strings), 'perc' (no pitch)
 //   pitched: has key and scale. brass: breath-driven brass or reed (spectral and crackle checks).
-//   hold: how long a test note is held (ms). win: the part of a note measured for pitch, ms after touch-down.
+//   win: the part of a note measured for pitch, ms after touch-down (a test holds each note a little longer).
 export const INSTRUMENTS = [
-  { tab: 'piano', name: 'Piano', kind: 'keys', pitched: true, win: [70, 200] },
+  { tab: 'piano', name: 'Piano', kind: 'keys', pitched: true, win: [60, 150] },
   { tab: 'drums', name: 'Drums', kind: 'perc' },
-  { tab: 'guitar', name: 'Guitar', kind: 'chords', pitched: true, win: [60, 220], strum: true },
-  { tab: 'flute', name: 'Flute', kind: 'row', pitched: true, win: [110, 220] },
+  { tab: 'guitar', name: 'Guitar', kind: 'chords', pitched: true, win: [80, 250], strum: true },
+  { tab: 'flute', name: 'Flute', kind: 'row', pitched: true, win: [100, 190] },
   { tab: 'tabla2', name: 'Tabla (dual)', kind: 'perc' },
   { tab: 'tabla1', name: 'Tabla (single)', kind: 'perc' },
   { tab: 'epad', name: 'Electric drum pad', kind: 'perc' },
-  { tab: 'harmonica', name: 'Harmonica', kind: 'row', pitched: true, win: [90, 220] },
-  { tab: 'violin', name: 'Violin', kind: 'board', pitched: true, win: [110, 230], bowed: true },
-  { tab: 'cello', name: 'Cello', kind: 'board', pitched: true, win: [150, 260], bowed: true },
-  { tab: 'horn', name: 'French horn', kind: 'row', pitched: true, win: [150, 260], brass: true },
-  { tab: 'trumpet', name: 'Trumpet', kind: 'row', pitched: true, win: [110, 230], brass: true },
-  { tab: 'viola', name: 'Viola', kind: 'board', pitched: true, win: [130, 250], bowed: true },
-  { tab: 'organ', name: 'Pipe organ', kind: 'keys', pitched: true, win: [90, 220] },
-  { tab: 'sax', name: 'Saxophone', kind: 'row', pitched: true, win: [120, 240], brass: true },
-  { tab: 'xylo', name: 'Xylophone', kind: 'row', pitched: true, win: [12, 110] },
-  { tab: 'synth', name: 'Synth', kind: 'keys', pitched: true, win: [80, 210] },
-  { tab: 'ebass', name: 'Electric bass', kind: 'board', pitched: true, win: [60, 220] },
-  { tab: 'rhythm', name: 'Rhythm guitar', kind: 'chords', pitched: true, win: [40, 200], strum: true }
+  { tab: 'harmonica', name: 'Harmonica', kind: 'row', pitched: true, win: [70, 160] },
+  { tab: 'violin', name: 'Violin', kind: 'board', pitched: true, win: [100, 190], bowed: true },
+  { tab: 'cello', name: 'Cello', kind: 'board', pitched: true, win: [130, 400], bowed: true },
+  { tab: 'horn', name: 'French horn', kind: 'row', pitched: true, win: [140, 230], brass: true },
+  { tab: 'trumpet', name: 'Trumpet', kind: 'row', pitched: true, win: [90, 180], brass: true },
+  { tab: 'viola', name: 'Viola', kind: 'board', pitched: true, win: [110, 200], bowed: true },
+  { tab: 'organ', name: 'Pipe organ', kind: 'keys', pitched: true, win: [70, 160] },
+  { tab: 'sax', name: 'Saxophone', kind: 'row', pitched: true, win: [100, 190], brass: true },
+  { tab: 'xylo', name: 'Xylophone', kind: 'row', pitched: true, win: [10, 90] },
+  { tab: 'synth', name: 'Synth', kind: 'keys', pitched: true, win: [70, 160] },
+  { tab: 'ebass', name: 'Electric bass', kind: 'board', pitched: true, win: [50, 150] },
+  { tab: 'rhythm', name: 'Rhythm guitar', kind: 'chords', pitched: true, win: [80, 580], strum: true }
 ];
 export const PITCHED = INSTRUMENTS.filter((i) => i.pitched);
 export const byTab = (tab) => INSTRUMENTS.find((i) => i.tab === tab);
@@ -48,7 +48,7 @@ export function noteTargets({ tab }) {
       out.push({ x: c.x, y: c.y, label: k.dataset.name, info: k.classList.contains('insc') ? 'scale key' : 'off-scale key', midi: +k.dataset.midi, insc: k.classList.contains('insc') });
     });
   } else if (tab === 'harmonica') {
-    all('#harp .hcol').slice(0, 5).forEach((c, i) => {
+    all('#harp .hcol').slice(0, 6).forEach((c, i) => { // holes 1-6 hold every degree of the scale (draw 6 is the sixth)
       push(c.children[0], 0.5, c.children[0].firstChild.textContent.trim(), 'blow ' + (i + 1));
       push(c.children[2], 0.5, c.children[2].firstChild.textContent.trim(), 'draw ' + (i + 1));
     });
@@ -67,4 +67,15 @@ export function noteTargets({ tab }) {
     cells.slice(0, n).forEach((c) => push(c, tab === 'xylo' ? 0.6 : 0.55, c.firstChild.textContent.trim()));
   }
   return out;
+}
+
+// In the page: places to hit on the percussion instruments (each pad or drum zone once)
+export function percTargets({ tab }) {
+  const all = (s) => [...document.querySelectorAll(s)];
+  const ctr = (el, fx = 0.5, fy = 0.6) => { const r = el.getBoundingClientRect(); return { x: r.left + r.width * fx, y: r.top + r.height * fy, label: (el.dataset.pad || el.dataset.i || el.id || '') + '' }; };
+  if (tab === 'drums') return all('#pads .pad').map((p) => ctr(p));
+  if (tab === 'epad') return all('#egrid .epadb').map((p) => ctr(p));
+  if (tab === 'tabla1') { const s = document.getElementById('dayan1'); return [0.5, 0.62, 0.8, 0.95].map((fx) => ctr(s, fx, 0.5)); }
+  if (tab === 'tabla2') { const d = document.getElementById('dayan2'), b = document.getElementById('bayan2'); return [ctr(d, 0.5, 0.5), ctr(d, 0.85, 0.5), ctr(b, 0.5, 0.5), ctr(b, 0.8, 0.5)]; }
+  return [];
 }

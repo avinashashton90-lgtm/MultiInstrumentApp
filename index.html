@@ -982,7 +982,7 @@ body[data-screen="home"] .rotate { display: none !important; }
     cello: { bow: 0.833, pizz: 0.683 },
     flute: 1.59,
     harmonica: 0.799,
-    horn: 0.5,
+    horn: 0.56,
     tanpura: 3.47,
     viola: { bow: 0.745, pizz: 0.683 },
     synth: { lead: 1.4, pad: 1.24, pluck: 2.12, supersaw: 1.43 },
@@ -1610,10 +1610,11 @@ body[data-screen="home"] .rotate { display: none !important; }
       if (level !== 1) { sg = ctx.createGain(); sg.gain.value = level; sg.connect(g); }
       s.connect(sg); s.start(when + offs); srcs.push(s);
     }
-    play(m, (Math.random() * 2 - 1) * 2, 0, 1);
+    play(m, (Math.random() * 2 - 1) * 1, 0, 1);
+    pickClick(g, when, 0.45);
     // 12-string: each course has a partner string, an octave up on the low four
     if (t.course) play(i < 4 ? m + 12 : m, 3 + Math.random() * 4, 0.006 + Math.random() * 0.006, i < 4 ? 0.55 : 0.7);
-    var v = { g: g, oscs: srcs, rel: t.rel, done: false };
+    var v = { g: g, oscs: srcs, rel: t.rel, done: false, ring: typeof owner === 'string' && owner.indexOf('pad') === 0 };
     srcs[srcs.length - 1].onended = function () {
       v.done = true; g.disconnect();
       if (gtr.strVoice[i] === v) gtr.strVoice[i] = null;
@@ -1662,7 +1663,11 @@ body[data-screen="home"] .rotate { display: none !important; }
 
     // A tap plucks the string under the finger; any swipe is a strum (see strumGesture)
     strumGesture(neck, {
-      tap: function (id, y, r) { pluck(clamp(Math.floor(y / r.height * gtr.n), 0, gtr.n - 1), 0.7, id); },
+      tap: function (id, y, r, quick) {
+        var own = quick ? 'q' + id : id;
+        pluck(clamp(Math.floor(y / r.height * gtr.n), 0, gtr.n - 1), 0.7, own);
+        if (quick) setTimeout(function () { gtrRelease(own); }, 150);
+      },
       strum: function (id, dir, fast) { gtrStrum(id, dir, fast); }
     });
     strumPads($('gpads'), function (id, dir) { gtrStrum(id, dir, 0.75); });
@@ -1684,6 +1689,17 @@ body[data-screen="home"] .rotate { display: none !important; }
   // and louder. A down-strum runs low string to high; an up-strum runs high to low, catches mostly the top four
   // strings and is softer. The pick meeting the strings stops what they were ringing over about 80 ms.
   var STRUM_DAMP = 0.08;
+  // The pick catching a string: a few milliseconds of bright noise, which is much of what makes each strum stand
+  // out from the strings still ringing
+  function pickClick(dest, when, lvl) {
+    if (!noiseBuf || lvl <= 0) return null;
+    var s = ctx.createBufferSource(), f = biq('highpass', 2200, 0.7), g = ctx.createGain();
+    s.buffer = noiseBuf;
+    g.gain.setValueAtTime(0, when); g.gain.linearRampToValueAtTime(lvl, when + 0.0015); g.gain.setTargetAtTime(0, when + 0.0015, 0.003);
+    s.connect(f); f.connect(g); g.connect(dest);
+    s.start(when, Math.random() * 1.5); s.stop(when + 0.03);
+    return s;
+  }
   function strumGap(fast) { return (30 - 25 * fast) / 1000; }
   function strumVel(dir, fast) { return (0.45 + 0.55 * fast) * (dir < 0 ? 0.8 : 1); }
   // How much of each string (index from the lowest) an up-strum catches
@@ -1713,6 +1729,8 @@ body[data-screen="home"] .rotate { display: none !important; }
     }
     function fire(id, p, dir, now) {
       clearTimeout(p.tapT); p.tapT = 0; p.dir = dir;
+      // where a tap is itself a down-strum, a finger that rests a moment and then swipes down plays one strum, not two
+      if (h.tapIsDown && p.tapped && dir > 0 && now - p.tapAt < 250) { p.tapped = false; p.hist = [p.hist[p.hist.length - 1]]; return; }
       var fast = clamp((speed(p, now) - 0.1) / 1.4, 0, 1);
       h.strum(id, dir, fast);
       p.hist = [p.hist[p.hist.length - 1]];
@@ -1722,7 +1740,7 @@ body[data-screen="home"] .rotate { display: none !important; }
       try { el.setPointerCapture(e.pointerId); } catch (err) {}
       init();
       var r = el.getBoundingClientRect(), id = e.pointerId, p = ptr[id] = { y0: e.clientY, ext: e.clientY, dir: 0, hist: [[e.timeStamp, e.clientY]], r: r };
-      p.tapT = setTimeout(function () { p.tapT = 0; if (ptr[id] === p && !p.dir) { p.tapped = true; h.tap(id, p.y0 - r.top, r); } }, 35);
+      p.tapT = setTimeout(function () { p.tapT = 0; if (ptr[id] === p && !p.dir) { p.tapped = true; p.tapAt = performance.now(); h.tap(id, p.y0 - r.top, r); } }, 35);
     });
     el.addEventListener('pointermove', function (e) {
       var p = ptr[e.pointerId];
@@ -1738,7 +1756,14 @@ body[data-screen="home"] .rotate { display: none !important; }
         else if (Math.abs(y - p.ext) >= STRUM_MIN) { p.ext = y; fire(e.pointerId, p, -p.dir, ev.timeStamp); }
       });
     });
-    function end(e) { var p = ptr[e.pointerId]; if (p) { clearTimeout(p.tapT); delete ptr[e.pointerId]; } }
+    function end(e) {
+      var p = ptr[e.pointerId];
+      if (!p) return;
+      clearTimeout(p.tapT); delete ptr[e.pointerId];
+      // a quick tap that lifted before the tap timer still plays: as if the finger had stayed down 150 ms, then
+      // lifted (so it is heard, and lifting still mutes it)
+      if (p.tapT && !p.dir && e.type === 'pointerup') h.tap(e.pointerId, p.y0 - p.r.top, p.r, true);
+    }
     el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
     el.addEventListener('contextmenu', function (e) { e.preventDefault(); });
   }
@@ -2567,7 +2592,16 @@ body[data-screen="home"] .rotate { display: none !important; }
   var harp = $('harp');
 
   function hmRoot() { return T.rootFrom(TONAL.harmonica.key, 55); } // harps run from G (lowest) up to F#
-  function hmNote(i, draw) { return hmRoot() + T.seventh(TONAL.harmonica.scale, draw ? HM_DRAW[i] : HM_BLOW[i]); }
+  // In the chromatic scale the harp becomes chromatic: blow and draw on each hole are neighbouring semitones.
+  // Pentatonic and blues scales climb the scale itself, about a step and a half per hole (so every note of the scale,
+  // the blues note included, is on the harp, over three octaves like the usual layout); seven-note scales keep the
+  // usual Richter layout.
+  function hmNote(i, draw) {
+    var sc = TONAL.harmonica.scale, s = T.iv(sc);
+    if (sc === 'chromatic') return hmRoot() + 2 * i + (draw ? 1 : 0);
+    if (s.length < 7) { var k = Math.round(i * 1.5) + (draw ? 1 : 0); return hmRoot() + 12 * Math.floor(k / s.length) + s[k % s.length]; }
+    return hmRoot() + T.seventh(sc, draw ? HM_DRAW[i] : HM_BLOW[i]);
+  }
 
   function hmChain() {
     if (chains.harmonica) return chains.harmonica;
@@ -3112,7 +3146,7 @@ body[data-screen="home"] .rotate { display: none !important; }
   function hnU(l) { return clamp((l - 0.3) / 0.7, 0, 1); }
   ENG.horn = brassEngine('horn', {
     spec: function (n, k) { return Math.pow(n, -[2.8, 2.05, 1.35][k]); },
-    att: 0.08, scoop: 30, scoopT: 0.016, atb: -0.35, wobble: 1.2, vib: [4.6, 6, 0.4], rel: 0.2, gain: 0.4,
+    att: 0.13, scoop: 30, scoopT: 0.016, atb: -0.35, wobble: 1.2, vib: [4.6, 6, 0.4], rel: 0.2, gain: 0.4,
     blat: [700, 1, 0.18, 0.06], air: [1.5, 0.006, 2000],
     formants: [[30, 0.7, 0, 'highpass'], [400, 0.7, 2.5], [850, 1, 1.5], [3600, 0.5, 0, 'lowpass']],
     tube: [0.3, 0.06, 2500], bore: [0.65, 0.5],
@@ -3329,7 +3363,7 @@ body[data-screen="home"] .rotate { display: none !important; }
     voice: function (t, src, x, all) {
       var tail = src;
       if (x.mute) tail = series([src, biq('highpass', 700, 0.7), biq('peaking', 1700, 2.5, 9), biq('lowpass', 4200, 0.7)]);
-      var mg = ctx.createGain(); mg.gain.value = x.mute ? 0.5 : 1;
+      var mg = ctx.createGain(); mg.gain.value = x.mute ? 0.42 : 1;
       if (x.growl) growl(t, 32, tail, mg, all); else tail.connect(mg);
       return mg;
     }
@@ -3372,7 +3406,7 @@ body[data-screen="home"] .rotate { display: none !important; }
   var sx = { growl: false, vib: true };
   ENG.sax = brassEngine('sax', {
     spec: function (n, k) { return Math.pow(n, -[2.0, 1.4, 0.95][k]) * (n % 2 ? 1 : 0.8); },
-    att: 0.04, scoop: 30, scoopT: 0.012, atb: 0.1, wobble: 2, vib: [5.2, 16, 0.35], rel: 0.1, gain: 0.4,
+    att: 0.048, scoop: 30, scoopT: 0.012, atb: 0.1, wobble: 2, vib: [5.2, 16, 0.35], rel: 0.1, gain: 0.4,
     blat: [2500, 0.9, 0.25, 0.04], air: [3, 0.03, 5000],
     formants: [[110, 0.7, 0, 'highpass'], [600, 1.1, 5], [1650, 1.6, 4], [2900, 2.2, 2], [7000, 0.5, 0, 'lowpass']],
     tube: [0.22, 0.06, 4500], bore: [0.5, 0.4],
@@ -3509,7 +3543,7 @@ body[data-screen="home"] .rotate { display: none !important; }
   /* ---------- Synth ---------- */
   // Four presets; the knobs (filter, attack, release, vibrato) start from the preset and are kept per preset.
   var SYN = {
-    lead: { cut: 62, att: 8, rel: 250, vib: 10, q: 3, osc: [['sawtooth', 0.5, -3], ['square', 0.3, 5]] },
+    lead: { cut: 62, att: 8, rel: 250, vib: 10, q: 3, osc: [['sawtooth', 0.5, -4], ['square', 0.3, 6]] },
     pad: { cut: 48, att: 700, rel: 1600, vib: 0, q: 0.8, osc: [['sawtooth', 0.35, -11], ['sawtooth', 0.35, 10], ['triangle', 0.4, 0]] },
     pluck: { cut: 70, att: 2, rel: 350, vib: 0, q: 2, osc: [['sawtooth', 0.55, 0], ['square', 0.25, 7]] },
     supersaw: { cut: 78, att: 15, rel: 600, vib: 0, q: 0.7, osc: [-26, -15, -7, 0, 7, 15, 26].map(function (c) { return ['sawtooth', 0.2, c]; }) }
@@ -3735,7 +3769,7 @@ body[data-screen="home"] .rotate { display: none !important; }
     ['folk', 'Folk', 'D-DU-UDU'], ['down', 'On the beat', 'D-D-D-D-'], ['pop', 'Pop', 'D-DUXUDU'],
     ['rock', 'Rock eighths', 'DDDDDDDD'], ['offbeat', 'Off-beat', '-U-U-U-U'], ['ballad', 'Ballad', 'D--UDUDU']
   ];
-  var rh = { chord: 0, chords: [], strEls: [], auto: false, pat: 0, bpm: 96, palm: false, next: 0, n: 0, timer: 0, ptr: {}, prev: null, stepEls: [], cur: -1 };
+  var rh = { quick: 0, chord: 0, chords: [], strEls: [], auto: false, pat: 0, bpm: 96, palm: false, next: 0, n: 0, timer: 0, ptr: {}, prev: null, stepEls: [], cur: -1 };
   function rhChain() {
     return softChain('rhythm', [biq('peaking', 110, 1.2, 5), biq('peaking', 220, 1.5, 3), biq('lowpass', 7000, 0.5)]);
   }
@@ -3766,7 +3800,9 @@ body[data-screen="home"] .rotate { display: none !important; }
         s.buffer = ksBuffer(notes[i], 'acoustic');
         s.playbackRate.value = Math.pow(2, (Math.random() * 2 - 1) * 1.5 / 1200);
         sg.gain.value = w;
-        s.connect(sg); sg.connect(sum); s.start(when + (k2++) * gap + Math.random() * 0.002); all.push(s); last = s;
+        var st = when + (k2++) * gap + Math.random() * 0.002;
+        s.connect(sg); sg.connect(sum); s.start(st); all.push(s); last = s;
+        if (!x.mute) { var pc = pickClick(sg, st, 0.75); if (pc) all.push(pc); }
       }
       g.connect(c.in);
       var v = { g: g, oscs: all, rel: x.palm ? 0.06 : 0.3, done: false };
@@ -3863,7 +3899,11 @@ body[data-screen="home"] .rotate { display: none !important; }
     });
     // Swipe down or up: each change of direction is a new strum, faster is tighter and louder. A tap strums down.
     strumGesture(neck, {
-      tap: function (id) { rh.ptr[id] = rh.ptr[id] || { n: 0 }; rhStrum('r' + id + '_' + rh.ptr[id].n, 1, 0.75); },
+      tapIsDown: true,
+      tap: function (id, y, r, quick) {
+        if (quick) { var q = 'rq' + (++rh.quick); rhStrum(q, 1, 0.75); setTimeout(function () { vStop(q); }, 150); return; }
+        rh.ptr[id] = rh.ptr[id] || { n: 0 }; rhStrum('r' + id + '_' + rh.ptr[id].n, 1, 0.75);
+      },
       strum: function (id, dir, fast) {
         var p = rh.ptr[id] = rh.ptr[id] || { n: -1 };
         p.n++;
@@ -4543,6 +4583,8 @@ body[data-screen="home"] .rotate { display: none !important; }
   }
 
   $('ver').textContent = 'v' + APP_VERSION;
+  // Read-only numbers for the test suite and the self-test page: sounding voices and the note limit
+  window.__pbStats = function () { var on = live.filter(function (v) { return !v.done; }); return { voices: on.length, ringing: on.filter(function (v) { return v.ring; }).length, max: MAX_VOICES, version: APP_VERSION, tab: state.tab }; };
   if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
     window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
     // A new version took over while the app was open on the home screen: reload once so it runs the new code

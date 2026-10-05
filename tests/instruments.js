@@ -527,13 +527,16 @@ test('release: every newer instrument fades out cleanly when the finger lifts', 
   const H = __pbt, P = PocketBandTest, T0 = 0.4, out = {};
   const cases = {
     trumpet: ['#tptRow', 0.3, 0.4], sax: ['#saxRow', 0.3, 0.4], viola: null, organ: ['#man0 .mkey:nth-of-type(4)', 0.5, 0.6],
-    synth: ['#synKeys .mkey:nth-of-type(4)', 0.5, 0.6], xylo: ['#xylo', 0.3, 0.6], ebass: ['#ebass', 0.3, 0.6], rhythm: ['#rneck', 0.5, 0.2]
+    synth: ['#synKeys .mkey:nth-of-type(4)', 0.5, 0.6], xylo: ['#xylo', 0.3, 0.6], ebass: ['#ebass', 0.3, 0.6], rhythm: null
   };
   for (const tab in cases) {
     H.setup(tab); H.start(T0 + 2);
     const c = cases[tab], lift = T0 + 0.8;
     const steps = c ? [[T0, () => H.ptr('pointerdown', c[0], c[1], c[2], 2)], [lift, () => H.ptr('pointerup', c[0], c[1], c[2], 2)]]
-      : [[T0, () => P.vStart('viola', 'v', 62, 0.7, { vib: true })], [lift, () => P.vStop('v')]];
+      : tab === 'viola' ? [[T0, () => P.vStart('viola', 'v', 62, 0.7, { vib: true })], [lift, () => P.vStop('v')]]
+      // the rhythm neck tells a tap from a swipe on a short real-time timer, which an offline render can't follow;
+      // the live suite (npm test) covers the gesture, so here the strum is played directly
+      : [[T0, () => P.rhStrum('r', 1, 0.75, false, 0)], [lift, () => P.vStop('r')]];
     const buf = await __pbRender(steps), r = H.analyse(buf, { held: [lift - 0.15, lift] });
     out[tab] = { gone: H.fall(buf, lift, r.held.peak, 50), burst: H.fadeBurst(buf, lift - 0.3, lift, lift, lift + 0.6) };
   }

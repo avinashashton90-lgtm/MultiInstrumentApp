@@ -165,12 +165,69 @@ export async function playAndMeasure(page, touch, targets, { hold = 240, gap = 5
       const rms = Math.sqrt(s / x.length);
       const q = rms > 1e-4 ? PBA.pitch(x, sr, 0, x.length, fmin, fmax) : { f: 0, clarity: 0 };
       const r = { f: q.f, clarity: q.clarity, rms, peak: p };
-      if (chroma) { // energy of each pitch class from C2 to B6 (for strummed chords)
-        r.chroma = new Array(12).fill(0);
-        for (let m = 36; m < 96; m++) r.chroma[m % 12] += Math.pow(10, PBA.tonePower(x, sr, 0, x.length, 440 * Math.pow(2, (m - 69) / 12)) / 10);
+      if (chroma) { // the notes in a strummed chord: strong partials, lowest first, each explaining its own overtones
+        const P = [];
+        const N = x.length, w = new Float32Array(N);
+        for (let k = 0; k < N; k++) w[k] = x[k] * (0.5 - 0.5 * Math.cos(2 * Math.PI * k / (N - 1)));
+        for (let m = 38; m < 90; m++) { // Goertzel over the whole window: fine enough to split semitones at 80 Hz
+          const f = 440 * Math.pow(2, (m - 69) / 12), cw = 2 * Math.cos(2 * Math.PI * f / sr);
+          let s1 = 0, s2 = 0; for (let k = 0; k < N; k++) { const s0 = w[k] + cw * s1 - s2; s2 = s1; s1 = s0; }
+          P[m] = 10 * Math.log10((s1 * s1 + s2 * s2 - cw * s1 * s2) / (N * N) + 1e-30);
+        }
+        const vals = P.slice(38).sort((a, b) => a - b), floor = vals[Math.floor(vals.length / 2)], top = vals[vals.length - 1];
+        const found = [], OVER = [12, 19, 24, 28, 31, 34, 36, 38, 40];
+        for (let m = 38; m < 78; m++) {
+          if (P[m] < Math.max(floor + 6, top - 35)) continue;
+          if (P[m] < (P[m - 1] || -999) || P[m] < (P[m + 1] || -999)) continue; // a local peak only
+          if (found.some((f) => OVER.includes(m - f))) continue;             // an overtone of a note already found
+          found.push(m);
+        }
+        r.notes = found;
       }
       out.push(r);
     }
     return out;
   }, { m0, win, fmin, fmax, chroma, n: targets.length });
+}
+
+// The audio clock now, as a frame index of the recording
+export const nowFrame = (page) => page.evaluate(() => window.__rec.now());
+export async function waitFrame(page, f) {
+  await page.waitForFunction((f) => window.__rec.last() >= f, f, { timeout: 15000, polling: 20 });
+}
+// Numbers for the recorded output between two frames: peak and RMS (dBFS), clipped samples (|x| >= 0.999),
+// the RMS of each 20 ms frame, the spectral centroid of the loudest part, click and crackle measures (jump,
+// burst; see below) and the share of energy above 10 kHz.
+export async function stats(page, f0, f1) {
+  await waitFrame(page, f1);
+  return page.evaluate(({ f0, f1 }) => {
+    const R = window.__rec, sr = R.sr, x = R.get(f0, f1), n = x.length, F = Math.round(0.02 * sr);
+    let p = 0, s = 0, clip = 0;
+    for (let i = 0; i < n; i++) { const a = Math.abs(x[i]); if (a > p) p = a; if (a >= 0.999) clip++; s += x[i] * x[i]; }
+    const frames = [];
+    for (let i = 0; i + F <= n; i += F) { let e = 0; for (let k = i; k < i + F; k++) e += x[k] * x[k]; frames.push(Math.sqrt(e / F)); }
+    // Click and crackle detectors, both relative to the sound around them so a bright note isn't mistaken for one:
+    // jump: the largest sample-to-sample step in a 20 ms frame over the median of its neighbours (±100 ms);
+    // burst: the most energy above 8 kHz in a frame over the median of the sounding frames, in dB
+    const steps = [], hfs = [], k8 = Math.exp(-2 * Math.PI * 8000 / sr);
+    let lp = 0;
+    for (let i = 0; i + F <= n; i += F) {
+      let m = 0, e = 0;
+      for (let k = i; k < i + F; k++) { if (k) { const d = Math.abs(x[k] - x[k - 1]); if (d > m) m = d; } lp = (1 - k8) * x[k] + k8 * lp; const h = x[k] - lp; e += h * h; }
+      steps.push(m); hfs.push(10 * Math.log10(e / F + 1e-20));
+    }
+    const med = (a) => { const b = a.slice().sort((p, q) => p - q); return b[Math.floor(b.length / 2)] || 0; };
+    let jump = 0;
+    for (let f = 0; f < steps.length; f++) {
+      if (frames[f] < 1e-3) continue;
+      const nb = steps.slice(Math.max(0, f - 5), f).concat(steps.slice(f + 1, f + 6));
+      const r = steps[f] / Math.max(med(nb), 1e-5); if (r > jump) jump = r;
+    }
+    const sounding = hfs.filter((_, f) => frames[f] > 1e-3), burst = sounding.length ? Math.max(...sounding) - med(sounding) : 0;
+    const loud = frames.indexOf(Math.max(...frames));
+    const cen = n > 5000 ? PBA.centroid(x, sr, Math.max(0, Math.min(n - 4097, loud * F))) : 0;
+    const hf = PBA.energyAbove(x, sr, 10000, 0, n);
+    const db = (v) => v > 0 ? 20 * Math.log10(v) : -200;
+    return { peak: db(p), rms: db(Math.sqrt(s / Math.max(1, n))), clip, frames: frames.map(db), cen, jump, burst, hf: hf > 0 ? 10 * Math.log10(hf) : -200 };
+  }, { f0, f1 });
 }
