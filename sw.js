@@ -1,5 +1,5 @@
 // Offline support: serve from the network when possible, fall back to the cached copy.
-var CACHE = 'pocket-band-v4';
+var CACHE = 'pocket-band-v5';
 var FILES = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', function (e) {

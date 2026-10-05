@@ -1,7 +1,7 @@
 {
   "name": "Pocket Band",
   "short_name": "Pocket Band",
-  "description": "Piano, drums, guitars, flute, tabla, electric drum pad, harmonica, violin, cello and French horn in one app.",
+  "description": "Piano, drums, guitars, flute, tabla, electric drum pad, harmonica, violin, viola, cello, French horn, trumpet, saxophone, pipe organ, synth, xylophone, electric bass and rhythm guitar in one app.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "fullscreen",

@@ -1,6 +1,7 @@
 // Loudness of every instrument and pad: one medium-velocity note each, measured at the app's output.
 //   node tests/loudness.js              measure at the default master volume, write tests/results/loudness.json
 //   node tests/loudness.js --calibrate  work out the LEVEL trims in index.html so each note peaks at -3 dBFS
+//   --only=Horn,Trumpet                 just the sounds whose name starts with one of these (calibrate only those trims)
 'use strict';
 const fs = require('fs');
 const path = require('path');
@@ -8,7 +9,7 @@ const { launch, openApp, ROOT } = require('./lib/browser');
 
 
 // Runs in the page. vol: master volume. Returns one row per sound.
-async function measureAll(vol) {
+async function measureAll({ vol, only }) {
   const P = window.PocketBandTest, S = [], PRE = 0.3; // notes start after the limiter has settled
   const sel = (id, v) => { const s = document.getElementById(id); s.value = v; s.dispatchEvent(new Event('change')); };
   const ptr = (type, id, fx, fy) => __pbPtr(type, document.getElementById(id), fx, fy, 3);
@@ -30,12 +31,28 @@ async function measureAll(vol) {
     S.push({ name: tab[0].toUpperCase() + tab.slice(1) + ' (bowed, medium bow)', path: [tab, 'bow'], tab, on: () => P.vStart(tab, 'b', m, 0.6, { vib: true }), off: () => P.vStop('b') });
     S.push({ name: tab[0].toUpperCase() + tab.slice(1) + ' (pizzicato)', path: [tab, 'pizz'], tab, on: () => P.vStart(tab, 'p', m, 0.9, { pizz: true }), off: () => P.vStop('p') });
   });
-  S.push({ name: 'French horn (mid breath)', path: ['horn'], tab: 'horn', on: () => P.vStart('horn', 'h', 53, 0.65, {}), off: () => P.vStop('h') });
+  // The horn is calibrated at full breath, so its loudest note stays clear of the limiter (see TESTING.md)
+  S.push({ name: 'French horn (full breath)', path: ['horn'], tab: 'horn', target: -4.5, on: () => P.vStart('horn', 'h', 53, 1, {}), off: () => P.vStop('h') });
+  // Trumpet and sax likewise at full breath; the organ with every stop drawn, its loudest registration
+  S.push({ name: 'Trumpet (full breath)', path: ['trumpet'], tab: 'trumpet', target: -4.5, on: () => P.vStart('trumpet', 't', 70, 1, {}), off: () => P.vStop('t') });
+  S.push({ name: 'Saxophone (full breath)', path: ['sax'], tab: 'sax', target: -4.5, on: () => P.vStart('sax', 's', 63, 1, { vib: true }), off: () => P.vStop('s') });
+  S.push({ name: 'Viola (bowed, medium bow)', path: ['viola', 'bow'], tab: 'viola', on: () => P.vStart('viola', 'b', 62, 0.6, { vib: true }), off: () => P.vStop('b') });
+  S.push({ name: 'Viola (pizzicato)', path: ['viola', 'pizz'], tab: 'viola', on: () => P.vStart('viola', 'p', 62, 0.9, { pizz: true }), off: () => P.vStop('p') });
+  S.push({ name: 'Pipe organ (all stops)', path: ['organ'], tab: 'organ', target: -4.5, seconds: 3,
+    on: () => P.vStart('organ', 'o', 60, 1, { stops: [true, true, true, true], up: 0 }), off: () => P.vStop('o') });
+  S.push({ name: 'Xylophone', path: ['xylo'], tab: 'xylo', on: () => P.vStart('xylo', 'x', 72, 0.7, {}) });
+  Object.keys(P.SYN).forEach((k) => { const q = P.SYN[k]; S.push({ name: 'Synth: ' + k, path: ['synth', k], tab: 'synth', seconds: 3, hold: 1.5,
+    on: () => P.vStart('synth', 's', 60, 0.8, { p: k, cut: q.cut, att: q.att, rel: q.rel, vib: q.vib }), off: () => P.vStop('s') }); });
+  ['finger', 'pick', 'slap'].forEach((k) => S.push({ name: 'Electric bass: ' + k, path: ['ebass', k], tab: 'ebass',
+    on: () => P.vStart('ebass', 'b', 33, 0.8, { mode: k }), off: () => P.vStop('b'), hold: 1.2 }));
+  S.push({ name: 'Rhythm guitar (open strum)', path: ['rhythm'], tab: 'rhythm',
+    on: () => P.rhStrum('r', 1, 0.75, false, 0), off: () => P.vStop('r'), hold: 1.2 });
 
   // Hits use random noise and plucks a random excitation, so each sound is played REPS times and the median kept
   const REPS = 5, med = (a) => a.slice().sort((p, q) => p - q)[a.length >> 1];
   const out = [];
   for (const s of S) {
+    if (only && !only.some((o) => s.name.toLowerCase().startsWith(o.toLowerCase()))) continue;
     const runs = [];
     for (let k = 0; k < REPS; k++) {
       P.open(s.tab);
@@ -81,6 +98,7 @@ function formatLevel(L) {
 
 (async () => {
   const calibrate = process.argv.includes('--calibrate');
+  const oa = process.argv.find((a) => a.startsWith('--only=')), only = oa ? oa.slice(7).split(',') : null;
   const browser = await launch();
   const file = path.join(ROOT, 'index.html');
   let rows;
@@ -88,7 +106,7 @@ function formatLevel(L) {
     const { page, context } = await openApp(browser);
     // Calibrate at half volume (-6 dB) so every note stays below the limiter and scales linearly
     const vol = calibrate ? 0.5 : 1;
-    rows = await page.evaluate(measureAll, vol);
+    rows = await page.evaluate(measureAll, { vol, only });
     if (calibrate) {
       const L = await page.evaluate(() => window.PocketBandTest.level());
       const half = 20 * Math.log10(0.5);
@@ -106,6 +124,7 @@ function formatLevel(L) {
     await context.close();
   }
   if (calibrate) { await browser.close(); return; }
+  if (only) { rows.forEach((r) => console.log(r.name.padEnd(40), 'peak', r.peak.toFixed(1).padStart(6), ' rms', r.rms.toFixed(1).padStart(6))); await browser.close(); return; }
   rows.forEach((r) => console.log(r.name.padEnd(40), 'peak', r.peak.toFixed(1).padStart(6), ' rms', r.rms.toFixed(1).padStart(6), ' >200Hz', (100 * r.above200).toFixed(0).padStart(3) + '%'));
   fs.mkdirSync(path.join(__dirname, 'results'), { recursive: true });
   fs.writeFileSync(path.join(__dirname, 'results', 'loudness.json'), JSON.stringify(rows, null, 1));
