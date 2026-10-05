@@ -1,0 +1,149 @@
+[
+ {
+  "name": "violin: open strings",
+  "ok": true,
+  "detail": "196.05 Hz (+0.50 c from G3), 293.75 Hz (+0.50 c from D4), 440.14 Hz (+0.53 c from A4), 659.45 Hz (+0.50 c from E5)"
+ },
+ {
+  "name": "cello: open strings",
+  "ok": true,
+  "detail": "65.43 Hz (+0.69 c from C2), 97.99 Hz (-0.09 c from G2), 146.86 Hz (+0.33 c from D3), 220.00 Hz (-0.01 c from A3)"
+ },
+ {
+  "name": "violin vs cello: timbre",
+  "ok": true,
+  "detail": "G3 on both. Spectral centroid violin 2771 Hz vs cello 669 Hz; energy above 2 kHz 11% vs 1.5%; attack to 90% 65 ms vs 125 ms",
+  "data": {
+   "violin": {
+    "centroid": 2771.113010737497,
+    "above2k": 0.11416223172600339,
+    "attack": 0.065
+   },
+   "cello": {
+    "centroid": 669.4226031243174,
+    "above2k": 0.015177363726129699,
+    "attack": 0.125
+   }
+  }
+ },
+ {
+  "name": "bowing: held finger sets the pitch of the bowed string",
+  "ok": true,
+  "detail": "370.11 Hz (+0.52 c from F♯4)"
+ },
+ {
+  "name": "bowing: a string with no finger sounds open",
+  "ok": true,
+  "detail": "440.13 Hz (+0.52 c from A4)"
+ },
+ {
+  "name": "bowing: double stop (bow between two strings, one finger per string)",
+  "ok": true,
+  "detail": "F#4 -36.5 dB, B4 -34.3 dB, strongest off-note -89.1 dB"
+ },
+ {
+  "name": "bowing: one finger per string (a newer finger on the same string wins, lifting it hands back)",
+  "ok": true,
+  "detail": "329.72 Hz (+0.51 c from E4) then 392.11 Hz (+0.52 c from G4) then 329.73 Hz (+0.51 c from E4)"
+ },
+ {
+  "name": "bowing: moving across the strings changes strings smoothly",
+  "ok": true,
+  "detail": "starts 196.07 Hz (+0.60 c from G3), ends 659.45 Hz (+0.50 c from E5); largest level change between 20 ms frames 1.54 dB; largest high-frequency spike 7.4 dB over the median"
+ },
+ {
+  "name": "bowing: changing bow direction does not click",
+  "ok": true,
+  "detail": "7 reversals: largest level change between 5 ms frames 1.35 dB, deepest dip 7.7 dB, largest high-frequency spike 3.4 dB over the median"
+ },
+ {
+  "name": "bowing: bow speed sets the volume",
+  "ok": true,
+  "detail": "RMS slow -34.3, medium -21.5, fast -15.7 dBFS"
+ },
+ {
+  "name": "bowing: one finger alone still holds and rubs (old behaviour)",
+  "ok": true,
+  "detail": "held 370.10 Hz (+0.51 c from F♯4) at -27.4 dBFS, rubbed -23.9 dBFS"
+ },
+ {
+  "name": "cello: two-hand bowing too",
+  "ok": true,
+  "detail": "196.00 Hz (+0.02 c from G3)"
+ },
+ {
+  "name": "horn: attack, breath-opened low-pass, vibrato, hand-stop",
+  "ok": true,
+  "detail": "attack (to 90%) 130 ms; brightness (centroid) soft 419 Hz → full breath 547 Hz; vibrato ±6.5 cents; hand-stop -3.7 dB quieter and brighter (630 Hz vs 480 Hz)",
+  "data": {
+   "soft": {
+    "centroid": 418.93021314245834,
+    "rms": -18.47576867071878,
+    "attack": 0.13
+   },
+   "loud": {
+    "centroid": 547.4906147036302,
+    "rms": -9.08403189643732,
+    "attack": 0.12
+   },
+   "mid": {
+    "centroid": 479.57733883256066,
+    "rms": -11.817166699526238,
+    "attack": 0.13
+   },
+   "stopped": {
+    "centroid": 630.3249902420889,
+    "rms": -15.561579185272434,
+    "attack": 0.1
+   },
+   "vibrato": 6.540359842328486
+  }
+ },
+ {
+  "name": "limiter: chords and stacked notes never clip",
+  "ok": true,
+  "detail": "piano 3-note chord (vel 0.7) @ 100%: peak -1.04 dBFS; 14 organ notes at full velocity @ 100%: peak -1.04 dBFS; drum pad: 4 hits at once, full velocity @ 100%: peak -1.04 dBFS; tabla Dha + Dhin together @ 100%: peak -1.04 dBFS; piano 3-note chord (vel 0.7) @ 150%: peak -1.04 dBFS; 14 organ notes at full velocity @ 150%: peak -1.04 dBFS; drum pad: 4 hits at once, full velocity @ 150%: peak -1.04 dBFS; tabla Dha + Dhin together @ 150%: peak -1.04 dBFS",
+  "data": {
+   "piano 3-note chord (vel 0.7) @ 100%": {
+    "peak": -1.041084951162115,
+    "clipped": false,
+    "voices": 3
+   },
+   "14 organ notes at full velocity @ 100%": {
+    "peak": -1.041084951162115,
+    "clipped": false,
+    "voices": 14
+   },
+   "drum pad: 4 hits at once, full velocity @ 100%": {
+    "peak": -1.041084951162115,
+    "clipped": false,
+    "voices": 0
+   },
+   "tabla Dha + Dhin together @ 100%": {
+    "peak": -1.041084951162115,
+    "clipped": false,
+    "voices": 0
+   },
+   "piano 3-note chord (vel 0.7) @ 150%": {
+    "peak": -1.041084951162115,
+    "clipped": false,
+    "voices": 3
+   },
+   "14 organ notes at full velocity @ 150%": {
+    "peak": -1.041084951162115,
+    "clipped": false,
+    "voices": 14
+   },
+   "drum pad: 4 hits at once, full velocity @ 150%": {
+    "peak": -1.041084951162115,
+    "clipped": false,
+    "voices": 0
+   },
+   "tabla Dha + Dhin together @ 150%": {
+    "peak": -1.041084951162115,
+    "clipped": false,
+    "voices": 0
+   }
+  }
+ }
+]

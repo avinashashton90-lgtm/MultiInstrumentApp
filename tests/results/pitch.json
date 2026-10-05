@@ -1,0 +1,68 @@
+{
+ "summary": [
+  {
+   "tab": "piano",
+   "cases": 120,
+   "notes": 960,
+   "failed": 0,
+   "maxCents": 0.000155334423446434,
+   "meanCents": 0.0000718243549815557,
+   "keysDistinct": true
+  },
+  {
+   "tab": "guitar",
+   "cases": 120,
+   "notes": 630,
+   "failed": 0,
+   "maxCents": 2.0067075034240722,
+   "meanCents": 1.0243917925515085,
+   "keysDistinct": true
+  },
+  {
+   "tab": "flute",
+   "cases": 120,
+   "notes": 960,
+   "failed": 0,
+   "maxCents": 0.2911407179707566,
+   "meanCents": 0.2611932618027985,
+   "keysDistinct": true
+  },
+  {
+   "tab": "harmonica",
+   "cases": 120,
+   "notes": 1200,
+   "failed": 0,
+   "maxCents": 1.8901374766517771,
+   "meanCents": 1.0812524667370609,
+   "keysDistinct": true
+  },
+  {
+   "tab": "violin",
+   "cases": 120,
+   "notes": 980,
+   "failed": 0,
+   "maxCents": 0.5415225037184266,
+   "meanCents": 0.509019339911321,
+   "keysDistinct": true
+  },
+  {
+   "tab": "cello",
+   "cases": 120,
+   "notes": 980,
+   "failed": 0,
+   "maxCents": 0.7817063914613703,
+   "meanCents": 0.22279597619513797,
+   "keysDistinct": true
+  },
+  {
+   "tab": "horn",
+   "cases": 120,
+   "notes": 960,
+   "failed": 0,
+   "maxCents": 3.314533120152082,
+   "meanCents": 0.8378466839326246,
+   "keysDistinct": true
+  }
+ ],
+ "failures": []
+}

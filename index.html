@@ -118,7 +118,7 @@ body:not([data-tab="epad"]) .only-epad,
 body:not([data-tab="harmonica"]) .only-harmonica,
 body:not([data-tab="violin"]):not([data-tab="cello"]) .only-bowed,
 body:not([data-tab="horn"]) .only-horn,
-body:not([data-tab="violin"]):not([data-tab="cello"]):not([data-tab="horn"]) .only-scaled,
+body:not([data-tab="piano"]):not([data-tab="guitar"]):not([data-tab="flute"]):not([data-tab="harmonica"]):not([data-tab="violin"]):not([data-tab="cello"]):not([data-tab="horn"]) .only-keyed,
 body:not([data-tab="harmonica"]):not([data-tab="violin"]):not([data-tab="cello"]):not([data-tab="horn"]) .only-new,
 body:not([data-tab="piano"]):not([data-tab="harmonica"]):not([data-tab="violin"]):not([data-tab="cello"]):not([data-tab="horn"]) .only-rec { display: none !important; }
 .fine { width: 90px; accent-color: var(--accent); flex: 0 0 auto; }
@@ -135,6 +135,8 @@ body:not([data-tab="piano"]):not([data-tab="harmonica"]):not([data-tab="violin"]
   min-height: 0; display: flex; align-items: flex-end; justify-content: center;
   font-size: .7rem; color: var(--muted); touch-action: none;
 }
+.key.root { color: var(--accent); font-weight: 700; }
+.key.scale { border-radius: 0 0 10px 10px; }
 .key.on { background: var(--key-on); }
 .bkey {
   position: absolute; top: 0; height: 60%; background: var(--black); border: 0;
@@ -308,6 +310,16 @@ body:not([data-tab="piano"]):not([data-tab="harmonica"]):not([data-tab="violin"]
   border: 3px solid var(--key-on); background: rgba(242,177,52,.25); pointer-events: none; display: none;
 }
 .bhint { position: absolute; right: 12px; bottom: 6px; font-size: .72rem; color: #e9dfc8; opacity: .7; pointer-events: none; }
+/* By the bridge: where the bow finger plays */
+.bzone {
+  position: absolute; top: 0; bottom: 0; right: 0; pointer-events: none;
+  background: linear-gradient(90deg, rgba(0,0,0,.35), rgba(255,240,210,.06) 18%); border-left: 3px solid #c9b98f;
+}
+.bzone span { position: absolute; right: 10px; top: 6px; font-size: .72rem; font-weight: 700; color: #e9dfc8; opacity: .75; }
+.bowsvg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; display: none; z-index: 3; }
+.bowsvg .brosin { animation: rosin .5s ease-in-out infinite alternate; }
+@keyframes rosin { from { filter: brightness(1); } to { filter: brightness(1.35); } }
+@media (prefers-reduced-motion: reduce) { .bowsvg .brosin { animation: none; } }
 
 /* French horn: a row of note buttons; higher up on a button = more breath */
 .horn { position: relative; height: 100%; display: flex; border-radius: 16px; overflow: hidden; touch-action: none; border: 2px solid var(--edge); }
@@ -402,6 +414,9 @@ body[data-screen="home"] .rotate { display: none !important; }
   <button id="home" class="homeb" aria-label="Home: choose an instrument"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg></button>
   <span class="iname" id="iname">Piano</span>
 
+  <select id="key" class="only-keyed" aria-label="Key"></select>
+  <select id="scale" class="only-keyed" aria-label="Scale"></select>
+
   <select id="inst" class="only-piano" aria-label="Piano sound">
     <option value="piano">Grand piano</option>
     <option value="epiano">Electric piano</option>
@@ -435,15 +450,6 @@ body[data-screen="home"] .rotate { display: none !important; }
   </select>
   <button id="ring" class="only-guitar" aria-pressed="false">Let ring</button>
 
-  <select id="fkey" class="only-flute" aria-label="Flute key"></select>
-  <select id="fscale" class="only-flute" aria-label="Flute scale">
-    <option value="major">Major</option>
-    <option value="minor">Minor</option>
-    <option value="penta">Major penta</option>
-    <option value="minpenta">Minor penta</option>
-    <option value="blues">Blues</option>
-    <option value="chromatic">Chromatic</option>
-  </select>
   <select id="fmode" class="only-flute" aria-label="Pitch slide">
     <option value="slide">Slide</option>
     <option value="snap">Snap</option>
@@ -467,19 +473,10 @@ body[data-screen="home"] .rotate { display: none !important; }
   <span class="lbl only-epad" id="bpmLbl">100 BPM</span>
   <input type="range" id="bpm" class="fine only-epad" min="60" max="180" step="1" value="100" aria-label="Tempo">
 
-  <select id="nkey" class="only-new" aria-label="Key"></select>
-  <select id="nscale" class="only-scaled" aria-label="Scale">
-    <option value="major">Major</option>
-    <option value="minor">Minor</option>
-    <option value="penta">Major penta</option>
-    <option value="minpenta">Minor penta</option>
-    <option value="blues">Blues</option>
-    <option value="chromatic">Chromatic</option>
-  </select>
   <button id="hwah" class="only-harmonica" aria-pressed="false">Wah</button>
   <button id="htrem" class="only-harmonica" aria-pressed="false">Tremolo</button>
   <button id="bpizz" class="only-bowed" aria-pressed="false">Pizzicato</button>
-  <button id="bsnap" class="only-bowed" aria-pressed="false">Snap to scale</button>
+  <button id="bsnap" class="only-bowed" aria-pressed="true">Snap to scale</button>
   <button id="bvib" class="only-bowed" aria-pressed="true">Vibrato</button>
   <button id="hstop" class="only-horn" aria-pressed="false">Hand-stop</button>
   <span class="lbl only-horn">Slide</span>
@@ -565,7 +562,7 @@ body[data-screen="home"] .rotate { display: none !important; }
   </div>
 
   <div class="panel" id="panel">
-    <div class="r"><span>Volume</span><input type="range" id="vol" min="0" max="1" step="0.01" value="0.8"></div>
+    <div class="r"><span>Volume <b class="kval" id="volLbl">100%</b></span><input type="range" id="vol" min="0" max="1.5" step="0.01" value="1" aria-label="Master volume"></div>
     <div class="r"><span>Reverb</span><input type="range" id="rev" min="0" max="1" step="0.01" value="0.25"></div>
     <div class="r only-piano"><span>Vibrato</span><input type="range" id="vib" min="0" max="1" step="0.01" value="0"></div>
     <div class="r only-piano"><span>Keys</span>
@@ -580,6 +577,7 @@ body[data-screen="home"] .rotate { display: none !important; }
         <option value="major">Major chord</option>
         <option value="minor">Minor chord</option>
         <option value="octave">Octave</option>
+        <option value="diatonic">Chord in the scale</option>
       </select></div>
     <div class="r"><span>Note labels</span>
       <select id="labels">
@@ -613,21 +611,153 @@ body[data-screen="home"] .rotate { display: none !important; }
 <script>
 (function () {
   var AC = window.AudioContext || window.webkitAudioContext;
-  var ctx, bus, master, wet, lfoDepth, noiseBuf, drive, conv, gch, eOut, hall;
+  var ctx, bus, master, limiter, makeup, wet, lfoDepth, noiseBuf, drive, conv, gch, eOut, hall;
+  var MAKEUP = 1.26; // +2 dB after the limiter (Chrome's compressor adds its own make-up on top: see TESTING.md)
   var $ = function (id) { return document.getElementById(id); };
+
+  /* ---------- Music theory: the one place notes come from ---------- */
+  // Key (0-11, C = 0) + scale intervals -> MIDI note -> frequency. Every instrument builds both its
+  // labels and its sounding pitches from these functions, so what a label says is what plays.
+  var T = (function () {
+    var NAMES = ['C', 'C♯', 'D', 'E♭', 'E', 'F', 'F♯', 'G', 'A♭', 'A', 'B♭', 'B'];
+    var SARGAM = ['Sa', 're', 'Re', 'ga', 'Ga', 'Ma', 'ma', 'Pa', 'dha', 'Dha', 'ni', 'Ni'];
+    // parent: the seven-note scale used where a layout needs seven steps (chords, harmonica holes)
+    var SCALES = {
+      major: { name: 'Major', iv: [0, 2, 4, 5, 7, 9, 11] },
+      minor: { name: 'Natural minor', iv: [0, 2, 3, 5, 7, 8, 10] },
+      harmonic: { name: 'Harmonic minor', iv: [0, 2, 3, 5, 7, 8, 11] },
+      melodic: { name: 'Melodic minor', iv: [0, 2, 3, 5, 7, 9, 11] },
+      penta: { name: 'Major pentatonic', iv: [0, 2, 4, 7, 9], parent: 'major' },
+      minpenta: { name: 'Minor pentatonic', iv: [0, 3, 5, 7, 10], parent: 'minor' },
+      blues: { name: 'Blues', iv: [0, 3, 5, 6, 7, 10], parent: 'minor' },
+      dorian: { name: 'Dorian', iv: [0, 2, 3, 5, 7, 9, 10] },
+      mixolydian: { name: 'Mixolydian', iv: [0, 2, 4, 5, 7, 9, 10] },
+      chromatic: { name: 'Chromatic', iv: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], parent: 'major' }
+    };
+    var ORDER = ['major', 'minor', 'harmonic', 'melodic', 'penta', 'minpenta', 'blues', 'dorian', 'mixolydian', 'chromatic'];
+    function pc(m) { return ((Math.round(m) % 12) + 12) % 12; }
+    function rel(m, key) { return ((pc(m) - key) % 12 + 12) % 12; }
+    function iv(scale) { return SCALES[scale].iv; }
+    function hepta(scale) { return iv(scale).length === 7 ? scale : SCALES[scale].parent; }
+    function mtof(m) { return 440 * Math.pow(2, (m - 69) / 12); }
+    // The key's root note at or above MIDI note `low`
+    function rootFrom(key, low) { return low + ((key - low) % 12 + 12) % 12; }
+    // Scale degree d above root (0 = root; may be negative or run past the octave)
+    function degree(root, scale, d) {
+      var s = iv(scale), n = s.length, o = Math.floor(d / n);
+      return root + 12 * o + s[d - o * n];
+    }
+    function run(root, scale, count) {
+      var out = [];
+      for (var i = 0; i < count; i++) out.push(degree(root, scale, i));
+      return out;
+    }
+    function inScale(m, key, scale) { return iv(scale).indexOf(rel(m, key)) >= 0; }
+    // Nearest scale note to m (a tie goes to the lower note), kept within [lo, hi] when given
+    function snap(m, key, scale, lo, hi) {
+      lo = lo === undefined ? -1e9 : lo; hi = hi === undefined ? 1e9 : hi;
+      var best = null, bd = 1e9;
+      for (var k = Math.floor(m) - 12; k <= Math.ceil(m) + 12; k++) {
+        if (k < lo - 1e-9 || k > hi + 1e-9 || !inScale(k, key, scale)) continue;
+        var d = Math.abs(k - m);
+        if (d < bd - 1e-9) { bd = d; best = k; }
+      }
+      return best === null ? Math.round(clampN(m, lo, hi)) : best;
+    }
+    function clampN(v, a, b) { return v < a ? a : v > b ? b : v; }
+    // Position d of a seven-step layout (e.g. a harmonica hole), in semitones above the key.
+    // Seven-note scales use their own steps; other scales take the major step's nearest scale note.
+    function seventh(scale, d) {
+      var o = Math.floor(d / 7), i = d - o * 7, s = iv(scale);
+      if (s.length === 7) return 12 * o + s[i];
+      return 12 * o + snap(SCALES.major.iv[i], 0, scale);
+    }
+    // Triad stacked in thirds on scale step d (seven-note scales; others use their parent scale)
+    function chord(key, scale, d) {
+      var sc = hepta(scale), r = degree(key, sc, d), third = degree(key, sc, d + 2) - r, fifth = degree(key, sc, d + 4) - r;
+      var q = third === 4 ? (fifth === 8 ? '+' : '') : (fifth === 6 ? 'dim' : 'm');
+      return { root: pc(r), iv: [0, third, fifth], name: NAMES[pc(r)] + q };
+    }
+    // Intervals of the scale's triad built on note m, or just [0] if m is outside the scale
+    function triadOn(m, key, scale) {
+      var sc = hepta(scale), r = rel(m, key), i = iv(sc).indexOf(r);
+      if (i < 0) return [0];
+      var base = Math.round(m) - r;
+      return [0, degree(base, sc, i + 2) - Math.round(m), degree(base, sc, i + 4) - Math.round(m)];
+    }
+    // Label for a note: 'names' (C, E♭ ...), 'sargam' (counted from the key) or 'off'
+    function label(m, key, mode) {
+      if (mode === 'off') return '';
+      if (mode === 'sargam') return SARGAM[rel(m, key)];
+      return NAMES[pc(m)];
+    }
+    function name(m) { return NAMES[pc(m)] + (Math.floor(Math.round(m) / 12) - 1); }
+    return { NAMES: NAMES, SARGAM: SARGAM, SCALES: SCALES, ORDER: ORDER, pc: pc, rel: rel, iv: iv, hepta: hepta, mtof: mtof,
+             rootFrom: rootFrom, degree: degree, run: run, inScale: inScale, snap: snap, seventh: seventh, chord: chord,
+             triadOn: triadOn, label: label, name: name };
+  })();
+
+  // Key and scale, remembered per instrument
+  var TONAL = {
+    piano: { key: 0, scale: 'chromatic' }, guitar: { key: 7, scale: 'major' }, flute: { key: 0, scale: 'major' },
+    harmonica: { key: 0, scale: 'major' }, violin: { key: 2, scale: 'major' }, cello: { key: 0, scale: 'major' },
+    horn: { key: 5, scale: 'major' }
+  };
+
+  // Loudness trims, measured with tests/loudness.js so a medium-velocity note from every instrument and
+  // pad peaks near -3 dBFS at the default master volume (see TESTING.md). Multiplies each sound's own level.
+  var LEVEL = /*LEVEL*/{
+    piano: { piano: 1.72, epiano: 1.57, organ: 1.64, synth: 1.9, pad: 1.65, bell: 1.68 },
+    drums: { 
+      acoustic: { kick: 0.397, snare: 0.465, hatC: 0.753, hatO: 0.884, tomL: 0.592, tomH: 0.569, clap: 2.02, crash: 0.722 }, 
+      electro: { kick: 0.437, snare: 0.785, hatC: 0.485, hatO: 0.564, tomL: 0.604, tomH: 0.577, clap: 2.02, crash: 0.709 }
+    },
+    guitar: { acoustic: 1.88, twelve: 1.99, nylon: 1.73, clean: 1.73, crunch: 0.95, jazz: 1.37, bass: 0.899, uke: 1.84, sitar: 1.94 },
+    tabla: { Na: 0.904, Tin: 1.47, Tun: 1.46, Te: 2.43, Ti: 2.58, Ge: 1.39, Ga: 1.51, Ke: 2.07 },
+    epad: { 
+      electro: [0.634, 0.607, 0.842, 2.41, 1.5, 1.36, 1.4, 0.995, 0.751, 0.791, 0.753, 1.11, 1.18, 1.91, 0.461, 1.9], 
+      trap: [0.45, 0.53, 0.532, 0.559, 1.07, 0.913, 0.961, 2.17, 1.37, 2, 2.04, 0.751, 2.27, 1.3, 1.02, 2.09], 
+      house: [0.628, 0.564, 2.51, 0.617, 1.09, 0.947, 0.941, 2.15, 0.929, 0.868, 1.33, 0.798, 1.6, 1.31, 1.49, 0.991], 
+      lofi: [0.61, 0.718, 1.32, 1.33, 8.31, 6.09, 5.89, 11.8, 2.03, 2.66, 0.769, 1.37, 1.19, 0.483, 2.1, 4.1]
+    },
+    violin: { bow: 0.659, pizz: 0.62 },
+    cello: { bow: 0.833, pizz: 0.683 },
+    flute: 1.59,
+    harmonica: 0.799,
+    horn: 1.11,
+    tanpura: 3.47
+  }/*END LEVEL*/;
 
   var state = {
     tab: 'piano', inst: 'piano', octave: 3, range: 3, chord: 'off', labels: 'names',
-    velocity: true, pedal: false, vol: 0.8, rev: 0.25, vib: 0, screen: 'home'
+    velocity: true, pedal: false, vol: 1, rev: 0.25, vib: 0, screen: 'home'
   };
 
   /* ---------- Audio engine ---------- */
   function init() {
     if (ctx) { if (ctx.state !== 'running') ctx.resume(); return; }
     ctx = new AC({ latencyHint: 'interactive' });
+    // Master: volume -> limiter -> make-up gain -> soft ceiling. Single notes pass untouched; chords and
+    // stacked hits are held down by the limiter, and the ceiling catches anything faster than its attack.
     master = ctx.createGain(); master.gain.value = state.vol;
-    var comp = ctx.createDynamicsCompressor();
-    master.connect(comp); comp.connect(ctx.destination);
+    limiter = ctx.createDynamicsCompressor();
+    limiter.threshold.value = -6; limiter.knee.value = 2; limiter.ratio.value = 20;
+    limiter.attack.value = 0.002; limiter.release.value = 0.15;
+    makeup = ctx.createGain(); makeup.gain.value = MAKEUP;
+    var ceil = ctx.createWaveShaper(), cv = new Float32Array(4097), K = 0.79, H = 0.89 - K; // linear to -2 dBFS, never above -1 dBFS
+    for (var ci = 0; ci < 4097; ci++) {
+      var cx = ci / 2048 - 1, ax = Math.abs(cx);
+      cv[ci] = (ax <= K ? ax : K + H * Math.tanh((ax - K) / H)) * (cx < 0 ? -1 : 1);
+    }
+    ceil.curve = cv; ceil.oversample = 'none'; // oversampling filters ring past the ceiling on hard transients
+    if (window.__PB_TEST__) { window.__pbMaster = master; window.__pbLimiter = limiter; }
+    master.connect(limiter); limiter.connect(makeup); makeup.connect(ceil); ceil.connect(ctx.destination);
+    // A new compressor starts fully clamped and needs ~0.2 s to open up, which would make the first note after
+    // the app wakes ~10 dB quiet. Bridge that with a plain gain path (the same +4.8 dB the limiter path gives).
+    var t0 = ctx.currentTime, bridge = ctx.createGain();
+    bridge.gain.setValueAtTime(1.8, t0); bridge.gain.setValueAtTime(1.8, t0 + 0.3); bridge.gain.linearRampToValueAtTime(0, t0 + 0.35);
+    makeup.gain.setValueAtTime(0, t0); makeup.gain.setValueAtTime(0, t0 + 0.3); makeup.gain.linearRampToValueAtTime(MAKEUP, t0 + 0.35);
+    master.connect(bridge); bridge.connect(ceil);
     bus = ctx.createGain(); bus.connect(master);
     conv = ctx.createConvolver();
     var len = Math.floor(ctx.sampleRate * 1.8);
@@ -706,7 +836,7 @@ body[data-screen="home"] .rotate { display: none !important; }
     }
   }
 
-  function mtof(m) { return 440 * Math.pow(2, (m - 69) / 12); }
+  var mtof = T.mtof;
 
   function makeVoice(inst, midi, vel) {
     var f = mtof(midi), t = ctx.currentTime;
@@ -723,7 +853,7 @@ body[data-screen="home"] .rotate { display: none !important; }
       o.onended = function () { try { lfoDepth.disconnect(o.detune); } catch (e) {} };
       o.start(t); oscs.push(o);
     }
-    var peak = 0.45 * vel, v = { g: g, oscs: oscs, rel: 0.25, sustained: false, done: false, timer: null };
+    var peak = 0.45 * vel * LEVEL.piano[inst in LEVEL.piano ? inst : 'piano'], v = { g: g, oscs: oscs, rel: 0.25, sustained: false, done: false, timer: null };
     g.gain.setValueAtTime(0.0001, t);
 
     function decaying(total, mid) {
@@ -826,58 +956,63 @@ body[data-screen="home"] .rotate { display: none !important; }
   }
 
   /* ---------- Note names ---------- */
-  var CHROMA = ['C', 'C♯', 'D', 'E♭', 'E', 'F', 'F♯', 'G', 'A♭', 'A', 'B♭', 'B'];
-  var SARGAM12 = ['Sa', 're', 'Re', 'ga', 'Ga', 'Ma', 'ma', 'Pa', 'dha', 'Dha', 'ni', 'Ni'];
+  var CHROMA = T.NAMES;
 
   /* ---------- Piano layout ---------- */
+  // Chromatic: a normal keyboard that starts on the key's root. Any other scale: one key per scale note.
   var piano = $('piano');
-  var WSEMI = [0, 2, 4, 5, 7, 9, 11];
-  var NAMES = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
-  var SARGAM = ['Sa', 'Re', 'Ga', 'Ma', 'Pa', 'Dha', 'Ni'];
-  var BLACK_AFTER = { 0: 1, 1: 3, 3: 6, 4: 8, 5: 10 };
+  var BLACK = [0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0];
 
-  function baseMidi() { return 12 * (state.octave + 1); }
+  function pianoRoot() { return 12 * (state.octave + 1) + TONAL.piano.key; }
+  function isBlack(m) { return !!BLACK[T.pc(m)]; }
 
-  function labelFor(deg, oct) {
-    if (state.labels === 'off') return '';
-    if (state.labels === 'sargam') return SARGAM[deg];
-    return NAMES[deg] + (deg === 0 ? oct : '');
+  function pianoLabel(m) {
+    var key = TONAL.piano.key, txt = T.label(m, key, state.labels);
+    if (state.labels === 'names' && T.pc(m) === key) txt += Math.floor(m / 12) - 1;
+    return txt;
+  }
+  function pianoKey(cls, m) {
+    var k = document.createElement('button');
+    k.className = cls + (T.pc(m) === TONAL.piano.key ? ' root' : '');
+    k.dataset.midi = m;
+    k.setAttribute('aria-label', T.name(m));
+    piano.appendChild(k); keyEls[m] = k;
+    return k;
   }
 
   function buildPiano() {
     stopAll();
     piano.innerHTML = '';
     keyEls = {}; lit = {}; rects = {};
-    var whites = state.range * 7 + 1;
-    var bw = 100 / whites;
-    for (var i = 0; i < whites; i++) {
-      var o = Math.floor(i / 7), deg = i % 7;
-      var midi = baseMidi() + o * 12 + WSEMI[deg];
-      var k = document.createElement('button');
-      k.className = 'key';
-      k.dataset.midi = midi;
-      k.setAttribute('aria-label', NAMES[deg] + (state.octave + o));
-      k.textContent = labelFor(deg, state.octave + o);
-      piano.appendChild(k); keyEls[midi] = k;
+    var st = TONAL.piano, root = pianoRoot(), top = root + 12 * state.range, m;
+    if (st.scale === 'chromatic') {
+      var lo = isBlack(root) ? root - 1 : root, hi = isBlack(top) ? top + 1 : top, whites = [];
+      for (m = lo; m <= hi; m++) if (!isBlack(m)) whites.push(m);
+      var bw = 100 / whites.length;
+      whites.forEach(function (w) { pianoKey('key', w).textContent = pianoLabel(w); });
+      for (m = lo; m <= hi; m++) {
+        if (!isBlack(m)) continue;
+        var b = pianoKey('bkey', m), j = whites.indexOf(m - 1);
+        b.style.width = (bw * 0.62) + '%';
+        b.style.left = ((j + 1) * bw - bw * 0.31) + '%';
+      }
+    } else {
+      T.run(root, st.scale, state.range * T.iv(st.scale).length + 1).forEach(function (n) {
+        pianoKey('key scale', n).textContent = pianoLabel(n);
+      });
     }
-    for (var j = 0; j < whites - 1; j++) {
-      var d = j % 7;
-      if (BLACK_AFTER[d] === undefined) continue;
-      var m = baseMidi() + Math.floor(j / 7) * 12 + BLACK_AFTER[d];
-      var b = document.createElement('button');
-      b.className = 'bkey';
-      b.dataset.midi = m;
-      b.setAttribute('aria-label', 'Sharp ' + m);
-      b.style.width = (bw * 0.62) + '%';
-      b.style.left = ((j + 1) * bw - bw * 0.31) + '%';
-      piano.appendChild(b); keyEls[m] = b;
-    }
-    $('octLbl').textContent = 'C' + state.octave;
+    $('octLbl').textContent = T.name(root);
   }
 
   function setOctave(n) {
     state.octave = Math.max(1, Math.min(8 - state.range, n));
     buildPiano();
+  }
+
+  // Chord intervals for a key press: fixed shapes, or the scale's own chord on that note
+  function pianoIv(m) {
+    if (state.chord === 'diatonic') return T.triadOn(m, TONAL.piano.key, TONAL.piano.scale);
+    return CHORDS[state.chord];
   }
 
   /* ---------- Piano touch input ---------- */
@@ -896,7 +1031,7 @@ body[data-screen="home"] .rotate { display: none !important; }
     if (!el) return;
     e.preventDefault();
     if (el.hasPointerCapture && el.hasPointerCapture(e.pointerId)) el.releasePointerCapture(e.pointerId);
-    noteOn(e.pointerId, +el.dataset.midi, velocityAt(el, e.clientY), state.inst, CHORDS[state.chord]);
+    noteOn(e.pointerId, +el.dataset.midi, velocityAt(el, e.clientY), state.inst, pianoIv(+el.dataset.midi));
   });
 
   var moveQ = {}, moveRaf = 0;
@@ -909,7 +1044,7 @@ body[data-screen="home"] .rotate { display: none !important; }
       var under = document.elementFromPoint(p.x, p.y);
       if (!under || !under.dataset || under.dataset.midi === undefined) return;
       var m = +under.dataset.midi;
-      if (m !== a.base) noteOn(id, m, velocityAt(under, p.y), state.inst, CHORDS[state.chord]);
+      if (m !== a.base) noteOn(id, m, velocityAt(under, p.y), state.inst, pianoIv(m));
     });
   }
   window.addEventListener('pointermove', function (e) {
@@ -931,7 +1066,7 @@ body[data-screen="home"] .rotate { display: none !important; }
   function drum(name, vel) {
     init();
     var t = ctx.currentTime, e = drumKit === 'electro';
-    var g = ctx.createGain(); g.gain.value = vel; g.connect(bus);
+    var g = ctx.createGain(); g.gain.value = vel * LEVEL.drums[drumKit][name]; g.connect(bus);
     var v = { g: g, oscs: [], rel: 0.05, done: false }, longest = 0, last = null;
 
     function end(src, stopAt) { src.stop(stopAt); v.oscs.push(src); if (stopAt > longest) { longest = stopAt; last = src; } }
@@ -965,9 +1100,11 @@ body[data-screen="home"] .rotate { display: none !important; }
 
     if (name === 'hatC' && openHat) { releaseVoice(openHat, 0.03); openHat = null; }
     switch (name) {
+      // Phone speakers can't play the low thump, so kicks and toms also carry upper harmonics and a beater click
       case 'kick':
-        if (e) tone('sine', 120, 38, 0.3, 0.9, 1.1);
-        else { tone('sine', 150, 45, 0.12, 0.45, 1); noise('highpass', 1500, 0.7, 0.02, 0.35); }
+        if (e) { tone('sine', 120, 38, 0.3, 0.9, 1.1); tone('sine', 240, 76, 0.3, 0.3, 0.4); tone('triangle', 360, 114, 0.2, 0.12, 0.2); }
+        else { tone('sine', 150, 45, 0.12, 0.45, 1); tone('sine', 300, 90, 0.12, 0.2, 0.4); tone('triangle', 450, 135, 0.1, 0.09, 0.2); noise('highpass', 1500, 0.7, 0.02, 0.35); }
+        noise('bandpass', 4000, 0.9, 0.006, 0.9);
         break;
       case 'snare':
         if (e) { tone('triangle', 240, 200, 0.05, 0.18, 0.45); noise('bandpass', 2400, 0.6, 0.2, 0.9); }
@@ -979,8 +1116,12 @@ body[data-screen="home"] .rotate { display: none !important; }
       case 'hatO':
         if (e) metal(0.4, 0.3); else noise('highpass', 7000, 0.8, 0.45, 0.5);
         break;
-      case 'tomL': tone('sine', e ? 120 : 140, e ? 70 : 90, 0.25, e ? 0.7 : 0.5, 0.9); break;
-      case 'tomH': tone('sine', e ? 200 : 220, e ? 120 : 150, 0.2, e ? 0.55 : 0.4, 0.9); break;
+      case 'tomL':
+        tone('sine', e ? 120 : 140, e ? 70 : 90, 0.25, e ? 0.7 : 0.5, 0.9); tone('triangle', e ? 240 : 280, e ? 140 : 180, 0.25, 0.25, 0.3);
+        noise('bandpass', 3000, 1, 0.006, 0.6); break;
+      case 'tomH':
+        tone('sine', e ? 200 : 220, e ? 120 : 150, 0.2, e ? 0.55 : 0.4, 0.9); tone('triangle', e ? 400 : 440, e ? 240 : 300, 0.2, 0.2, 0.3);
+        noise('bandpass', 3500, 1, 0.006, 0.6); break;
       case 'clap':
         noise('bandpass', 1200, 1.2, 0.03, 0.9, 0); noise('bandpass', 1200, 1.2, 0.03, 0.9, 0.012);
         noise('bandpass', 1200, 1.2, 0.2, 0.9, 0.024);
@@ -1007,7 +1148,8 @@ body[data-screen="home"] .rotate { display: none !important; }
       var el = e.target.closest('[data-pad]');
       if (!el) return;
       e.preventDefault();
-      hitPad(el.dataset.pad, 0.9);
+      var r = el.getBoundingClientRect();
+      hitPad(el.dataset.pad, 0.4 + 0.6 * clamp((e.clientY - r.top) / r.height, 0, 1)); // lower on the pad = harder hit
     });
     wrap.addEventListener('contextmenu', function (e) { e.preventDefault(); });
   }
@@ -1032,7 +1174,6 @@ body[data-screen="home"] .rotate { display: none !important; }
     C: [0, 0, 0, 3], D: [2, 2, 2, 0], E: [1, 4, 0, 2], F: [2, 0, 1, 0], G: [0, 2, 3, 2],
     A: [2, 1, 0, 0], Am: [2, 0, 0, 0], Dm: [2, 2, 1, 0], Em: [0, 4, 3, 2], Bm: [4, 2, 2, 2]
   };
-  var CHORD_ORDER = ['C', 'D', 'E', 'F', 'G', 'A', 'Am', 'Dm', 'Em', 'Bm'];
 
   // Each sound: tuning, Karplus-Strong recipe, body resonance (two peaks: Hz, Q, dB), tone and level.
   // ks: sr render rate, len seconds, t60 sustain, bright pluck, pick position, damp loop lowpass (0-0.5),
@@ -1044,7 +1185,7 @@ body[data-screen="home"] .rotate { display: none !important; }
     clean: { open: GTR6, ks: { sr: 24000, len: 3.4, t60: 6, bright: 0.55, pick: 0.1, damp: 0.4 }, body: [[400, 0.7, -2], [2500, 1, 3]], tone: 5500, gain: 0.38, rel: 0.35 },
     crunch: { open: GTR6, drive: 4.5, ks: { sr: 24000, len: 3.4, t60: 6, bright: 0.6, pick: 0.1, damp: 0.4 }, body: [[120, 1, 2], [1800, 0.8, 4]], tone: 5000, gain: 0.5, rel: 0.3 },
     jazz: { open: GTR6, ks: { sr: 22050, len: 2.8, t60: 3.2, bright: 0.25, pick: 0.25, damp: 0.5 }, body: [[140, 1, 5], [320, 1.3, 2]], tone: 2200, gain: 0.5, rel: 0.4 },
-    bass: { open: [28, 33, 38, 43], shape: 'bass', ks: { sr: 16000, len: 3.2, t60: 5, bright: 0.35, pick: 0.18, damp: 0.5 }, body: [[80, 1, 4], [700, 1, -3]], tone: 2500, gain: 0.6, rel: 0.3 },
+    bass: { open: [28, 33, 38, 43], shape: 'bass', ks: { sr: 16000, len: 3.2, t60: 5, bright: 0.55, pick: 0.18, damp: 0.45 }, body: [[80, 1, 2], [900, 1, 5]], tone: 3200, gain: 0.6, rel: 0.3 },
     uke: { open: [67, 60, 64, 69], shape: 'uke', ks: { sr: 24000, len: 2.2, t60: 2.6, bright: 0.45, pick: 0.2, damp: 0.5 }, body: [[250, 1.3, 5], [520, 1.4, 2]], tone: 6000, gain: 0.42, rel: 0.3 },
     sitar: { open: GTR6, ks: { sr: 32000, len: 3.6, t60: 4, bright: 0.8, pick: 0.1, damp: 0.2, buzz: 0.55, symp: [[12, 0.1], [7, 0.07], [19, 0.06]] }, body: [[180, 2, 4], [1200, 2, 3]], tone: 9000, gain: 0.42, rel: 0.8 }
   };
@@ -1054,13 +1195,44 @@ body[data-screen="home"] .rotate { display: none !important; }
     pizz: { sr: 24000, len: 1.6, t60: 0.9, bright: 0.45, pick: 0.27, damp: 0.5 },
     pizzC: { sr: 16000, len: 2.4, t60: 1.5, bright: 0.35, pick: 0.27, damp: 0.5 }
   };
-  var gtr = { chord: 'G', sound: 'acoustic', ring: false, n: 6, strVoice: [], strEls: [], held: {}, ptr: {}, rect: null };
+  var gtr = { chord: 0, chords: [], shapes: {}, sound: 'acoustic', ring: false, n: 6, strVoice: [], strEls: [], held: {}, ptr: {}, rect: null };
   var ksCache = {}, ksKeys = [];
 
   function gType() { return GTYPES[gtr.sound]; }
+  // Frets for the current chord: a hand-written open shape when there is one, otherwise worked out
   function gShape() {
-    var t = gType();
-    return t.shape === 'uke' ? UKE[gtr.chord] : t.shape === 'bass' ? SHAPES[gtr.chord].slice(0, 4) : SHAPES[gtr.chord];
+    var t = gType(), c = gtr.chords[gtr.chord], id = gtr.sound + c.name;
+    if (gtr.shapes[id]) return gtr.shapes[id];
+    var hand = t.shape === 'uke' ? UKE[c.name] : SHAPES[c.name];
+    return gtr.shapes[id] = hand ? (t.shape === 'bass' ? hand.slice(0, 4) : hand) : voicing(t.open, c, t.shape !== 'uke');
+  }
+  // Lowest fret (0-4) on each string that gives a chord note. With rootBass, low strings stay muted
+  // until one can play the root, so the chord sits on its root (only the bottom three may be skipped).
+  function voicing(open, c, rootBass) {
+    var pcs = c.iv.map(function (i) { return (c.root + i) % 12; }), out = [], found = !rootBass;
+    for (var i = 0; i < open.length; i++) {
+      var need = found || i >= 3 ? pcs : [c.root], f = -1;
+      for (var k = 0; k <= 4 && f < 0; k++) if (need.indexOf((open[i] + k) % 12) >= 0) f = k;
+      if (f >= 0) found = true;
+      out.push(f);
+    }
+    return out;
+  }
+  // The chord buttons: the seven chords of the key and scale
+  function buildChords() {
+    var st = TONAL.guitar, wrap = $('chords');
+    gtr.chords = []; gtr.shapes = {};
+    for (var d = 0; d < 7; d++) gtr.chords.push(T.chord(st.key, st.scale, d));
+    gtr.chord = clamp(gtr.chord, 0, gtr.chords.length - 1);
+    wrap.innerHTML = '';
+    gtr.chords.forEach(function (c, i) {
+      var b = document.createElement('button');
+      b.textContent = c.name; b.dataset.chord = i;
+      b.setAttribute('aria-pressed', i === gtr.chord);
+      wrap.appendChild(b);
+    });
+    wrap.style.gridTemplateRows = 'repeat(' + Math.ceil(gtr.chords.length / 2) + ', 1fr)';
+    labelStrings(); gtrPrewarm();
   }
   function gtrMidi(i) { var f = gShape()[i]; return f < 0 ? -1 : gType().open[i] + f; }
 
@@ -1160,7 +1332,7 @@ body[data-screen="home"] .rotate { display: none !important; }
     releaseVoice(gtr.strVoice[i], 0.04); // a string can only ring once
     var when = ctx.currentTime + at, g = ctx.createGain(), srcs = [];
     g.gain.setValueAtTime(0, when);
-    g.gain.linearRampToValueAtTime(t.gain * vel, when + 0.004); // fade-in, no click
+    g.gain.linearRampToValueAtTime(t.gain * vel * LEVEL.guitar[gtr.sound], when + 0.004); // fade-in, no click
     g.connect(gch.in);
     function play(midi, cents, offs, level) {
       var s = ctx.createBufferSource(), sg = g;
@@ -1169,7 +1341,7 @@ body[data-screen="home"] .rotate { display: none !important; }
       if (level !== 1) { sg = ctx.createGain(); sg.gain.value = level; sg.connect(g); }
       s.connect(sg); s.start(when + offs); srcs.push(s);
     }
-    play(m, (Math.random() * 2 - 1) * 4, 0, 1);
+    play(m, (Math.random() * 2 - 1) * 2, 0, 1);
     // 12-string: each course has a partner string, an octave up on the low four
     if (t.course) play(i < 4 ? m + 12 : m, 3 + Math.random() * 4, 0.006 + Math.random() * 0.006, i < 4 ? 0.55 : 0.7);
     var v = { g: g, oscs: srcs, rel: t.rel, done: false };
@@ -1209,20 +1381,15 @@ body[data-screen="home"] .rotate { display: none !important; }
 
   function buildGuitar() {
     var chords = $('chords'), neck = $('neck');
-    CHORD_ORDER.forEach(function (c) {
-      var b = document.createElement('button');
-      b.textContent = c; b.dataset.chord = c;
-      b.setAttribute('aria-pressed', c === gtr.chord);
-      chords.appendChild(b);
-    });
     chords.addEventListener('click', function (e) {
       var b = e.target.closest('[data-chord]');
       if (!b) return;
-      gtr.chord = b.dataset.chord;
+      gtr.chord = +b.dataset.chord;
       chords.querySelectorAll('[data-chord]').forEach(function (x) { x.setAttribute('aria-pressed', x === b); });
       labelStrings(); gtrPrewarm();
     });
     buildStrings();
+    buildChords();
 
     function yOf(e) { return e.clientY - gtr.rect.top; }
     function lineY(i) { return (i + 0.5) / gtr.n * gtr.rect.height; }
@@ -1268,8 +1435,10 @@ body[data-screen="home"] .rotate { display: none !important; }
   }
 
   function labelStrings() {
+    if (!gtr.chords.length) return;
     for (var i = 0; i < gtr.n; i++) {
       var m = gtrMidi(i), el = gtr.strEls[i];
+      if (!el) continue;
       el.classList.toggle('mute', m < 0);
       el.lastChild.textContent = m < 0 ? '×' : CHROMA[m % 12];
     }
@@ -1280,26 +1449,20 @@ body[data-screen="home"] .rotate { display: none !important; }
   }
 
   /* ---------- Flute ---------- */
-  var SCALES = {
-    major: [0, 2, 4, 5, 7, 9, 11], minor: [0, 2, 3, 5, 7, 8, 10], penta: [0, 2, 4, 7, 9],
-    minpenta: [0, 3, 5, 7, 10], blues: [0, 3, 5, 6, 7, 10], chromatic: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
-  };
   // Monophonic: the most recent finger plays; lifting it hands the note to any finger still down
-  var fl = { key: 0, scale: 'major', mode: 'slide', notes: [], cells: [], v: null, stack: [], pos: {}, rect: null, raf: 0, cur: -1 };
+  var fl = { mode: 'slide', notes: [], cells: [], v: null, stack: [], pos: {}, rect: null, raf: 0, cur: -1 };
   var flute = $('flute'), fdot = $('fdot');
 
   function buildFlute() {
     fluteStopAll();
     fl.cells.forEach(function (c) { c.remove(); });
     fl.cells = []; fl.notes = [];
-    var root = 60 + fl.key, sc = SCALES[fl.scale];
-    for (var o = 0; o < 2; o++) sc.forEach(function (s) { fl.notes.push(root + 12 * o + s); });
-    fl.notes.push(root + 24);
+    var st = TONAL.flute, root = 60 + st.key;
+    fl.notes = T.run(root, st.scale, 2 * T.iv(st.scale).length + 1); // two octaves and the top root
     fl.notes.forEach(function (m) {
       var c = document.createElement('div');
-      var rel = (m - root) % 12;
-      c.className = 'fcell' + (rel === 0 ? ' root' : '');
-      c.textContent = state.labels === 'off' ? '' : state.labels === 'sargam' ? SARGAM12[rel] : CHROMA[m % 12];
+      c.className = 'fcell' + (T.pc(m) === st.key ? ' root' : '');
+      c.textContent = T.label(m, st.key, state.labels);
       flute.insertBefore(c, fdot); fl.cells.push(c);
     });
   }
@@ -1319,7 +1482,7 @@ body[data-screen="home"] .rotate { display: none !important; }
     init();
     var t = ctx.currentTime, f = mtof(midi);
     var g = ctx.createGain(), ex = ctx.createGain(), lp = ctx.createBiquadFilter();
-    g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.42, t + 0.06);
+    g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.42 * LEVEL.flute, t + 0.06);
     ex.gain.value = lvl;
     lp.type = 'lowpass'; lp.frequency.value = 1400 + 4200 * lvl;
     var lfo = ctx.createOscillator(), vg = ctx.createGain();
@@ -1410,9 +1573,10 @@ body[data-screen="home"] .rotate { display: none !important; }
     Tun: { d: 1, p: [[1, 1, 1.7], [2, 0.3, 0.8], [3, 0.1, 0.35]], n: ['lowpass', 1400, 0.7, 0.015, 0.25] },
     Te: { d: 1, p: [[1, 0.45, 0.07], [2, 0.3, 0.05], [3, 0.15, 0.04]], n: ['bandpass', 1100, 0.9, 0.07, 0.6] },
     Ti: { d: 1, p: [[1, 0.25, 0.06], [2, 0.35, 0.05], [3, 0.25, 0.04]], n: ['bandpass', 2300, 1, 0.05, 0.55] },
-    Ge: { glide: 1.2, p: [[1, 1, 1.6], [2, 0.22, 0.6], [3, 0.07, 0.3]], n: ['lowpass', 350, 0.7, 0.05, 0.5] },
-    Ga: { ratio: 1.12, glide: 1.1, p: [[1, 0.8, 1.1], [2, 0.35, 0.5], [3, 0.15, 0.3]], n: ['bandpass', 900, 0.8, 0.025, 0.35] },
-    Ke: { p: [[1, 0.6, 0.06], [1.6, 0.3, 0.04]], n: ['lowpass', 700, 0.7, 0.07, 0.8] }
+    // The bayan's boom is too low for a phone speaker: stronger upper partials and a finger slap (click) carry it
+    Ge: { glide: 1.2, p: [[1, 1, 1.6], [2, 0.5, 0.7], [3, 0.28, 0.4], [4, 0.12, 0.25]], n: ['lowpass', 350, 0.7, 0.05, 0.5], click: [2600, 0.45] },
+    Ga: { ratio: 1.12, glide: 1.1, p: [[1, 0.8, 1.1], [2, 0.5, 0.55], [3, 0.3, 0.35], [4, 0.12, 0.2]], n: ['bandpass', 900, 0.8, 0.025, 0.35], click: [2600, 0.4] },
+    Ke: { p: [[1, 0.6, 0.06], [1.6, 0.3, 0.04], [3.1, 0.25, 0.03]], n: ['lowpass', 700, 0.7, 0.07, 0.8], click: [2000, 0.5] }
   };
   // Zones by distance from the centre (skin radius 100); Te and Ti split the syahi ring left / right.
   var DAYAN_Z = [
@@ -1440,7 +1604,7 @@ body[data-screen="home"] .rotate { display: none !important; }
     var prev = B.d ? tb.dV : tb.bV;
     releaseVoice(prev, 0.03); // one skin per drum: a new stroke damps the last one
     var f0 = mtof(saMidi() - (B.d ? 0 : 17)) * (B.ratio || 1);
-    var g = ctx.createGain(); g.gain.value = vel * 0.38; g.connect(bus);
+    var g = ctx.createGain(); g.gain.value = vel * 0.38 * LEVEL.tabla[bol]; g.connect(bus);
     var v = { g: g, oscs: [], parts: [], rel: 0.05, done: false, f0: f0 }, longest = 0, last = null;
     function fin(src, at) { src.stop(at + 0.03); v.oscs.push(src); if (at > longest) { longest = at; last = src; } }
     B.p.forEach(function (h) {
@@ -1460,6 +1624,12 @@ body[data-screen="home"] .rotate { display: none !important; }
       ng.gain.linearRampToValueAtTime(B.n[4], t + 0.001);
       ng.gain.exponentialRampToValueAtTime(0.0001, t + B.n[3]);
       s.connect(f); f.connect(ng); ng.connect(g); s.start(t, Math.random() * 1.5); fin(s, t + B.n[3]);
+    }
+    if (B.click) {
+      var cs = ctx.createBufferSource(), cf = ctx.createBiquadFilter(), cg = ctx.createGain();
+      cs.buffer = noiseBuf; cf.type = 'bandpass'; cf.frequency.value = B.click[0]; cf.Q.value = 0.9;
+      cg.gain.setValueAtTime(B.click[1], t); cg.gain.exponentialRampToValueAtTime(0.0001, t + 0.008);
+      cs.connect(cf); cf.connect(cg); cg.connect(g); cs.start(t, Math.random() * 1.5); fin(cs, t + 0.008);
     }
     last.onended = function () { v.done = true; g.disconnect(); };
     if (B.d) tb.dV = v; else tb.bV = v;
@@ -1534,7 +1704,7 @@ body[data-screen="home"] .rotate { display: none !important; }
       var s = tb.slide[e.pointerId];
       if (s) { // sliding into another zone strikes it: one finger can roll across the skin
         var z = s.zoneAt(e.clientX, e.clientY);
-        if (z && z.bol !== s.bol) { s.bol = z.bol; tablaHit(z.bol, dr, null, 0.7); }
+        if (z && z.bol !== s.bol) { s.bol = z.bol; tablaHit(z.bol, dr, null, 0.55); }
       }
     });
     svg.addEventListener('contextmenu', function (e) { e.preventDefault(); });
@@ -1550,7 +1720,7 @@ body[data-screen="home"] .rotate { display: none !important; }
   }
 
   function tablaHit(bol, dr, label, vel) {
-    var v = tablaStroke(bol, (vel || 0.92) + (Math.random() - 0.5) * 0.08);
+    var v = tablaStroke(bol, (vel || 0.7) + (Math.random() - 0.5) * 0.08);
     if (dr) flashZone(dr, bol, label || bol);
     return v;
   }
@@ -1592,7 +1762,7 @@ body[data-screen="home"] .rotate { display: none !important; }
     if (on && !tb.drone) {
       init();
       var t = ctx.currentTime, g = ctx.createGain();
-      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.32, t + 0.4); g.connect(bus);
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.32 * LEVEL.tanpura, t + 0.4); g.connect(bus);
       tb.drone = { g: g, oscs: [], rel: 0.9, done: false, pinned: true };
       track(tb.drone);
       tb.step = 0; tb.next = t + 0.05;
@@ -1677,7 +1847,7 @@ body[data-screen="home"] .rotate { display: none !important; }
       ['Conga high', 'conga', { f: 300, d: 0.25 }],
       ['Rim', 'rim', { f: 1600, d: 0.04 }],
       ['Tom', 'tom', { f0: 180, f1: 110, d: 0.45 }],
-      ['Bass', 'stab', { m: 36, iv: [0], d: 0.3, type: 'sawtooth', lp: 500 }],
+      ['Bass', 'stab', { m: 36, iv: [0], d: 0.3, type: 'sawtooth', lp: 1500 }],
       ['Organ', 'stab', { m: 60, iv: [0, 4, 7], d: 0.3, type: 'square', lp: 1800 }],
       ['Chord', 'stab', { m: 57, iv: [0, 3, 7, 10, 14], d: 0.45, type: 'sawtooth', lp: 2600 }],
       ['Crash', 'cym', { d: 1.4 }]
@@ -1716,7 +1886,7 @@ body[data-screen="home"] .rotate { display: none !important; }
     init();
     var pad = EKITS[ep.kit].pads[i], P = pad[2], tune = ep.tune[ep.kit][i];
     var pk = Math.pow(2, tune.p / 12), dk = tune.d, t = Math.max(when || 0, ctx.currentTime);
-    var g = ctx.createGain(); g.gain.value = vel * 0.85; g.connect(eOut);
+    var g = ctx.createGain(); g.gain.value = vel * 0.85 * LEVEL.epad[ep.kit][i]; g.connect(eOut);
     var v = { g: g, oscs: [], rel: 0.04, done: false }, longest = 0, last = null;
 
     function fin(src, at) { src.stop(at + 0.02); v.oscs.push(src); if (at > longest) { longest = at; last = src; } }
@@ -1765,14 +1935,19 @@ body[data-screen="home"] .rotate { display: none !important; }
     }
 
     switch (pad[1]) {
+      // Low sounds carry upper harmonics and a short click so a phone speaker can still play them
       case 'kick':
         tone('sine', P.f0, P.f1, P.sw, P.d, 1);
-        if (P.click) noise('highpass', 1500, 0.7, 0.015, P.click);
+        tone('sine', P.f0 * 2, P.f1 * 2, P.sw, P.d * 0.4, 0.4); tone('triangle', P.f0 * 3, P.f1 * 3, P.sw, P.d * 0.2, 0.18);
+        noise('highpass', 1500, 0.7, 0.015, Math.max(0.3, P.click || 0)); noise('bandpass', 4000, 0.9, 0.006, 0.8);
         break;
       case 'sub':
         tone('sine', P.f * (P.glide || 1.25), P.f, P.glide ? 0.25 : 0.04, P.d, 1);
         tone('triangle', P.f * 2, P.f * 2, 0, P.d * 0.5, 0.12);
-        if (P.click) noise('highpass', 2000, 0.7, 0.012, P.click);
+        tone('sine', P.f * 2 * (P.glide || 1.25), P.f * 2, P.glide ? 0.25 : 0.04, P.d * 0.8, 0.45);
+        tone('sine', P.f * 3 * (P.glide || 1.25), P.f * 3, P.glide ? 0.25 : 0.04, P.d * 0.6, 0.22);
+        tone('sine', P.f * 4 * (P.glide || 1.25), P.f * 4, P.glide ? 0.25 : 0.04, P.d * 0.4, 0.1);
+        noise('highpass', 2000, 0.7, 0.012, Math.max(0.35, P.click || 0));
         break;
       case 'snare':
         tone('triangle', P.tf, P.tf * 0.85, 0.05, P.td, 0.5);
@@ -1796,7 +1971,8 @@ body[data-screen="home"] .rotate { display: none !important; }
         if (P.metal) metal(P.d * 0.9, 0.12);
         break;
       case 'tom':
-        tone('sine', P.f0, P.f1, P.d * 0.5, P.d, 0.9); noise('lowpass', 1200, 0.7, 0.02, 0.2);
+        tone('sine', P.f0, P.f1, P.d * 0.5, P.d, 0.9); tone('triangle', P.f0 * 2, P.f1 * 2, P.d * 0.5, P.d * 0.4, 0.3);
+        noise('lowpass', 1200, 0.7, 0.02, 0.2); noise('bandpass', 3200, 1, 0.006, 0.5);
         break;
       case 'conga':
         tone('sine', P.f * 1.15, P.f, 0.03, P.d, 0.8); noise('bandpass', P.f * 4, 1, 0.015, 0.3);
@@ -1985,12 +2161,7 @@ body[data-screen="home"] .rotate { display: none !important; }
   // Each finger (or played-back finger) owns one voice, steered by pitch m (MIDI, may be fractional)
   // and level l. These calls are what the recorder stores, so playback drives the same sound engine.
   var vmap = {}, ENG = {}, chains = {}, nread = $('nread');
-  var NST = {
-    harmonica: { key: 0, scale: 'major', rev: 0.3 },
-    violin: { key: 2, scale: 'major', rev: 0.35 },
-    cello: { key: 0, scale: 'major', rev: 0.35 },
-    horn: { key: 5, scale: 'major', rev: 0.45 }
-  };
+  var NST = { harmonica: { rev: 0.3 }, violin: { rev: 0.35 }, cello: { rev: 0.35 }, horn: { rev: 0.45 } };
   function isNew(tab) { return !!NST[tab]; }
   function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
   function recNow() { return performance.now() - recStart; }
@@ -2019,14 +2190,9 @@ body[data-screen="home"] .rotate { display: none !important; }
   }
 
   // Note-name hints: names, or sargam counted from the instrument's key
-  function noteText(m, key) {
-    var r = Math.round(m);
-    if (state.labels === 'off') return '';
-    if (state.labels === 'sargam') return SARGAM12[((r - key) % 12 + 12) % 12];
-    return CHROMA[(r % 12 + 12) % 12];
-  }
+  function noteText(m, key) { return T.label(m, key, state.labels); }
   function showNote(m, tab) {
-    var txt = noteText(m, NST[tab].key);
+    var txt = noteText(m, TONAL[tab].key);
     if (txt && state.labels === 'names') txt += Math.floor(Math.round(m) / 12) - 1;
     if (nread.textContent !== txt) nread.textContent = txt;
   }
@@ -2061,13 +2227,15 @@ body[data-screen="home"] .rotate { display: none !important; }
 
   /* ---------- Harmonica ---------- */
   // 10-hole diatonic, Richter tuning: semitones above the harp's key for blow and draw on each hole
-  var HM_BLOW = [0, 4, 7, 12, 16, 19, 24, 28, 31, 36];
-  var HM_DRAW = [2, 7, 11, 14, 17, 21, 23, 26, 29, 33];
+  // Holes as steps of a seven-note scale (Richter tuning in major), so a harp can be tuned to any scale
+  var HM_BLOW = [0, 2, 4, 7, 9, 11, 14, 16, 18, 21];
+  var HM_DRAW = [1, 4, 6, 8, 10, 12, 13, 15, 17, 19];
   var HM_BEND = [1, 2, 3, 1, 0.5, 1, 0.5, 0.5, 0.5, 0.5]; // how far each draw note bends down, in semitones
   var hm = { cols: [], ptr: {}, rect: null, wah: false, trem: false };
   var harp = $('harp');
 
-  function hmRoot() { return 55 + (NST.harmonica.key + 5) % 12; } // harps run from G (lowest) up to F#
+  function hmRoot() { return T.rootFrom(TONAL.harmonica.key, 55); } // harps run from G (lowest) up to F#
+  function hmNote(i, draw) { return hmRoot() + T.seventh(TONAL.harmonica.scale, draw ? HM_DRAW[i] : HM_BLOW[i]); }
 
   function hmChain() {
     if (chains.harmonica) return chains.harmonica;
@@ -2097,7 +2265,7 @@ body[data-screen="home"] .rotate { display: none !important; }
     make: function (m, l, x) {
       var c = hmChain(), t = ctx.currentTime, f = mtof(m), all = [], os = [];
       var g = ctx.createGain(), lv = ctx.createGain(), lp = ctx.createBiquadFilter();
-      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.42, t + 0.03);
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.42 * LEVEL.harmonica, t + 0.03);
       lv.gain.value = l;
       lp.type = 'lowpass';
       [['sawtooth', 0.55, 0], ['square', 0.2, 5]].forEach(function (h) {
@@ -2130,14 +2298,14 @@ body[data-screen="home"] .rotate { display: none !important; }
 
   function buildHarp() {
     newStopAll();
-    var root = hmRoot(), key = NST.harmonica.key;
+    var key = TONAL.harmonica.key;
     harp.innerHTML = ''; hm.cols = [];
     for (var i = 0; i < 10; i++) {
       var col = document.createElement('div');
       col.className = 'hcol';
-      col.innerHTML = '<div class="hb">' + noteText(root + HM_BLOW[i], key) + (i === 0 ? '<small>blow</small>' : '') + '</div>' +
+      col.innerHTML = '<div class="hb">' + noteText(hmNote(i, false), key) + (i === 0 ? '<small>blow</small>' : '') + '</div>' +
         '<div class="hn"><span>' + (i + 1) + '</span></div>' +
-        '<div class="hd">' + noteText(root + HM_DRAW[i], key) + '<small>' + (i === 0 ? 'draw ' : '') + (HM_BEND[i] >= 1 ? 'bend ↓' : '') + '</small></div>';
+        '<div class="hd">' + noteText(hmNote(i, true), key) + '<small>' + (i === 0 ? 'draw ' : '') + (HM_BEND[i] >= 1 ? 'bend ↓' : '') + '</small></div>';
       harp.appendChild(col); hm.cols.push(col);
     }
   }
@@ -2151,7 +2319,7 @@ body[data-screen="home"] .rotate { display: none !important; }
   }
   function hmCol(x) { var r = hm.rect; return clamp(Math.floor((x - r.left) / r.width * 10), 0, 9); }
   function hmPitch(p) {
-    var base = hmRoot() + (p.draw ? HM_DRAW[p.col] : HM_BLOW[p.col]);
+    var base = hmNote(p.col, p.draw);
     return { m: base - (p.draw ? HM_BEND[p.col] * p.bend : 0), l: 0.9 - 0.25 * p.bend };
   }
 
@@ -2184,20 +2352,32 @@ body[data-screen="home"] .rotate { display: none !important; }
   }
 
   /* ---------- Violin and cello ---------- */
-  // open: string tuning, low string first. body: resonance peaks [Hz, Q, dB]. lp: brightness [base, + per bow level].
+  // open: string tuning, low string first (violin G3 D4 A4 E5, cello C2 G2 D3 A3).
+  // osc: [wave, level, cents]. lp: brightness [base Hz, + Hz at full bow, ceiling]. hp: low cut.
+  // body: resonance peaks [Hz, Q, dB]. att: attack seconds. vib: [rate Hz, depth cents]. noise: bow hair [x pitch, level].
+  // The violin is bright and thin (low cut, a strong bridge hill near 3 kHz); the cello is dark and full
+  // (deep body and air resonances, a low ceiling, a slower attack).
   var BOWCFG = {
-    violin: { open: [55, 62, 69, 76], names: ['G', 'D', 'A', 'E'], th: [3.4, 2.8, 2.2, 1.6], att: 0.07, rel: 0.16,
-              vib: [5.8, 16], lp: [1500, 5500], body: [[280, 1.4, 5], [1050, 1.2, 3], [2800, 1.1, 5]], top: 7500, gain: 0.3, pizz: 'pizz' },
-    cello: { open: [36, 43, 50, 57], names: ['C', 'G', 'D', 'A'], th: [4.8, 4, 3.2, 2.5], att: 0.16, rel: 0.24,
-             vib: [5, 20], lp: [600, 2600], body: [[110, 1.2, 5], [400, 1.2, 4], [1400, 1, 3]], top: 4200, gain: 0.42, pizz: 'pizzC' }
+    violin: { open: [55, 62, 69, 76], names: ['G', 'D', 'A', 'E'], th: [3.4, 2.8, 2.2, 1.6], att: 0.06, rel: 0.16,
+              osc: [['sawtooth', 0.5, -4], ['sawtooth', 0.5, 5]], vib: [6, 14], lp: [2600, 5400, 9500], hp: 200,
+              body: [[480, 1.6, 4], [1100, 1.4, 2], [2900, 1.1, 7], [4600, 2, 3]], top: 10000, noise: [5, 0.06], gain: 0.3, pizz: 'pizz' },
+    cello: { open: [36, 43, 50, 57], names: ['C', 'G', 'D', 'A'], th: [4.8, 4, 3.2, 2.5], att: 0.22, rel: 0.3,
+             osc: [['sawtooth', 0.45, -6], ['sawtooth', 0.45, 6], ['triangle', 0.4, 0]], vib: [5, 20], lp: [520, 1800, 3000], hp: 35,
+             body: [[105, 1.1, 6], [210, 1.4, 5], [520, 1.2, 2], [1600, 1, -4]], top: 3400, noise: [3, 0.035], gain: 0.42, pizz: 'pizzC' }
   };
   var BOW_SPAN = 14; // semitones above the open string along the fingerboard
-  var bw = { tab: 'violin', ptr: {}, rows: [], rect: null, snap: false, vib: true, pizz: false, raf: 0 };
+  var FB = 0.74;     // the fingerboard's share of the width; the rest, by the bridge, is where the bow plays
+  // fing: fingers on the fingerboard (legacy ones own a voice and are rubbed; the rest just stop a string).
+  // bow: the bow finger, which sounds every string under it through the four string voices 'bs0'..'bs3'.
+  var bw = { tab: 'violin', fing: {}, bow: null, seq: 0, rows: [], rect: null, snap: true, vib: true, pizz: false,
+             raf: 0, manual: false, last: 0, blev: 0, sent: [] };
   var bowed = $('bowed'), bdot = $('bdot');
 
   function bowChain(tab) {
     if (chains[tab]) return chains[tab];
-    var C = BOWCFG[tab], c = chainOut(tab), prev = c.in;
+    var C = BOWCFG[tab], c = chainOut(tab), hp = ctx.createBiquadFilter(), prev = hp;
+    hp.type = 'highpass'; hp.frequency.value = C.hp; hp.Q.value = 0.6;
+    c.in.connect(hp);
     C.body.forEach(function (b) {
       var f = ctx.createBiquadFilter();
       f.type = 'peaking'; f.frequency.value = b[0]; f.Q.value = b[1]; f.gain.value = b[2];
@@ -2210,6 +2390,7 @@ body[data-screen="home"] .rotate { display: none !important; }
 
   function bowEngine(tab) {
     var C = BOWCFG[tab];
+    function bright(l) { return Math.min(C.lp[2], C.lp[0] + C.lp[1] * l); }
     return {
       make: function (m, l, x) {
         var c = bowChain(tab), t = ctx.currentTime, g = ctx.createGain(), lv = ctx.createGain(), v;
@@ -2218,21 +2399,21 @@ body[data-screen="home"] .rotate { display: none !important; }
           var r = Math.round(m), s = ctx.createBufferSource();
           s.buffer = ksBuffer(r, C.pizz);
           s.playbackRate.value = Math.pow(2, (m - r) / 12);
-          g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(C.gain * 1.8, t + 0.003);
+          g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(C.gain * 1.8 * LEVEL[tab].pizz, t + 0.003);
           s.connect(lv); s.start(t);
           v = { g: g, lv: lv, src: s, base: r, oscs: [s], rel: 0.25, done: false, pizz: true };
           s.onended = function () { v.done = true; g.disconnect(); };
-        } else { // bowed: two sawtooths through the body, brighter the harder the bow
+        } else { // bowed: detuned oscillators through the body, brighter the harder the bow
           var f = mtof(m), lp = ctx.createBiquadFilter(), os = [], all = [];
-          lp.type = 'lowpass'; lp.Q.value = 0.6; lp.frequency.value = C.lp[0] + C.lp[1] * l;
-          g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(C.gain, t + C.att);
+          lp.type = 'lowpass'; lp.Q.value = 0.6; lp.frequency.value = bright(l);
+          g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(C.gain * LEVEL[tab].bow, t + C.att);
           var vd = vibrato(t, C.vib[0], x.vib ? C.vib[1] : 0, 0.25, all);
-          [-5, 6].forEach(function (cents) {
+          C.osc.forEach(function (h) {
             var o = ctx.createOscillator(), og = ctx.createGain();
-            o.type = 'sawtooth'; o.frequency.value = f; o.detune.value = cents; og.gain.value = 0.5;
-            vd.connect(o.detune); o.connect(og); og.connect(lp); o.start(t); os.push(o); all.push(o);
+            o.type = h[0]; o.frequency.value = f; o.detune.value = h[2]; og.gain.value = h[1];
+            vd.connect(o.detune); o.connect(og); og.connect(lp); o.start(t + Math.random() / f); os.push(o); all.push(o); // random phase
           });
-          breath(t, Math.min(8000, f * 4), 1.2, 0.05, lv, all); // bow hair on the string
+          breath(t, Math.min(8000, f * C.noise[0]), 1.2, C.noise[1], lv, all); // bow hair on the string
           lp.connect(lv);
           v = { g: g, lv: lv, lp: lp, os: os, oscs: all, rel: C.rel, done: false };
           os[0].onended = function () { v.done = true; g.disconnect(); };
@@ -2242,27 +2423,33 @@ body[data-screen="home"] .rotate { display: none !important; }
       },
       set: function (v, m, l) {
         var t = ctx.currentTime;
-        v.lv.gain.setTargetAtTime(l, t, v.pizz ? 0.01 : 0.05);
+        v.lv.gain.setTargetAtTime(l, t, v.pizz ? 0.01 : 0.04);
         if (v.pizz) { v.src.playbackRate.setTargetAtTime(Math.pow(2, (m - v.base) / 12), t, 0.01); return; }
         var f = mtof(m);
         v.os.forEach(function (o) { o.frequency.setTargetAtTime(f, t, 0.012); });
-        v.lp.frequency.setTargetAtTime(C.lp[0] + C.lp[1] * l, t, 0.05);
+        v.lp.frequency.setTargetAtTime(bright(l), t, 0.05);
       }
     };
   }
   ENG.violin = bowEngine('violin');
   ENG.cello = bowEngine('cello');
 
-  function bowX(s) { return (s + 0.5) / (BOW_SPAN + 1); } // where semitone s sits across the board, 0-1
+  function fbW() { return bw.pizz ? 1 : FB; }                        // fingerboard width, 0-1
+  function bowX(s) { return (s + 0.5) / (BOW_SPAN + 1) * fbW(); }   // where semitone s sits across the board, 0-1
 
   function buildBowed() {
     newStopAll();
-    var C = BOWCFG[bw.tab], st = NST[bw.tab], sc = SCALES[st.scale], i, s;
-    bowed.querySelectorAll('.brow, .btick').forEach(function (el) { el.remove(); });
+    var C = BOWCFG[bw.tab], st = TONAL[bw.tab], i, s;
+    bowed.querySelectorAll('.brow, .btick, .bzone').forEach(function (el) { el.remove(); });
     for (s = 1; s <= BOW_SPAN; s++) {
       var tk = document.createElement('div');
-      tk.className = 'btick'; tk.style.left = (s / (BOW_SPAN + 1) * 100) + '%';
+      tk.className = 'btick'; tk.style.left = (s / (BOW_SPAN + 1) * fbW() * 100) + '%';
       bowed.insertBefore(tk, bdot);
+    }
+    if (!bw.pizz) {
+      var z = document.createElement('div');
+      z.className = 'bzone'; z.style.left = (FB * 100) + '%'; z.innerHTML = '<span>Bow</span>';
+      bowed.insertBefore(z, bdot);
     }
     bw.rows = [];
     for (i = 0; i < 4; i++) {
@@ -2271,129 +2458,231 @@ body[data-screen="home"] .rotate { display: none !important; }
       var h = '<i style="height:' + C.th[i] + 'px"></i><span class="sn">' + C.names[i] + '</span>';
       // Scale guide marks with note names; the key's root is gold
       for (s = 1; s <= BOW_SPAN; s++) {
-        var m = C.open[i] + s, rel = ((m - st.key) % 12 + 12) % 12;
-        if (sc.indexOf(rel) < 0) continue;
-        h += '<span class="bmark' + (rel === 0 ? ' root' : '') + '" style="left:' + (bowX(s) * 100).toFixed(2) + '%"><b>' + noteText(m, st.key) + '</b></span>';
+        var m = C.open[i] + s;
+        if (!T.inScale(m, st.key, st.scale)) continue;
+        h += '<span class="bmark' + (T.pc(m) === st.key ? ' root' : '') + '" data-m="' + m + '" style="left:' + (bowX(s) * 100).toFixed(2) + '%"><b>' + noteText(m, st.key) + '</b></span>';
       }
       row.innerHTML = h;
       bowed.insertBefore(row, bdot); bw.rows.push(row);
     }
     $('bhint').textContent = bw.pizz ? 'Tap a string to pluck · slide to change pitch'
-      : 'Hold a spot for the note · rub up and down across the string to bow, faster is louder';
+      : 'Hold notes on the left, bow across the strings on the right · one finger alone: hold and rub';
   }
 
-  function bowPitch(i, x) {
-    var C = BOWCFG[bw.tab], s = clamp(x * (BOW_SPAN + 1) - 0.5, 0, BOW_SPAN), m = C.open[i] + s;
+  // Pitch for a finger at fx (0-1 across the fingerboard) on string i; snapped to the scale when asked
+  function bowPitch(i, fx) {
+    var C = BOWCFG[bw.tab], s = clamp(fx * (BOW_SPAN + 1) - 0.5, 0, BOW_SPAN), m = C.open[i] + s;
     if (!bw.snap) return m;
-    var st = NST[bw.tab], sc = SCALES[st.scale], r = Math.round(m), best = r, bd = 99;
-    for (var k = Math.max(C.open[i], r - 6); k <= Math.min(C.open[i] + BOW_SPAN, r + 6); k++) {
-      if (sc.indexOf(((k - st.key) % 12 + 12) % 12) >= 0 && Math.abs(k - m) < bd) { bd = Math.abs(k - m); best = k; }
+    var st = TONAL[bw.tab];
+    return T.snap(m, st.key, st.scale, C.open[i], C.open[i] + BOW_SPAN);
+  }
+  // A string's pitch under the bow: its most recent held finger, or the open string
+  function heldPitch(i) {
+    var best = null;
+    for (var id in bw.fing) { var f = bw.fing[id]; if (f.str === i && (!best || f.seq > best.seq)) best = f; }
+    return best ? best.m : BOWCFG[bw.tab].open[i];
+  }
+  // How much of string i the bow touches at u (string units: 0 = top string's line, 3 = bottom's).
+  // Near a string it plays alone; between two it plays both (equal power), crossfading smoothly.
+  function bowWeight(u, i) {
+    var d = Math.abs(u - i);
+    return d <= 0.3 ? 1 : d >= 0.7 ? 0 : Math.cos((d - 0.3) / 0.4 * Math.PI / 2);
+  }
+  function rowOf(y) { return clamp(Math.floor(y / bw.rect.height * 4), 0, 3); }
+  function uOf(y) { return clamp(y / bw.rect.height * 4 - 0.5, 0, 3); }
+
+  // Touch input in board pixels; t in ms. The DOM handlers below and the test harness both call these.
+  function bwDown(id, x, y, t) {
+    if (!bw.pizz && x >= FB * bw.rect.width && !bw.bow) { // the bow lands: held fingers now only stop strings
+      bw.bow = { id: id, x: x, y: y, t: t, sp: 0, vy: 0, u: uOf(y) };
+      bw.blev = 0; bw.sent = [];
+      for (var k in bw.fing) if (bw.fing[k].legacy) { vStop(k); bw.fing[k].legacy = false; }
+      for (var i = 0; i < 4; i++) { vStart(bw.tab, 'bs' + i, heldPitch(i), 0, { vib: bw.vib }); bw.sent[i] = { m: heldPitch(i), l: 0 }; }
+    } else {
+      var str = rowOf(y), f = bw.fing[id] = { str: str, x: x, px: x, y: y, t: t, sp: 0, seq: ++bw.seq, pizz: bw.pizz };
+      f.m = bowPitch(str, clamp(x / (fbW() * bw.rect.width), 0, 1));
+      if (!bw.bow) { // hold and rub: this finger is its own bow (today's one-finger behaviour)
+        f.legacy = true; f.l = bw.pizz ? 0.9 : 0.35;
+        vStart(bw.tab, id, f.m, f.l, { pizz: bw.pizz, vib: bw.vib });
+      }
     }
-    return best;
+    bwKick();
   }
-
-  function bwDraw() {
-    var ids = Object.keys(bw.ptr), on = {};
-    ids.forEach(function (id) { on[bw.ptr[id].str] = 1; });
-    bw.rows.forEach(function (r, i) { r.classList.toggle('on', !!on[i]); });
-    var p = ids.length ? bw.ptr[ids[ids.length - 1]] : null;
-    if (!p) { bdot.style.display = 'none'; return; }
-    bdot.style.display = 'block';
-    bdot.style.transform = 'translate(' + (p.x - bw.rect.left) + 'px,' + ((p.str + 0.5) / 4 * bw.rect.height) + 'px)';
+  function bwMove(id, x, y, t) {
+    var b = bw.bow;
+    if (b && b.id === id) {
+      var dt = Math.max(1, t - b.t), dx = x - b.x, dy = y - b.y;
+      b.sp = b.sp * 0.6 + 0.4 * Math.sqrt(dx * dx + dy * dy) / dt; // px per ms, smoothed
+      b.vy = b.vy * 0.7 + 0.3 * dy / dt;
+      b.x = x; b.y = y; b.t = t; b.u = uOf(y);
+      return;
+    }
+    var f = bw.fing[id];
+    if (!f) return;
+    var dt2 = Math.max(1, t - f.t);
+    f.sp = f.sp * 0.6 + 0.4 * Math.abs(y - f.y) / dt2;
+    f.y = y; f.t = t; f.x = x;
+    if (Math.abs(f.x - f.px) > 3) { // small sideways wobble while bowing doesn't move the note
+      f.px = f.x;
+      var m = bowPitch(f.str, clamp(f.x / (fbW() * bw.rect.width), 0, 1));
+      if (m !== f.m) { f.m = m; f.dirty = true; }
+    }
   }
-
-  // Bow level follows how fast the finger rubs across the string, and settles back when it stops
-  function bwTick() {
-    bw.raf = 0;
-    var ids = Object.keys(bw.ptr);
-    if (!ids.length) return;
-    ids.forEach(function (id) {
-      var p = bw.ptr[id];
-      var target = p.pizz ? p.l : 0.2 + 0.8 * clamp(p.sp / 1.1, 0, 1);
-      p.sp *= 0.88;
-      if (p.dirty || Math.abs(target - p.l) > 0.01) { p.l = target; p.dirty = false; vSet(id, p.m, p.l); }
-    });
+  function bwLift(id) {
+    if (bw.bow && bw.bow.id === id) {
+      bw.bow = null;
+      for (var i = 0; i < 4; i++) vStop('bs' + i);
+    } else if (bw.fing[id]) {
+      if (bw.fing[id].legacy) vStop(id);
+      delete bw.fing[id];
+    } else return;
     bwDraw();
-    bw.raf = requestAnimationFrame(bwTick);
+  }
+  function bwKick() {
+    bwDraw();
+    if (!bw.raf && !bw.manual) bw.raf = requestAnimationFrame(function () { bw.raf = 0; bwTick(performance.now()); });
+  }
+
+  // Levels follow how fast each bow (or rubbing finger) moves, and settle back when it stops
+  function bwTick(now) {
+    var dt = bw.last ? clamp(now - bw.last, 1, 100) : 16, decay = Math.exp(-dt / 90);
+    bw.last = now;
+    Object.keys(bw.fing).forEach(function (id) {
+      var f = bw.fing[id];
+      if (!f.legacy) return;
+      var target = f.pizz ? f.l : 0.2 + 0.8 * clamp(f.sp / 1.1, 0, 1);
+      f.sp *= decay;
+      if (f.dirty || Math.abs(target - f.l) > 0.01) { f.l = target; f.dirty = false; vSet(id, f.m, f.l); }
+    });
+    var b = bw.bow;
+    if (b) {
+      var want = clamp(b.sp / 1.1, 0, 1);
+      b.sp *= decay; b.vy *= decay;
+      bw.blev += (want - bw.blev) * (1 - Math.exp(-dt / 35)); // a bow change dips smoothly, never steps
+      for (var i = 0; i < 4; i++) {
+        var m = heldPitch(i), l = Math.round(bowWeight(b.u, i) * bw.blev * 200) / 200, s = bw.sent[i];
+        if (!s || s.m !== m || Math.abs(s.l - l) >= 0.005) { bw.sent[i] = { m: m, l: l }; vSet('bs' + i, m, l); }
+      }
+    }
+    bwDraw();
+    var busy = b || Object.keys(bw.fing).some(function (k) { return bw.fing[k].legacy; });
+    if (busy && !bw.manual) bw.raf = requestAnimationFrame(function () { bw.raf = 0; bwTick(performance.now()); });
+    if (!busy) bw.last = 0;
+  }
+
+  // Strings light up while they sound; the gold ring follows the newest finger; the bow follows the bow finger
+  var bowSvg = null;
+  function bowArtInit() {
+    if (bowSvg) return;
+    var NS = 'http://www.w3.org/2000/svg';
+    bowSvg = document.createElementNS(NS, 'svg');
+    bowSvg.setAttribute('class', 'bowsvg'); bowSvg.setAttribute('aria-hidden', 'true');
+    bowSvg.innerHTML = '<defs><radialGradient id="rosin"><stop offset="0" stop-color="#fffbe8"/>' +
+      '<stop offset=".35" stop-color="#ffd76a" stop-opacity=".85"/><stop offset="1" stop-color="#f2b134" stop-opacity="0"/></radialGradient></defs>' +
+      '<g class="bowg"><path class="bstick" d="M-300 -13 Q-110 -21 70 -13 L86 -10" fill="none" stroke="#7a4424" stroke-width="5" stroke-linecap="round"/>' +
+      '<path d="M-304 -16 L-300 1 L-292 1" fill="none" stroke="#e9dfc8" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/>' +
+      '<line class="bhair" x1="-298" y1="0" x2="70" y2="0" stroke="#f3ead6" stroke-width="3.5"/>' +
+      '<rect x="66" y="-16" width="20" height="19" rx="3" fill="#1f1d1b"/><circle cx="76" cy="-6" r="3" fill="#e9dfc8"/>' +
+      '<circle class="brosin" r="22" fill="url(#rosin)"/></g>';
+    bowed.appendChild(bowSvg);
+  }
+  function bwDraw() {
+    var on = {}, ids = Object.keys(bw.fing), i;
+    ids.forEach(function (id) { if (bw.fing[id].legacy) on[bw.fing[id].str] = 1; });
+    if (bw.bow) for (i = 0; i < 4; i++) if (bowWeight(bw.bow.u, i) * bw.blev > 0.05) on[i] = 1;
+    bw.rows.forEach(function (r, k) { r.classList.toggle('on', !!on[k]); });
+    var p = null;
+    ids.forEach(function (id) { if (!p || bw.fing[id].seq > p.seq) p = bw.fing[id]; });
+    if (!p || !bw.rect) bdot.style.display = 'none';
+    else {
+      bdot.style.display = 'block';
+      bdot.style.transform = 'translate(' + p.x + 'px,' + ((p.str + 0.5) / 4 * bw.rect.height) + 'px)';
+    }
+    var b = bw.bow;
+    if (!bowSvg) { if (!b) return; bowArtInit(); }
+    bowSvg.style.display = b ? 'block' : 'none';
+    if (!b) return;
+    // Tilt with the string being played and lean into a crossing, like a bow arm changing level
+    var ang = (b.u - 1.5) * 7 + clamp(b.vy * 8, -12, 12);
+    bowSvg.firstChild.nextSibling.setAttribute('transform', 'translate(' + b.x.toFixed(1) + ' ' + b.y.toFixed(1) + ') rotate(' + ang.toFixed(1) + ')');
+    var glow = bowSvg.querySelector('.brosin');
+    glow.setAttribute('opacity', (0.25 + 0.75 * bw.blev).toFixed(2));
+    glow.setAttribute('r', (14 + 16 * bw.blev).toFixed(1));
   }
 
   bowed.addEventListener('pointerdown', function (e) {
     e.preventDefault();
     try { bowed.setPointerCapture(e.pointerId); } catch (err) {}
     var r = bw.rect = bowed.getBoundingClientRect();
-    var i = clamp(Math.floor((e.clientY - r.top) / r.height * 4), 0, 3);
-    var p = bw.ptr[e.pointerId] = { str: i, x: e.clientX, px: e.clientX, y: e.clientY, t: e.timeStamp, sp: 0, pizz: bw.pizz, l: bw.pizz ? 0.9 : 0.35 };
-    p.m = bowPitch(i, (e.clientX - r.left) / r.width);
-    vStart(bw.tab, e.pointerId, p.m, p.l, { pizz: bw.pizz, vib: bw.vib });
-    bwDraw();
-    if (!bw.raf) bw.raf = requestAnimationFrame(bwTick);
+    bwDown(e.pointerId, e.clientX - r.left, e.clientY - r.top, e.timeStamp);
   });
   bowed.addEventListener('pointermove', function (e) {
-    var p = bw.ptr[e.pointerId];
-    if (!p) return;
-    var dt = Math.max(1, e.timeStamp - p.t), sp = Math.abs(e.clientY - p.y) / dt;
-    p.sp = p.sp * 0.6 + sp * 0.4;
-    p.y = e.clientY; p.t = e.timeStamp; p.x = e.clientX;
-    if (Math.abs(p.x - p.px) > 3) { // small sideways wobble while bowing doesn't move the note
-      p.px = p.x;
-      var m = bowPitch(p.str, (p.x - bw.rect.left) / bw.rect.width);
-      if (m !== p.m) { p.m = m; p.dirty = true; }
-    }
+    if (!bw.rect) return;
+    bwMove(e.pointerId, e.clientX - bw.rect.left, e.clientY - bw.rect.top, e.timeStamp);
   });
   bowed.addEventListener('contextmenu', function (e) { e.preventDefault(); });
-  function bwUp(id) {
-    if (!bw.ptr[id]) return;
-    delete bw.ptr[id];
-    vStop(id); bwDraw();
-  }
+  function bwUp(id) { bwLift(id); }
 
   /* ---------- French horn ---------- */
   // Monophonic like the flute: the most recent finger plays and lifting it hands back to a finger still down
   var hn = { notes: [], cells: [], stack: [], pos: {}, rect: null, raf: 0, cur: -1, stop: false, slide: 0.35 };
   var horn = $('horn'), hdot = $('hdot');
 
+  // A horn is mellow: detuned sawtooths through a soft two-stage low-pass that opens with the breath,
+  // a round body around 400 Hz and a bell that rolls off the top. No distortion on the open sound.
+  var HN_ATT = 0.12; // attack, seconds (80-150 ms on a real horn)
   function hnChain() {
     if (chains.horn) return chains.horn;
     var c = chainOut('horn');
-    var body = ctx.createBiquadFilter(); body.type = 'peaking'; body.frequency.value = 450; body.Q.value = 0.9; body.gain.value = 4;
-    var sh = ctx.createWaveShaper(), curve = new Float32Array(1024); // a touch of brassy edge
-    for (var i = 0; i < 1024; i++) curve[i] = Math.tanh((i / 511.5 - 1) * 1.6) / Math.tanh(1.6);
+    var body = ctx.createBiquadFilter(); body.type = 'peaking'; body.frequency.value = 400; body.Q.value = 0.8; body.gain.value = 4;
+    var bell = ctx.createBiquadFilter(); bell.type = 'lowpass'; bell.frequency.value = 3800; bell.Q.value = 0.5;
+    // Hand-stop: a hand deep in the bell makes the tone thin, buzzy and quieter (a brassy, shaped path fades in)
+    var sh = ctx.createWaveShaper(), curve = new Float32Array(1024);
+    for (var i = 0; i < 1024; i++) curve[i] = Math.tanh((i / 511.5 - 1) * 3) / Math.tanh(3);
     sh.curve = curve;
-    // Hand-stop: a hand deep in the bell makes the tone thin, buzzy and quieter
+    c.open = ctx.createGain(); c.buzz = ctx.createGain(); c.buzz.gain.value = 0;
     c.hp = ctx.createBiquadFilter(); c.hp.type = 'highpass'; c.hp.frequency.value = 30; c.hp.Q.value = 0.7;
     c.pk = ctx.createBiquadFilter(); c.pk.type = 'peaking'; c.pk.frequency.value = 2900; c.pk.Q.value = 2.5; c.pk.gain.value = 0;
     c.lvl = ctx.createGain();
-    c.in.connect(body); body.connect(sh); sh.connect(c.hp); c.hp.connect(c.pk); c.pk.connect(c.lvl); c.lvl.connect(c.out);
+    c.in.connect(body); body.connect(c.open); body.connect(sh); sh.connect(c.buzz);
+    c.open.connect(c.hp); c.buzz.connect(c.hp);
+    c.hp.connect(c.pk); c.pk.connect(bell); bell.connect(c.lvl); c.lvl.connect(c.out);
     chains.horn = c; hnStopTone();
     return c;
   }
   function hnStopTone() {
     var c = chains.horn;
     if (!c) return;
-    glideTo(c.pk.gain, hn.stop ? 14 : 0, 0.05);
-    glideTo(c.hp.frequency, hn.stop ? 420 : 30, 0.05);
-    glideTo(c.lvl.gain, hn.stop ? 0.55 : 1, 0.05);
+    glideTo(c.open.gain, hn.stop ? 0.3 : 1, 0.05);
+    glideTo(c.buzz.gain, hn.stop ? 0.6 : 0, 0.05);
+    glideTo(c.pk.gain, hn.stop ? 12 : 0, 0.05);
+    glideTo(c.hp.frequency, hn.stop ? 380 : 30, 0.05);
+    glideTo(c.lvl.gain, hn.stop ? 0.45 : 1, 0.05);
   }
-  function hnBright(f, l) { return Math.min(7000, f * (1.6 + 4.5 * l * l)); } // more breath, brighter brass
+  // Low-pass cut-off: more breath opens it up, but a horn never gets bright
+  function hnBright(f, l) { return Math.min(3200, f * (1.3 + 3.2 * l) + 180); }
 
   ENG.horn = {
     make: function (m, l) {
       var c = hnChain(), t = ctx.currentTime, f = mtof(m), all = [], os = [];
-      var g = ctx.createGain(), lv = ctx.createGain(), lp = ctx.createBiquadFilter();
-      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.36, t + 0.16); // slow, soft attack
+      var g = ctx.createGain(), lv = ctx.createGain(), lp1 = ctx.createBiquadFilter(), lp2 = ctx.createBiquadFilter();
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.4 * LEVEL.horn, t + HN_ATT);
       lv.gain.value = l;
-      lp.type = 'lowpass'; lp.Q.value = 1.1;
-      lp.frequency.setValueAtTime(f * 1.2, t);
-      lp.frequency.setTargetAtTime(hnBright(f, l), t + 0.04, 0.09); // the tone blooms as the air column speaks
-      var vd = vibrato(t, 4.8, 7, 0.5, all);
-      [['sawtooth', 0.5, -3], ['sawtooth', 0.32, 4], ['sine', 0.45, 0]].forEach(function (h) {
+      [lp1, lp2].forEach(function (lp, k) {
+        lp.type = 'lowpass'; lp.Q.value = k ? 0.9 : 0.5;
+        lp.frequency.setValueAtTime(f * 0.9 + 120, t);                         // speaks dark ...
+        lp.frequency.setTargetAtTime(hnBright(f, l), t + 0.02, HN_ATT * 0.6);  // ... and opens as the air column fills
+      });
+      var vd = vibrato(t, 4.6, 6, 0.4, all); // gentle, and only once the note has settled
+      [['sawtooth', 0.38, -6], ['sawtooth', 0.38, 0], ['sawtooth', 0.34, 5]].forEach(function (h) {
         var o = ctx.createOscillator(), og = ctx.createGain();
         o.type = h[0]; o.frequency.value = f; o.detune.value = h[2]; og.gain.value = h[1];
-        vd.connect(o.detune); o.connect(og); og.connect(lp); o.start(t); os.push(o); all.push(o);
+        // random start phase: detuned oscillators all starting in phase would flare up then sag as they drift
+        vd.connect(o.detune); o.connect(og); og.connect(lp1); o.start(t + Math.random() / f); os.push(o); all.push(o);
       });
-      breath(t, 1100, 0.7, 0.012, lv, all);
-      lp.connect(lv); lv.connect(g); g.connect(c.in);
-      var v = { g: g, lv: lv, lp: lp, os: os, oscs: all, rel: 0.2, done: false };
+      breath(t, 900, 0.7, 0.01, lv, all);
+      lp1.connect(lp2); lp2.connect(lv); lv.connect(g); g.connect(c.in);
+      var v = { g: g, lv: lv, lps: [lp1, lp2], os: os, oscs: all, rel: 0.2, done: false };
       os[0].onended = function () { v.done = true; g.disconnect(); };
       track(v);
       return v;
@@ -2402,20 +2691,19 @@ body[data-screen="home"] .rotate { display: none !important; }
       var t = ctx.currentTime, f = mtof(m);
       v.os.forEach(function (o) { o.frequency.setTargetAtTime(f, t, x.glide || 0.02); });
       v.lv.gain.setTargetAtTime(l, t, 0.06);
-      v.lp.frequency.setTargetAtTime(hnBright(f, l), t, 0.06);
+      v.lps.forEach(function (lp) { lp.frequency.setTargetAtTime(hnBright(f, l), t, 0.06); });
     }
   };
 
   function buildHorn() {
     newStopAll();
-    var st = NST.horn, root = 48 + st.key, sc = SCALES[st.scale];
+    var st = TONAL.horn, root = 48 + st.key;
     hn.cells.forEach(function (c) { c.remove(); });
-    hn.cells = []; hn.notes = [];
-    for (var o = 0; o < 2; o++) sc.forEach(function (s) { hn.notes.push(root + 12 * o + s); });
-    hn.notes.push(root + 24);
+    hn.cells = [];
+    hn.notes = T.run(root, st.scale, 2 * T.iv(st.scale).length + 1);
     hn.notes.forEach(function (m) {
       var c = document.createElement('div');
-      c.className = 'hcell' + ((m - root) % 12 === 0 ? ' root' : '');
+      c.className = 'hcell' + (T.pc(m) === st.key ? ' root' : '');
       c.textContent = noteText(m, st.key);
       horn.insertBefore(c, hdot); hn.cells.push(c);
     });
@@ -2469,26 +2757,39 @@ body[data-screen="home"] .rotate { display: none !important; }
   // Lift every finger on the four new instruments (playback keeps going)
   function newStopAll() {
     Object.keys(vmap).forEach(function (k) { if (k.indexOf('pb') !== 0) vStop(k); });
-    hm.ptr = {}; bw.ptr = {};
+    hm.ptr = {}; bw.fing = {}; bw.bow = null;
     hnStopAll(); hmLights(); bwDraw();
   }
 
-  // Toolbar for the new instruments: key, scale and reverb are remembered per instrument
-  function syncNewControls(tab) {
-    var st = NST[tab], nk = $('nkey');
+  // Key and scale for every melodic instrument; reverb for the held-voice ones. All remembered per instrument.
+  T.ORDER.forEach(function (k) {
+    var o = document.createElement('option'); o.value = k; o.textContent = T.SCALES[k].name; $('scale').appendChild(o);
+  });
+  function syncKeyControls(tab) {
+    var st = TONAL[tab], nk = $('key');
+    if (!st) return;
     nk.innerHTML = '';
     CHROMA.forEach(function (n, i) {
       var o = document.createElement('option'); o.value = i;
       o.textContent = (tab === 'harmonica' ? 'Harp in ' : 'Key ') + n; nk.appendChild(o);
     });
-    nk.value = st.key; $('nscale').value = st.scale; $('irev').value = st.rev;
-    nread.textContent = '';
-    if (tab === 'harmonica') buildHarp();
-    else if (tab === 'horn') buildHorn();
-    else { bw.tab = tab; buildBowed(); }
+    nk.value = st.key; $('scale').value = st.scale;
+    rebuildTonal(tab);
   }
-  $('nkey').onchange = function () { NST[state.tab].key = +this.value; syncNewControls(state.tab); };
-  $('nscale').onchange = function () { NST[state.tab].scale = this.value; syncNewControls(state.tab); };
+  function rebuildTonal(tab) {
+    if (tab === 'piano') buildPiano();
+    else if (tab === 'guitar') buildChords();
+    else if (tab === 'flute') buildFlute();
+    else if (tab === 'harmonica') buildHarp();
+    else if (tab === 'horn') buildHorn();
+    else if (tab === 'violin' || tab === 'cello') { bw.tab = tab; buildBowed(); }
+  }
+  function syncNewControls(tab) {
+    $('irev').value = NST[tab].rev;
+    nread.textContent = '';
+  }
+  $('key').onchange = function () { TONAL[state.tab].key = +this.value; rebuildTonal(state.tab); };
+  $('scale').onchange = function () { TONAL[state.tab].scale = this.value; rebuildTonal(state.tab); };
   $('irev').oninput = function () {
     var st = NST[state.tab], c = chains[state.tab];
     st.rev = +this.value;
@@ -2542,8 +2843,8 @@ body[data-screen="home"] .rotate { display: none !important; }
     Object.keys(gtr.held).forEach(function (k) { if (/^\d+$/.test(k)) gtrRelease(k); });
     fluteStopAll();
     tb.bend = {}; tb.slide = {};
-    Object.keys(vmap).forEach(function (k) { if (/^\d+$/.test(k)) vStop(k); });
-    hm.ptr = {}; bw.ptr = {}; hnStopAll(); hmLights(); bwDraw();
+    Object.keys(vmap).forEach(function (k) { if (/^(bs)?\d+$/.test(k)) vStop(k); });
+    hm.ptr = {}; bw.fing = {}; bw.bow = null; hnStopAll(); hmLights(); bwDraw();
   }
   window.addEventListener('touchend', noTouchesLeft, { passive: true });
   window.addEventListener('touchcancel', noTouchesLeft, { passive: true });
@@ -2552,6 +2853,14 @@ body[data-screen="home"] .rotate { display: none !important; }
 
   /* ---------- Computer keyboard ---------- */
   var KEYMAP = { a: 0, w: 1, s: 2, e: 3, d: 4, f: 5, t: 6, g: 7, y: 8, h: 9, u: 10, j: 11, k: 12, o: 13, l: 14, p: 15 };
+  var SCALEKEYS = 'asdfghjkl;';
+  // Computer keys play from the second octave: chromatic like a keyboard, or one scale note per home-row key
+  function pianoKbMidi(k) {
+    var st = TONAL.piano, root = pianoRoot() + 12;
+    if (st.scale === 'chromatic') return KEYMAP[k] === undefined ? null : root + KEYMAP[k];
+    var i = SCALEKEYS.indexOf(k);
+    return i < 0 ? null : T.degree(root, st.scale, i);
+  }
   var PADKEYS = {};
   PADS.forEach(function (p) { PADKEYS[p.key] = p.id; });
   window.addEventListener('keydown', function (e) {
@@ -2565,7 +2874,8 @@ body[data-screen="home"] .rotate { display: none !important; }
       return;
     }
     if (state.tab === 'piano') {
-      if (KEYMAP[k] !== undefined) noteOn('kb' + k, baseMidi() + 12 + KEYMAP[k], 0.85, state.inst, CHORDS[state.chord]);
+      var km = pianoKbMidi(k);
+      if (km !== null) noteOn('kb' + k, km, 0.85, state.inst, pianoIv(km));
       else if (k === 'z') setOctave(state.octave - 1);
       else if (k === 'x') setOctave(state.octave + 1);
     } else if (state.tab === 'drums') {
@@ -2803,6 +3113,7 @@ body[data-screen="home"] .rotate { display: none !important; }
     document.body.dataset.screen = 'play';
     $('iname').textContent = TAB_NAMES[tab];
     if (isNew(tab)) syncNewControls(tab);
+    syncKeyControls(tab);
     if (tab === 'guitar') gtrPrewarm();
     rects = {};
     refreshButtons();
@@ -2903,12 +3214,6 @@ body[data-screen="home"] .rotate { display: none !important; }
     this.setAttribute('aria-pressed', gtr.ring);
   };
 
-  var fkey = $('fkey');
-  CHROMA.forEach(function (n, i) {
-    var o = document.createElement('option'); o.value = i; o.textContent = 'Key ' + n; fkey.appendChild(o);
-  });
-  fkey.onchange = function () { fl.key = +this.value; buildFlute(); };
-  $('fscale').onchange = function () { fl.scale = this.value; buildFlute(); };
   $('fmode').onchange = function () { fl.mode = this.value; };
 
   $('more').onclick = function () {
@@ -2926,19 +3231,43 @@ body[data-screen="home"] .rotate { display: none !important; }
   };
 
   /* ---------- Settings panel ---------- */
-  $('vol').oninput = function () { state.vol = +this.value; if (master) master.gain.value = state.vol; };
+  $('vol').oninput = function () {
+    state.vol = +this.value; $('volLbl').textContent = Math.round(state.vol * 100) + '%';
+    if (master) glideTo(master.gain, state.vol, 0.03);
+    try { localStorage.setItem('pb-vol', state.vol); } catch (e) {}
+  };
   $('rev').oninput = function () { state.rev = +this.value; if (wet) wet.gain.value = state.rev; };
   $('vib').oninput = function () { state.vib = +this.value; if (lfoDepth) lfoDepth.gain.value = state.vib * 35; };
   $('range').onchange = function () { state.range = +this.value; setOctave(state.octave); };
   $('chord').onchange = function () { state.chord = this.value; };
   $('labels').onchange = function () {
-    state.labels = this.value; buildPiano(); buildFlute();
-    if (isNew(state.tab)) syncNewControls(state.tab);
+    state.labels = this.value;
+    rebuildTonal(state.tab);
   };
   $('vel').onchange = function () { state.velocity = this.value === 'on'; };
   $('maxv').onchange = function () { MAX_VOICES = +this.value; };
 
   $('anyway').onclick = function () { document.body.classList.add('allow-portrait'); };
+
+  // Any trim the measured table doesn't list plays at 1
+  (function fillLevels() {
+    LEVEL = LEVEL || {};
+    function grp(k) { return LEVEL[k] = LEVEL[k] || {}; }
+    function one(o, k) { if (o[k] === undefined) o[k] = 1; }
+    $('inst').querySelectorAll('option').forEach(function (o) { one(grp('piano'), o.value); });
+    ['acoustic', 'electro'].forEach(function (kit) { var d = grp('drums'); d[kit] = d[kit] || {}; PADS.forEach(function (p) { one(d[kit], p.id); }); });
+    Object.keys(GTYPES).forEach(function (k) { one(grp('guitar'), k); });
+    Object.keys(BOLS).forEach(function (k) { one(grp('tabla'), k); });
+    Object.keys(EKITS).forEach(function (kit) {
+      var e = grp('epad'); e[kit] = e[kit] || [];
+      for (var i = 0; i < 16; i++) if (e[kit][i] === undefined) e[kit][i] = 1;
+    });
+    ['violin', 'cello'].forEach(function (k) { one(grp(k), 'bow'); one(grp(k), 'pizz'); });
+    ['flute', 'harmonica', 'horn', 'tanpura'].forEach(function (k) { if (LEVEL[k] === undefined) LEVEL[k] = 1; });
+  })();
+
+  try { var sv = parseFloat(localStorage.getItem('pb-vol')); if (sv >= 0 && sv <= 1.5) state.vol = sv; } catch (e) {}
+  $('vol').value = state.vol; $('volLbl').textContent = Math.round(state.vol * 100) + '%';
 
   buildPiano();
   buildPads();
@@ -2952,6 +3281,32 @@ body[data-screen="home"] .rotate { display: none !important; }
   try { saved = localStorage.getItem('pb-tab'); } catch (e) {}
   if (saved && TAB_NAMES[saved]) openInstrument(saved);
   else markCenter(cards[0]);
+
+  // Hooks for the headless audio tests (tests/), only when the harness asks for them before load
+  if (window.__PB_TEST__) {
+    window.PocketBandTest = {
+      T: T, TONAL: TONAL, state: state, gtr: gtr, bw: bw, fl: fl, hn: hn, ep: ep, BOWCFG: BOWCFG, EKITS: EKITS, PADS: PADS, BOLS: BOLS, GTYPES: GTYPES,
+      level: function () { return LEVEL; }, setLevel: function (l) { LEVEL = l; },
+      ctx: function () { return ctx; }, live: function () { return live; },
+      init: init, open: openInstrument, rebuild: rebuildTonal, setTonal: function (tab, key, scale) {
+        TONAL[tab].key = key; TONAL[tab].scale = scale;
+        if (state.tab === tab) syncKeyControls(tab); else rebuildTonal(tab);
+      },
+      setVolume: function (v) { state.vol = v; if (master) master.gain.value = v; },
+      noteOn: noteOn, noteOff: noteOff, pianoIv: pianoIv, drum: function (name, vel, kit) { drumKit = kit || 'acoustic'; drum(name, vel); },
+      ehit: function (kit, i, vel) { ep.kit = kit; ehit(i, vel); }, tabla: tablaStroke, pluck: pluck, gtrMidi: gtrMidi,
+      gtrRelease: gtrRelease, vStart: vStart, vSet: vSet, vStop: vStop, hmNote: hmNote,
+      bowRect: function () { return bw.rect = bowed.getBoundingClientRect(); },
+      bwDown: bwDown, bwMove: bwMove, bwLift: bwLift, bwTick: bwTick, bowPitch: bowPitch,
+      setDrone: setDrone, voices: function () { return live.filter(function (v) { return !v.done; }).length; },
+      // A fresh audio context for each render: forget every node made for the last one
+      reset: function () {
+        silenceAll();
+        ctx = null; chains = {}; ksCache = {}; ksKeys = []; live = []; vmap = {}; gtr.strVoice = []; gtr.held = {};
+        tb.dV = tb.bV = null; openHat = null; bw.fing = {}; bw.bow = null; bw.last = 0;
+      }
+    };
+  }
 
   if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
     window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
