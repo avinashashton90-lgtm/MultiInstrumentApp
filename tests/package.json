@@ -9,6 +9,7 @@
     "calibrate": "node loudness.js --calibrate",
     "baseline": "node baseline.js",
     "report": "node report.js",
+    "horn": "node horn.js",
     "test": "node instruments.js && node pitch.js"
   },
   "devDependencies": {

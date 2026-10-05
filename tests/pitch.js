@@ -10,7 +10,9 @@ const R = require('./lib/reference');
 
 const TOL = 5; // cents
 const arg = (k) => { const a = process.argv.find((x) => x.startsWith('--' + k + '=')); return a ? a.split('=')[1].split(',') : null; };
-const TABS = arg('only') || ['piano', 'guitar', 'flute', 'harmonica', 'violin', 'cello', 'horn'];
+const TABS = arg('only') || ['piano', 'guitar', 'flute', 'harmonica', 'violin', 'cello', 'horn',
+  'trumpet', 'viola', 'organ', 'sax', 'xylo', 'synth', 'ebass', 'rhythm'];
+const FRETLESS = ['violin', 'viola', 'cello', 'ebass']; // boards that offer every semitone in the chromatic scale
 const KEYS = (arg('keys') || [...Array(12).keys()]).map(Number);
 const SCALES = arg('scales') || R.SCALE_NAMES;
 
@@ -20,8 +22,11 @@ async function playCase({ tab, key, scale }) {
   const input = (id, v) => { const el = document.getElementById(id); el.value = v; el.dispatchEvent(new Event('input')); };
   P.open(tab);
   input('rev', 0);                                   // no reverb tails between notes
-  if (document.body.matches('[data-tab="harmonica"],[data-tab="violin"],[data-tab="cello"],[data-tab="horn"]')) input('irev', 0);
-  if ($('#bvib').getAttribute('aria-pressed') === 'true') $('#bvib').click(); // steady pitch for measuring
+  if ($('#irev').offsetParent !== null) input('irev', 0);
+  // steady pitch for measuring: vibrato off
+  if ($('#bvib').getAttribute('aria-pressed') === 'true') $('#bvib').click();
+  if ($('#sxvib').getAttribute('aria-pressed') === 'true') $('#sxvib').click();
+  P.sy.knobs.lead.vib = 0;
   P.setTonal(tab, key, scale);
   const G = [];                                      // gestures: { down, up, label, info }
   const centre = (el) => { const r = el.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; };
@@ -33,15 +38,30 @@ async function playCase({ tab, key, scale }) {
     // the chromatic layout may start on the white key below a black root
     const start = keys.findIndex((k) => P.T.pc(+k.dataset.midi) === key);
     keys.slice(start, start + n + 1).forEach((k) => tap(k, 0.5, k.classList.contains('bkey') ? 0.4 : 0.6, k.textContent, k.classList.contains('bkey') ? 'black' : ''));
-  } else if (tab === 'flute' || tab === 'horn') {
-    const board = $('#' + tab), cells = [...board.querySelectorAll(tab === 'flute' ? '.fcell' : '.hcell')];
+  } else if (tab === 'organ' || tab === 'synth') {
+    const keys = [...document.querySelectorAll(tab === 'organ' ? '#man0 .mkey' : '#synKeys .mkey')];
+    keys.slice(0, n + 1).forEach((k) => tap(k, 0.5, 0.6, k.textContent));
+  } else if (tab === 'flute' || tab === 'horn' || tab === 'trumpet' || tab === 'sax' || tab === 'xylo') {
+    const board = $({ flute: '#flute', horn: '#horn', trumpet: '#tptRow', sax: '#saxRow', xylo: '#xylo' }[tab]);
+    const cells = [...board.querySelectorAll({ flute: '.fcell', horn: '.hcell', xylo: '.xbar' }[tab] || '.wcell')];
     cells.slice(0, n + 1).forEach((c, i) => tap(board, (i + 0.5) / cells.length, 0.5, c.textContent));
   } else if (tab === 'harmonica') {
     const board = $('#harp'), cols = board.querySelectorAll('.hcol');
     for (let i = 0; i < 5; i++) for (const draw of [false, true]) {
       tap(board, (i + 0.5) / 10, draw ? 0.75 : 0.25, cols[i].children[draw ? 2 : 0].firstChild.textContent, (draw ? 'draw ' : 'blow ') + (i + 1));
     }
-  } else if (tab === 'violin' || tab === 'cello') {
+  } else if (tab === 'ebass') {
+    const board = $('#ebass'), row = P.eb.rows[3];
+    [...row.querySelectorAll('.fmark')].forEach((mk) => {
+      const c = centre(mk), f = at(board, c.x, c.y);
+      tap(board, f[0], 3.5 / 4, mk.querySelector('b').textContent);
+    });
+  } else if (tab === 'rhythm') {
+    $('#rchords [data-chord="0"]').click();
+    const ns = P.rhNotes();
+    ns.forEach((m, i) => G.push({ down: m < 0 ? () => {} : () => P.vStart('rhythm', 'g', 0, 0.7, { notes: [m] }), up: () => P.vStop('g'),
+      label: P.rh.strEls[i].lastChild.textContent, info: m < 0 ? 'muted' : 'string ' + (i + 1) }));
+  } else if (tab === 'violin' || tab === 'cello' || tab === 'viola') {
     const board = $('#bowed'), row = P.bw.rows[1];
     [...row.querySelectorAll('.bmark')].forEach((mk) => {
       const c = centre(mk), f = at(board, c.x, c.y);
@@ -58,18 +78,19 @@ async function playCase({ tab, key, scale }) {
   G.forEach((g, i) => {
     const t = PRE + i * (LEN + GAP);
     steps.push([t, g.down], [t + LEN, g.up]);
-    wins.push(tab === 'guitar' ? [t + 0.08, t + 0.6] : [t + 0.25, t + LEN - 0.02]);
+    const plucked = tab === 'guitar' || tab === 'rhythm' || tab === 'ebass';
+    wins.push(plucked ? [t + 0.08, t + 0.6] : tab === 'xylo' ? [t + 0.03, t + 0.3] : [t + 0.25, t + LEN - 0.02]);
   });
   P.reset();
   window.__pbSeconds = PRE + G.length * (LEN + GAP) + 0.2;
   P.init();
   const buf = await __pbRender(steps), x = PBA.mono(buf), sr = buf.sampleRate;
-  const chord = tab === 'guitar' ? $('[data-chord="0"]').textContent : null;
+  const chord = tab === 'guitar' ? $('#chords [data-chord="0"]').textContent : tab === 'rhythm' ? $('#rchords [data-chord="0"]').textContent : null;
   return {
     chord,
     notes: G.map((g, i) => {
       const a = Math.round(wins[i][0] * sr), b = Math.round(wins[i][1] * sr);
-      const q = g.info === 'muted' ? { f: 0, clarity: 0 } : PBA.pitch(x, sr, a, b, 50, 2500);
+      const q = g.info === 'muted' ? { f: 0, clarity: 0 } : PBA.pitch(x, sr, a, b, 50, tab === 'xylo' ? 4200 : 2500);
       return { f: q.f, clarity: q.clarity, label: g.label, info: g.info || '', level: PBA.db(PBA.rms(buf, a, b)) };
     })
   };
@@ -82,14 +103,24 @@ function expected(tab, key, scale) {
     case 'piano': return R.run(48 + key, scale, n + 1);          // C3 octave, starting on the key's root
     case 'flute': return R.run(60 + key, scale, n + 1);          // flute starts on the root from C4
     case 'horn': return R.run(48 + key, scale, n + 1);           // horn starts on the root from C3
+    case 'organ': return R.run(48 + key, scale, n + 1);          // lower manual starts on the root from C3
+    case 'synth': return R.run(48 + key, scale, n + 1);          // octave 3: the root from C3
+    case 'trumpet': return R.run(52 + R.pc(key - 52), scale, n + 1); // root from E3
+    case 'sax': return R.run(49 + R.pc(key - 49), scale, n + 1);     // root from D♭3 (alto sax's lowest note)
+    case 'xylo': return R.run(65 + R.pc(key - 65), scale, n + 1);    // root from F4
+    case 'ebass': {                                                   // G string, open to 12th fret
+      const out = [];
+      for (let m = 43; m <= 55; m++) if (R.SCALES[scale].includes(R.pc(m - key))) out.push(m);
+      return out;
+    }
     case 'harmonica': {
       const root = 55 + R.pc(key - 55);                           // harps run from G3 to F#4
       const out = [];
       for (let i = 0; i < 5; i++) out.push(root + R.seventh(scale, R.HARP_BLOW[i]), root + R.seventh(scale, R.HARP_DRAW[i]));
       return out;
     }
-    case 'violin': case 'cello': {
-      const open = tab === 'violin' ? 62 : 43;                    // second string: violin D4, cello G2
+    case 'violin': case 'cello': case 'viola': {
+      const open = { violin: 62, viola: 55, cello: 43 }[tab];     // second string: violin D4, viola G3, cello G2
       const out = [];
       for (let m = open + 1; m <= open + 14; m++) if (R.SCALES[scale].includes(R.pc(m - key))) out.push(m);
       return out;
@@ -100,7 +131,7 @@ function expected(tab, key, scale) {
 
 function checkCase(tab, key, scale, res) {
   const errs = [], measured = [];
-  if (tab === 'guitar') {
+  if (tab === 'guitar' || tab === 'rhythm') {
     const tri = R.tonicTriad(key, scale);
     if (res.chord !== tri.name) errs.push(`first chord button is ${res.chord}, expected ${tri.name}`);
     let bass = null;
@@ -157,7 +188,7 @@ function checkCase(tab, key, scale, res) {
     const sigs = results.filter((r) => r.tab === tab && r.scale === scale)
       .map((r) => r.notes.filter((n) => n.f > 0).map((n) => (69 + 12 * Math.log2(n.f / 440)).toFixed(1)).join(' '));
     // A fretless board in the chromatic scale offers every semitone in every key, so only there the sets match
-    const fretlessChromatic = (tab === 'violin' || tab === 'cello') && scale === 'chromatic';
+    const fretlessChromatic = FRETLESS.includes(tab) && scale === 'chromatic';
     const ok = fretlessChromatic || (sigs.length === KEYS.length && new Set(sigs).size === sigs.length);
     distinct.push({ tab, scale, ok });
     if (!ok) console.log(`FAIL ${tab} ${scale}: keys do not give ${KEYS.length} different sets of notes`);

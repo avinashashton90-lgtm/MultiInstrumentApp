@@ -11,9 +11,12 @@ Needs Node 18+ and Playwright's Chromium (`npx playwright install chromium` if i
 ```sh
 cd tests && npm install          # once: installs Playwright
 npm run pitch                    # key x scale test, every melodic instrument (about 3 minutes)
-npm run instruments              # violin / cello tuning, timbre and bowing; French horn; limiter
+npm run instruments              # tuning, timbre, bowing, breath, stops, strums, release fades, note limit, recording
+npm run horn                     # French horn crackle check (clipping, added distortion, bursts, level jumps)
 npm run loudness                 # peak and RMS of every instrument and pad
 npm run calibrate                # re-derive the LEVEL trims in index.html (only after changing a sound)
+npm run calibrate -- --only=Trumpet,Synth   # calibrate (or measure) only the sounds whose name starts so
+node horn.js horn-before.json ../before.html  # the crackle check on any version of the app
 npm run baseline -- ../index.html results/after.json   # same UI gestures on any version of the app
 npm run report                   # rebuild this file
 ```
@@ -24,8 +27,8 @@ npm run report                   # rebuild this file
   `AudioContext` for an `OfflineAudioContext` (48 kHz, stereo). Timed actions run at exact audio times by suspending
   the offline render, so a test can press a key at 0.3 s and lift it at 1.05 s.
 - Notes are played the way a person plays them wherever that is possible: synthetic pointer events on the
-  piano keys, flute and horn cells, harmonica holes and the violin / cello fingerboard, and the real chord buttons on
-  the guitar. Bow strokes, whose speed comes from event timestamps, go through the same input functions the touch
+  piano keys, flute, horn, trumpet and sax cells, harmonica holes, the organ and synth keys, the xylophone bars, the
+  bowed and bass fingerboards, and the real chord buttons on the guitar and rhythm guitar. Bow strokes, whose speed comes from event timestamps, go through the same input functions the touch
   handlers call (`bwDown` / `bwMove` / `bwTick`) with explicit times. These hooks only exist when the harness sets
   `window.__PB_TEST__` before the page loads.
 - Expected notes come from `tests/lib/reference.js`, written from the musical definitions rather than copied from
@@ -60,6 +63,36 @@ npm run report                   # rebuild this file
   first note after the app woke up came out about 10 dB quiet.
 - **French horn.** Two sawtooths and a sine through a bright filter and a tanh distortion: buzzy, nothing like a horn.
 
+## French horn crackle
+
+`tests/horn.js` renders all 15 horn notes at soft, medium and full breath (0.3, 0.65, 1), plus a legato slide over
+the whole range and a breath swell, twice each: once normally and once with the master routed straight to the
+output, so the signal going into the limiter can be compared with what comes out. Pass: no sample at or above 0.99,
+less than -50 dB of distortion added by the master stage, no burst of energy above 7 kHz more than 12 dB over the
+note (held part, attack and release), and no jump over 6 dB between 20 ms frames.
+
+| Measure (worst case over all notes and gestures) | Before | After |
+| --- | ---: | ---: |
+| Samples at or above 0.99 (output / before the limiter) | 0 / 0 | 0 / 0 |
+| Distortion added by the master stage (dB below the signal) | -19.7 | -72.5 |
+| Peak going into the limiter (dBFS) | -0.6 | -6.2 |
+| Peak at the output (dBFS) | -1.0 | -1.3 |
+| High-frequency burst while held (dB over the median) | 11.7 | 10.0 |
+| High-frequency burst at attack and release (dB) | 10.8 | 10.6 |
+| Largest level jump between 20 ms frames (dB) | 3.8 | 3.6 |
+| THD of the tone (range over notes, %) | 50-132 | 50-121 |
+
+**Cause.** Nothing clipped, but at full breath the horn reached the limiter at about -0.6 dBFS, 5 dB over its
+threshold, so the limiter (ratio 20) and the soft ceiling behind it were reshaping every cycle: up to 20 dB below
+the note, which is audible as a grainy, lo-fi edge. The tone itself, its envelopes and the filter moves were
+smooth (no bursts or level jumps beyond the beating of its detuned copies).
+
+**Fix.** The horn's level now follows breath on a gentler curve (35% to 100% rather than in straight proportion), its trim is
+calibrated at full breath to peak at -4.5 dBFS (trumpet, sax and the organ with all stops are calibrated the same
+way), its own shaper oversamples 4x, and a gentle tanh soft clip sits after it, so the loudest note reaches the
+limiter about 6 dB below full scale. Gain and filter changes already used `setTargetAtTime` ramps and the
+filter already tracked pitch, so those were kept. Distortion added by the master stage fell to -72 dB.
+
 ## Key x scale
 
 Every melodic instrument x all 12 keys x all 10 scales. Each case plays one octave of the scale (or ten harmonica
@@ -70,24 +103,37 @@ against the label on screen. Pass: within 5 cents, label matches, and the 12 key
 | Instrument | Cases | Notes measured | Failed | Worst error (cents) | Mean error (cents) | Keys give different pitches |
 | --- | ---: | ---: | ---: | ---: | ---: | --- |
 | piano | 120 | 960 | 0 | 0.00 | 0.00 | yes |
-| guitar | 120 | 630 | 0 | 2.01 | 1.02 | yes |
+| guitar | 120 | 630 | 0 | 2.01 | 1.04 | yes |
 | flute | 120 | 960 | 0 | 0.29 | 0.26 | yes |
 | harmonica | 120 | 1200 | 0 | 1.89 | 1.08 | yes |
 | violin | 120 | 980 | 0 | 0.54 | 0.51 | yes |
 | cello | 120 | 980 | 0 | 0.78 | 0.22 | yes |
-| horn | 120 | 960 | 0 | 3.31 | 0.84 | yes |
-| **all** | **840** | **6670** | **0** |  |  |  |
+| horn | 120 | 960 | 0 | 3.31 | 0.82 | yes |
+| trumpet | 120 | 960 | 0 | 0.04 | 0.01 | yes |
+| viola | 120 | 980 | 0 | 2.58 | 0.44 | yes |
+| organ | 120 | 960 | 0 | 0.00 | 0.00 | yes |
+| sax | 120 | 960 | 0 | 1.80 | 0.86 | yes |
+| xylo | 120 | 960 | 0 | 0.01 | 0.00 | yes |
+| synth | 120 | 960 | 0 | 2.64 | 1.56 | yes |
+| ebass | 120 | 910 | 0 | 0.03 | 0.01 | yes |
+| rhythm | 120 | 630 | 0 | 1.51 | 0.75 | yes |
+| **all** | **1800** | **13990** | **0** |  |  |  |
 
 Notes: the guitar's small error is its deliberate ±2 cent humanising detune. A fretless board in the chromatic
 scale offers every semitone in every key, so for violin and cello in "Chromatic" the key changes only the root mark
 and sargam labels; there the different-pitches check does not apply. The bowed instruments snap to the scale by
 default ("Snap to scale" is on); with it off they are free fretless instruments again.
+The new instruments are played the same way: the organ (lower manual) and synth keys, the trumpet and sax
+cells, every xylophone bar, every scale note on the viola D string and the bass G string, and the six strings of
+the first chord on the rhythm guitar. The bass board offers every semitone, so like the violin, viola and cello, in
+"Chromatic" its key changes only the root mark and the different-pitches check does not apply.
 
-## Violin, cello, bowing, horn and the limiter
+## Instrument behaviour
 
 | Test | Result | Measured |
 | --- | --- | --- |
 | violin: open strings | pass | 196.05 Hz (+0.50 c from G3), 293.75 Hz (+0.50 c from D4), 440.14 Hz (+0.53 c from A4), 659.45 Hz (+0.50 c from E5) |
+| viola: open strings | pass | 130.81 Hz (+0.01 c from C3), 196.00 Hz (-0.02 c from G3), 293.65 Hz (-0.07 c from D4), 440.04 Hz (+0.15 c from A4) |
 | cello: open strings | pass | 65.43 Hz (+0.69 c from C2), 97.99 Hz (-0.09 c from G2), 146.86 Hz (+0.33 c from D3), 220.00 Hz (-0.01 c from A3) |
 | violin vs cello: timbre | pass | G3 on both. Spectral centroid violin 2771 Hz vs cello 669 Hz; energy above 2 kHz 11% vs 1.5%; attack to 90% 65 ms vs 125 ms |
 | bowing: held finger sets the pitch of the bowed string | pass | 370.11 Hz (+0.52 c from F♯4) |
@@ -99,7 +145,21 @@ default ("Snap to scale" is on); with it off they are free fretless instruments 
 | bowing: bow speed sets the volume | pass | RMS slow -34.3, medium -21.5, fast -15.7 dBFS |
 | bowing: one finger alone still holds and rubs (old behaviour) | pass | held 370.10 Hz (+0.51 c from F♯4) at -27.4 dBFS, rubbed -23.9 dBFS |
 | cello: two-hand bowing too | pass | 196.00 Hz (+0.02 c from G3) |
-| horn: attack, breath-opened low-pass, vibrato, hand-stop | pass | attack (to 90%) 130 ms; brightness (centroid) soft 419 Hz → full breath 547 Hz; vibrato ±6.5 cents; hand-stop -3.7 dB quieter and brighter (630 Hz vs 480 Hz) |
+| horn: attack, breath-opened low-pass, vibrato, hand-stop | pass | attack (to 90%) 135 ms; brightness (centroid) soft 419 Hz → full breath 560 Hz; vibrato ±6.7 cents; hand-stop -3.9 dB quieter and brighter (619 Hz vs 486 Hz) |
+| viola: timbre between violin and cello | pass | G3 on each, spectral centroid: violin 2743 Hz, viola 1662 Hz, cello 666 Hz |
+| viola: two-hand bowing | pass | 246.94 Hz (+0.01 c from B3) |
+| trumpet: valve fingering shown for every note F♯3 to C6 | pass | 31 notes match the standard chart (e.g. D5: 1, C♯5: 1+2, A♭4: 2+3, F♯3: 1+2+3); the ringed valves light up as each note plays |
+| trumpet: holding valves lowers the note (2: one semitone, 1+3: five) | pass | open 523.25 Hz (-0.00 c from C5), valve 2 493.88 Hz (-0.00 c from B4), valves 1+3 391.99 Hz (-0.00 c from G4) |
+| trumpet: breath height, mute and growl | pass | G4: brightness (centroid) soft 1626 Hz → full breath 2463 Hz; mute -3.9 dB, centroid 2225 → 2140 Hz; growl: level flutter 4.2 → 8.5 dB |
+| organ: no decay while held, chiff, stops, two manuals, cathedral reverb | pass | C4 held 3 s: level in the 3rd second vs the 1st 0.00 dB; chiff: the first 30 ms carry 8 dB more energy above 3 kHz than the held pipe; drawing 4′, 2⅔′ and 2′ raises harmonics 2, 3, 4 by 8, 8, 15 dB; upper manual (flutes) centroid 595 Hz vs lower (principals) 844 Hz; cathedral: 2.8 s for the tail to fall 40 dB after the key is let go |
+| saxophone: soft attack, breath noise, vibrato, growl | pass | E♭4: attack (to 90%) 50 ms; breath noise between the harmonics 46 dB below the fundamental (oscillators alone: below -90 dB); vibrato ±15.5 cents; growl: level flutter 6.4 → 11.2 dB |
+| xylophone: short inharmonic decay, glissando swipe | pass | C5: falls 40 dB in 0.58 s; untuned mode at 6.27× is 31 dB above where a 6th harmonic would be; a swipe across all 15 bars struck 15 of them, once each |
+| synth: presets and knobs (filter, attack, release) | pass | attack to full level: lead 20 ms, pad 740 ms; after 1.5 s held: pluck -29 dB, lead -2.3 dB; centroid lead 1193, pad 722, supersaw 2929 Hz; filter knob 30% → 90%: 539 → 3344 Hz; release knob 100 ms → 2 s: tail falls 40 dB in 0.07 s → 1.06 s |
+| electric bass: open strings, finger / pick / slap, fretted slide | pass | open strings 41.20 Hz (+0.01 c from E1), 55.00 Hz (-0.01 c from A1), 73.42 Hz (-0.01 c from D2), 98.00 Hz (-0.02 c from G2); attack brightness (centroid) finger 1236 Hz, pick 2609 Hz, slap 6342 Hz; slide on the A string 61.73 Hz (-0.01 c from B1) → 82.41 Hz (-0.00 c from E2) |
+| rhythm guitar: auto-strum timing, palm mute, muted strum | pass | 120 BPM, on the beat: 5 strums, 502 / 500 / 500 / 500 ms apart; time to fall 30 dB: open 1.22 s, palm-muted 0.26 s (centroid 3015 → 1018 Hz), muted strum 0.05 s |
+| release: every newer instrument fades out cleanly when the finger lifts | pass | time from lifting the finger to 50 dB down, and the largest burst of energy above 7 kHz during the fade compared with the held note: trumpet 60 ms (-0.6 dB); sax 70 ms (+5.3 dB); viola 140 ms (+2.6 dB); organ 90 ms (+5.4 dB); synth 150 ms (+1.1 dB); xylo 130 ms (-10.6 dB); ebass 80 ms (+1.5 dB); rhythm 170 ms (-0.4 dB) |
+| note limit: the newer instruments share the limit | pass | organ: 20 notes started, 14 sounding (limit 14); synth: 20 notes started, 14 sounding (limit 14); xylo: 20 notes started, 14 sounding (limit 14) |
+| record and play back: every newer instrument | pass | trumpet: 3 events recorded, 1 notes replayed; sax: 3 events recorded, 1 notes replayed; viola: 2 events recorded, 1 notes replayed; organ: 2 events recorded, 1 notes replayed; synth: 2 events recorded, 1 notes replayed; xylo: 12 events recorded, 6 notes replayed; ebass: 3 events recorded, 1 notes replayed; rhythm: 2 events recorded, 1 notes replayed |
 | limiter: chords and stacked notes never clip | pass | piano 3-note chord (vel 0.7) @ 100%: peak -1.04 dBFS; 14 organ notes at full velocity @ 100%: peak -1.04 dBFS; drum pad: 4 hits at once, full velocity @ 100%: peak -1.04 dBFS; tabla Dha + Dhin together @ 100%: peak -1.04 dBFS; piano 3-note chord (vel 0.7) @ 150%: peak -1.04 dBFS; 14 organ notes at full velocity @ 150%: peak -1.04 dBFS; drum pad: 4 hits at once, full velocity @ 150%: peak -1.04 dBFS; tabla Dha + Dhin together @ 150%: peak -1.04 dBFS |
 
 ## Loudness: before and after
@@ -153,7 +213,9 @@ Share of each sound's energy above 200 Hz, before and after adding upper harmoni
 
 One medium-velocity note each (velocity 0.7; held instruments at 65% breath or a medium bow; harmonica at its
 normal breath), at the default master volume, median of 5 renders (hits use random noise, plucks a random
-excitation). Target: peak -3 dBFS (the tanpura, a backing drone, -9 dBFS). The trims live in `LEVEL` in
+excitation). Target: peak -3 dBFS (the tanpura, a backing drone, -9 dBFS). French horn, trumpet and sax are
+measured at full breath and the organ with all four stops drawn, their loudest settings, with a -4.5 dBFS target.
+The trims live in `LEVEL` in
 `index.html` and come from `npm run calibrate`.
 
 RMS depends on the kind of sound: short hits land near the -18 dBFS target, sustained tones are denser
@@ -257,24 +319,38 @@ Peak is what a speaker clips on, so every sound is matched on peak and the RMS i
 | Drum pad (lofi): Sub | -3.0 | -15.7 | 0.2 |
 | Drum pad (lofi): Crackle | -3.0 | -33.2 | 4.8 |
 | Drum pad (lofi): Crash | -3.0 | -19.3 | 2.5 |
-| Guitar: Steel acoustic | -3.0 | -19.0 | 1.6 |
-| Guitar: 12-string | -3.3 | -19.8 | 1.6 |
+| Guitar: Steel acoustic | -3.0 | -19.0 | 1.2 |
+| Guitar: 12-string | -4.2 | -19.9 | 2.0 |
 | Guitar: Nylon classical | -2.8 | -17.5 | 1.8 |
-| Guitar: Clean electric | -3.0 | -20.7 | 1.8 |
-| Guitar: Crunch electric | -2.8 | -14.2 | 0.8 |
+| Guitar: Clean electric | -3.0 | -20.7 | 1.7 |
+| Guitar: Crunch electric | -2.9 | -14.3 | 0.8 |
 | Guitar: Jazz hollow-body | -3.0 | -16.8 | 2.7 |
 | Guitar: Bass guitar (E A D G) | -3.0 | -17.7 | 1.2 |
 | Guitar: Ukulele (G C E A) | -3.0 | -17.9 | 2.8 |
-| Guitar: Sitar | -3.0 | -20.6 | 2.4 |
+| Guitar: Sitar | -3.0 | -20.6 | 2.0 |
 | Flute (mid breath) | -3.0 | -7.4 | 0.9 |
 | Harmonica (hole 4 blow) | -3.0 | -15.1 | 1.7 |
 | Violin (bowed, medium bow) | -3.0 | -18.5 | 0.4 |
 | Violin (pizzicato) | -3.0 | -20.0 | 3.6 |
 | Cello (bowed, medium bow) | -3.0 | -12.1 | 3.2 |
 | Cello (pizzicato) | -3.0 | -18.8 | 2.2 |
-| French horn (mid breath) | -3.0 | -14.2 | 2.4 |
+| French horn (full breath) | -4.4 | -15.9 | 2.4 |
+| Trumpet (full breath) | -4.5 | -18.5 | 0.8 |
+| Saxophone (full breath) | -4.5 | -16.9 | 2.5 |
+| Viola (bowed, medium bow) | -3.0 | -16.1 | 1.8 |
+| Viola (pizzicato) | -3.0 | -19.4 | 1.9 |
+| Pipe organ (all stops) | -4.5 | -13.6 | 1.7 |
+| Xylophone | -3.0 | -14.0 | 0.1 |
+| Synth: lead | -3.0 | -11.9 | 0.7 |
+| Synth: pad | -3.0 | -15.2 | 1.7 |
+| Synth: pluck | -3.0 | -14.6 | 2.0 |
+| Synth: supersaw | -3.0 | -14.8 | 1.1 |
+| Electric bass: finger | -2.9 | -16.9 | 1.3 |
+| Electric bass: pick | -2.9 | -19.0 | 1.7 |
+| Electric bass: slap | -2.7 | -21.0 | 1.2 |
+| Rhythm guitar (open strum) | -3.0 | -19.1 | 1.6 |
 
-Peaks: median -3.0 dBFS, 110 of 110 within 1 dB of -3 dBFS, 110 within 2 dB. The outliers are noise-based hits whose peak changes from hit to hit.
+Peaks: median -3.0 dBFS, 119 of 120 within 1 dB of -3 dBFS, 120 within 2 dB. The outliers are noise-based hits whose peak changes from hit to hit.
 
 ## Master chain
 

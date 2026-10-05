@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Pocket Band</title>
-<meta name="description" content="Piano, drums, guitars, flute, tabla, electric drum pad, harmonica, violin, cello and French horn in one app.">
+<meta name="description" content="Piano, drums, guitars, flute, tabla, electric drum pad, harmonica, violin, viola, cello, French horn, trumpet, saxophone, pipe organ, synth, xylophone, electric bass and rhythm guitar in one app.">
 <meta name="theme-color" content="#ded6c4" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#172424" media="(prefers-color-scheme: dark)">
 <meta name="mobile-web-app-capable" content="yes">
@@ -116,11 +116,20 @@ body:not([data-tab="tabla1"]) .only-tabla1,
 body:not([data-tab="tabla2"]):not([data-tab="tabla1"]) .only-tabla,
 body:not([data-tab="epad"]) .only-epad,
 body:not([data-tab="harmonica"]) .only-harmonica,
-body:not([data-tab="violin"]):not([data-tab="cello"]) .only-bowed,
 body:not([data-tab="horn"]) .only-horn,
-body:not([data-tab="piano"]):not([data-tab="guitar"]):not([data-tab="flute"]):not([data-tab="harmonica"]):not([data-tab="violin"]):not([data-tab="cello"]):not([data-tab="horn"]) .only-keyed,
-body:not([data-tab="harmonica"]):not([data-tab="violin"]):not([data-tab="cello"]):not([data-tab="horn"]) .only-new,
-body:not([data-tab="piano"]):not([data-tab="harmonica"]):not([data-tab="violin"]):not([data-tab="cello"]):not([data-tab="horn"]) .only-rec { display: none !important; }
+body:not([data-tab="trumpet"]) .only-trumpet,
+body:not([data-tab="organ"]) .only-organ,
+body:not([data-tab="sax"]) .only-sax,
+body:not([data-tab="xylo"]) .only-xylo,
+body:not([data-tab="synth"]) .only-synth,
+body:not([data-tab="ebass"]) .only-ebass,
+body:not([data-tab="rhythm"]) .only-rhythm,
+body:not([data-tab="trumpet"]):not([data-tab="sax"]) .only-windrow,
+/* Shared controls: the groups each instrument belongs to are set on <body data-g> (see GROUPS in the script) */
+body:not([data-g~="bowed"]) .only-bowed,
+body:not([data-g~="keyed"]) .only-keyed,
+body:not([data-g~="new"]) .only-new,
+body:not([data-g~="rec"]) .only-rec { display: none !important; }
 .fine { width: 90px; accent-color: var(--accent); flex: 0 0 auto; }
 @media (display-mode: fullscreen), (display-mode: standalone) { #full { display: none; } }
 
@@ -337,6 +346,85 @@ body:not([data-tab="piano"]):not([data-tab="harmonica"]):not([data-tab="violin"]
   position: absolute; left: 0; top: 0; width: 44px; height: 44px; margin: -22px 0 0 -22px; border-radius: 50%;
   border: 3px solid #fff; background: rgba(255,255,255,.25); pointer-events: none; display: none;
 }
+/* Trumpet and saxophone: a row of scale notes (higher up = more breath); the trumpet adds three valves */
+.wind { position: relative; height: 100%; display: flex; gap: 8px; }
+.valves { flex: 0 0 auto; display: flex; flex-direction: column; gap: 8px; width: 74px; touch-action: none; }
+.valve {
+  flex: 1 1 0; min-height: 0; border-radius: 18px; padding: 0; font-weight: 700; font-size: 1.1rem; touch-action: none;
+  background: radial-gradient(circle at 50% 35%, #fbf3dc, #c9b98f); border-color: #a8956a; color: #3b2a08;
+}
+.valve small { display: block; font-size: .62rem; font-weight: 500; }
+.valve.hint { box-shadow: 0 0 0 3px var(--key-on) inset; }
+.valve[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+.wrow { position: relative; flex: 1 1 auto; min-width: 0; display: flex; border-radius: 16px; overflow: hidden; touch-action: none; border: 2px solid var(--edge); }
+.wcell {
+  flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding-bottom: 8px;
+  font-size: .75rem; font-weight: 700; pointer-events: none; border-left: 1px solid rgba(0,0,0,.15);
+}
+.wcell:first-of-type { border-left: 0; }
+.tpt .wcell { background: linear-gradient(180deg, #fff1b8, #e6b93e); color: #3b2a08; }
+.tpt .wcell:nth-of-type(even) { background: linear-gradient(180deg, #fbe7a0, #d9a935); }
+.sax .wcell { background: linear-gradient(180deg, #f6dcb0, #c98b3a); color: #3a2208; }
+.sax .wcell:nth-of-type(even) { background: linear-gradient(180deg, #efcf9c, #bb7d30); }
+.wcell.root { text-decoration: underline; text-underline-offset: 3px; }
+.wcell.on { background: var(--accent) !important; color: #fff; }
+.wrow .whint { position: absolute; left: 12px; top: 8px; font-size: .75rem; color: #3b2a08; opacity: .8; pointer-events: none; }
+
+/* Keyboards made of scale notes: pipe organ (two manuals) and synth */
+.manuals { height: 100%; display: flex; flex-direction: column; gap: 8px; }
+.organ { padding: 6px; border-radius: 14px; background: linear-gradient(180deg, #5a3a22, #3a2414); }
+.manual { position: relative; flex: 1 1 0; min-height: 0; display: flex; gap: 2px; touch-action: none; }
+.manual .mlbl {
+  position: absolute; left: 4px; top: 4px; padding: 1px 6px; border-radius: 6px; font-size: .64rem; font-weight: 700;
+  color: #efe6cf; background: rgba(40, 26, 14, .78); pointer-events: none; z-index: 1;
+}
+.mkey {
+  flex: 1 1 0; min-width: 0; min-height: 0; padding: 0 0 8px; border-radius: 0 0 8px 8px; display: flex; align-items: flex-end; justify-content: center;
+  font-size: .7rem; color: var(--muted); background: linear-gradient(var(--key), var(--key) 80%, var(--key-shade)); border: 1px solid var(--edge); touch-action: none;
+}
+.mkey.sharp { background: linear-gradient(#3a4646, var(--black)); color: #c9d0d0; }
+.mkey.root { color: var(--accent); font-weight: 700; }
+.mkey.on { background: var(--key-on); color: #1d2a2a; }
+.synth { height: 100%; display: flex; gap: 10px; }
+.synth .manuals { flex: 1 1 auto; min-width: 0; }
+.sknobs { flex: 0 0 auto; width: 176px; font-size: .9em; display: grid; grid-template-columns: 1fr 1fr; align-content: center; gap: 10px 4px; }
+
+/* Xylophone: wooden bars on two cords, shorter for higher notes */
+.xylo { position: relative; height: 100%; display: flex; align-items: center; gap: 4px; padding: 0 6px; border-radius: 16px; touch-action: none; background: var(--bar); }
+.xylo::before, .xylo::after { content: ""; position: absolute; left: 6px; right: 6px; height: 3px; background: #8d6a3a; pointer-events: none; }
+.xylo::before { top: 26%; } .xylo::after { bottom: 26%; }
+.xbar {
+  position: relative; z-index: 1; flex: 1 1 0; min-width: 0; border-radius: 8px; display: flex; align-items: flex-end; justify-content: center;
+  padding-bottom: 8px; font-size: .72rem; font-weight: 700; color: #f6e7cc; pointer-events: none;
+  background: linear-gradient(90deg, #8a4b25, #b56a37 45%, #8a4b25); box-shadow: inset 0 -5px 0 rgba(0,0,0,.18), 0 3px 4px rgba(0,0,0,.25);
+}
+.xbar.root { color: #ffd76a; }
+.xbar.on { background: var(--key-on); color: #1d2a2a; }
+
+/* Electric bass: a fretted board, open strings on the left */
+.fbd {
+  position: relative; height: 100%; border-radius: 14px; overflow: hidden; touch-action: none; display: flex; flex-direction: column;
+  background: linear-gradient(180deg, #3b2617, #24170d); border: 2px solid var(--edge);
+}
+.fret { position: absolute; top: 0; bottom: 0; width: 3px; margin-left: -1.5px; background: linear-gradient(90deg, #8f8f8f, #e6e6e6, #8f8f8f); pointer-events: none; }
+.fret.nut { width: 6px; margin-left: -3px; background: #efe6cf; }
+.inlay { position: absolute; top: 50%; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; background: rgba(239,230,207,.18); pointer-events: none; }
+.fmark { position: absolute; top: 50%; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; background: rgba(233,223,200,.35); }
+.fmark.root { background: rgba(242,177,52,.9); }
+.fmark b { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); font-size: .62rem; font-weight: 500; color: #e9dfc8; white-space: nowrap; }
+.fbd .brow.on > i { animation: buzz .05s linear infinite; }
+
+/* Rhythm guitar: chords, a strum area, a muted-strum pad */
+.rgtr { display: flex; gap: 8px; height: 100%; }
+.rneck { background: radial-gradient(circle at 50% 50%, #2b1a0e 0 22%, transparent 23%), linear-gradient(180deg, #e0a660, #b77a3c); }
+.rneck .gstr b { color: #3a2414; }
+.rside { flex: 0 0 auto; width: 112px; display: flex; flex-direction: column; gap: 8px; }
+.rside button { flex: 1 1 0; min-height: 0; font-weight: 700; white-space: normal; }
+.rside button.on { background: var(--key-on); border-color: var(--key-on); color: #1d2a2a; }
+.rsteps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; flex: 0 0 auto; }
+.rsteps i { height: 28px; border-radius: 4px; background: var(--bg); border: 1px solid var(--edge); font-style: normal; font-size: .65rem; font-weight: 700; display: flex; align-items: center; justify-content: center; color: var(--muted); }
+.rsteps i.now { background: var(--key-on); color: #1d2a2a; }
+
 .nread { min-width: 3.2em; font-weight: 700; color: var(--accent); font-size: .95rem; }
 .small-range { width: 80px; }
 
@@ -393,7 +481,7 @@ body[data-screen="home"] .rotate { display: none !important; }
 @media (orientation: portrait) { body:not(.allow-portrait) .rotate { display: flex; } }
 </style>
 </head>
-<body data-tab="piano" data-screen="home">
+<body data-tab="piano" data-g="keyed rec" data-screen="home">
 
 <section class="home" id="homeScr" aria-label="Choose an instrument">
   <div class="hhead">
@@ -481,6 +569,36 @@ body[data-screen="home"] .rotate { display: none !important; }
   <button id="hstop" class="only-horn" aria-pressed="false">Hand-stop</button>
   <span class="lbl only-horn">Slide</span>
   <input type="range" id="hslide" class="fine small-range only-horn" min="0" max="1" step="0.01" value="0.35" aria-label="Slide between notes">
+  <button id="tgrowl" class="only-trumpet" aria-pressed="false">Growl</button>
+  <button id="tmute" class="only-trumpet" aria-pressed="false">Mute</button>
+  <button class="ostop only-organ" data-stop="0" aria-pressed="true" aria-label="8 foot stop">8′</button>
+  <button class="ostop only-organ" data-stop="1" aria-pressed="true" aria-label="4 foot stop">4′</button>
+  <button class="ostop only-organ" data-stop="2" aria-pressed="false" aria-label="2 and two thirds foot stop">2⅔′</button>
+  <button class="ostop only-organ" data-stop="3" aria-pressed="false" aria-label="2 foot stop">2′</button>
+  <button id="sxgrowl" class="only-sax" aria-pressed="false">Growl</button>
+  <button id="sxvib" class="only-sax" aria-pressed="true">Vibrato</button>
+  <select id="spreset" class="only-synth" aria-label="Synth preset">
+    <option value="lead">Lead</option>
+    <option value="pad">Pad</option>
+    <option value="pluck">Pluck</option>
+    <option value="supersaw">Supersaw</option>
+  </select>
+  <select id="soct" class="only-synth" aria-label="Synth octave">
+    <option value="2">Octave 2</option>
+    <option value="3" selected>Octave 3</option>
+    <option value="4">Octave 4</option>
+  </select>
+  <select id="bmode" class="only-ebass" aria-label="Playing style">
+    <option value="finger">Finger</option>
+    <option value="pick">Pick</option>
+    <option value="slap">Slap</option>
+  </select>
+  <button id="bxsnap" class="only-ebass" aria-pressed="true">Snap to scale</button>
+  <select id="rpat" class="only-rhythm" aria-label="Strum pattern"></select>
+  <button id="rauto" class="only-rhythm" aria-pressed="false">Auto strum</button>
+  <span class="lbl only-rhythm" id="rbpmLbl">96 BPM</span>
+  <input type="range" id="rbpm" class="fine only-rhythm" min="60" max="180" step="1" value="96" aria-label="Auto-strum tempo">
+  <button id="rpalm" class="only-rhythm" aria-pressed="false">Palm mute</button>
   <span class="lbl only-new">Reverb</span>
   <input type="range" id="irev" class="fine small-range only-new" min="0" max="1" step="0.01" value="0.35" aria-label="Reverb for this instrument">
   <span class="lbl nread only-new" id="nread"></span>
@@ -558,6 +676,69 @@ body[data-screen="home"] .rotate { display: none !important; }
     <div class="horn" id="horn" aria-label="French horn: touch a note, higher up blows harder, slide across for legato">
       <span class="hhint">Higher up blows harder · slide across for legato</span>
       <div class="hdot" id="hdot"></div>
+    </div>
+  </div>
+
+  <div class="view only-trumpet">
+    <div class="wind tpt">
+      <div class="valves" id="valves" role="group" aria-label="Valves: hold to lower the note (1: two semitones, 2: one, 3: three)">
+        <button class="valve" data-v="0" aria-pressed="false">1<small>−2</small></button>
+        <button class="valve" data-v="1" aria-pressed="false">2<small>−1</small></button>
+        <button class="valve" data-v="2" aria-pressed="false">3<small>−3</small></button>
+      </div>
+      <div class="wrow" id="tptRow" aria-label="Trumpet: touch a note, higher up blows harder, slide across for legato">
+        <span class="whint">Higher up blows harder · ringed valves show the fingering · hold valves to lower a note</span>
+        <div class="hdot" id="tdot"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="view only-sax">
+    <div class="wind sax">
+      <div class="wrow" id="saxRow" aria-label="Saxophone: touch a note, higher up blows harder, slide across for legato">
+        <span class="whint">Higher up blows harder · slide across for legato</span>
+        <div class="hdot" id="sdot"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="view only-organ">
+    <div class="manuals organ" id="organ">
+      <div class="manual" id="man1" aria-label="Upper manual (swell, flute pipes)"></div>
+      <div class="manual" id="man0" aria-label="Lower manual (great, principal pipes)"></div>
+    </div>
+  </div>
+
+  <div class="view only-synth">
+    <div class="synth">
+      <div class="manuals"><div class="manual" id="synKeys" aria-label="Synth keys: lower on a key is louder"></div></div>
+      <div class="sknobs">
+        <div class="kwrap"><div class="knob" id="kcut" role="slider" tabindex="0" aria-label="Filter"></div><span>Filter <b class="kval" id="vcut"></b></span></div>
+        <div class="kwrap"><div class="knob" id="kvib" role="slider" tabindex="0" aria-label="Vibrato"></div><span>Vibrato <b class="kval" id="vvib"></b></span></div>
+        <div class="kwrap"><div class="knob" id="katt" role="slider" tabindex="0" aria-label="Attack"></div><span>Attack <b class="kval" id="vatt"></b></span></div>
+        <div class="kwrap"><div class="knob" id="krel" role="slider" tabindex="0" aria-label="Release"></div><span>Release <b class="kval" id="vrel"></b></span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="view only-xylo">
+    <div class="xylo" id="xylo" aria-label="Xylophone: tap a bar, lower is louder; swipe across the bars for a glissando"></div>
+  </div>
+
+  <div class="view only-ebass">
+    <div class="fbd" id="ebass" aria-label="Bass fingerboard: tap a string at a fret, slide along it to change notes"></div>
+  </div>
+
+  <div class="view only-rhythm">
+    <div class="rgtr">
+      <div class="chords" id="rchords" role="group" aria-label="Chord"></div>
+      <div class="neck rneck" id="rneck" aria-label="Strum: swipe down or up across the strings">
+        <span class="hint" style="color:#3a2414">Swipe down or up to strum · tap for a down-strum</span>
+      </div>
+      <div class="rside">
+        <div class="rsteps" id="rsteps" aria-hidden="true"></div>
+        <button id="rchuck">Muted strum</button>
+      </div>
     </div>
   </div>
 
@@ -701,8 +882,18 @@ body[data-screen="home"] .rotate { display: none !important; }
   var TONAL = {
     piano: { key: 0, scale: 'chromatic' }, guitar: { key: 7, scale: 'major' }, flute: { key: 0, scale: 'major' },
     harmonica: { key: 0, scale: 'major' }, violin: { key: 2, scale: 'major' }, cello: { key: 0, scale: 'major' },
-    horn: { key: 5, scale: 'major' }
+    horn: { key: 5, scale: 'major' }, trumpet: { key: 10, scale: 'major' }, viola: { key: 0, scale: 'major' },
+    organ: { key: 0, scale: 'major' }, sax: { key: 3, scale: 'major' }, xylo: { key: 0, scale: 'major' },
+    synth: { key: 9, scale: 'minor' }, ebass: { key: 4, scale: 'minpenta' }, rhythm: { key: 7, scale: 'major' }
   };
+  // Which shared toolbar controls each instrument shows (CSS reads these from <body data-g>)
+  var GROUPS = {
+    keyed: ['piano', 'guitar', 'flute', 'harmonica', 'violin', 'cello', 'horn', 'trumpet', 'viola', 'organ', 'sax', 'xylo', 'synth', 'ebass', 'rhythm'],
+    new: ['harmonica', 'violin', 'cello', 'horn', 'trumpet', 'viola', 'organ', 'sax', 'xylo', 'synth', 'ebass', 'rhythm'],
+    rec: ['piano', 'harmonica', 'violin', 'cello', 'horn', 'trumpet', 'viola', 'organ', 'sax', 'xylo', 'synth', 'ebass', 'rhythm'],
+    bowed: ['violin', 'viola', 'cello']
+  };
+  function groupsOf(tab) { return Object.keys(GROUPS).filter(function (g) { return GROUPS[g].indexOf(tab) >= 0; }).join(' '); }
 
   // Loudness trims, measured with tests/loudness.js so a medium-velocity note from every instrument and
   // pad peaks near -3 dBFS at the default master volume (see TESTING.md). Multiplies each sound's own level.
@@ -724,8 +915,16 @@ body[data-screen="home"] .rotate { display: none !important; }
     cello: { bow: 0.833, pizz: 0.683 },
     flute: 1.59,
     harmonica: 0.799,
-    horn: 1.11,
-    tanpura: 3.47
+    horn: 0.616,
+    tanpura: 3.47,
+    viola: { bow: 0.745, pizz: 0.683 },
+    synth: { lead: 1.4, pad: 1.24, pluck: 2.12, supersaw: 1.43 },
+    ebass: { finger: 0.666, pick: 0.584, slap: 0.353 },
+    trumpet: 0.439,
+    organ: 0.814,
+    sax: 0.479,
+    xylo: 1.37,
+    rhythm: 0.78
   }/*END LEVEL*/;
 
   var state = {
@@ -1193,7 +1392,12 @@ body[data-screen="home"] .rotate { display: none !important; }
   var KS_MORE = {
     tanpura: { sr: 24000, len: 5.5, t60: 7, bright: 0.7, pick: 0.08, damp: 0.25, buzz: 0.6 },
     pizz: { sr: 24000, len: 1.6, t60: 0.9, bright: 0.45, pick: 0.27, damp: 0.5 },
-    pizzC: { sr: 16000, len: 2.4, t60: 1.5, bright: 0.35, pick: 0.27, damp: 0.5 }
+    pizzC: { sr: 16000, len: 2.4, t60: 1.5, bright: 0.35, pick: 0.27, damp: 0.5 },
+    pizzV: { sr: 20000, len: 2, t60: 1.2, bright: 0.4, pick: 0.27, damp: 0.5 },
+    // Electric bass: finger (soft, plucked off the end of the neck), pick (bright, near the bridge), slap (brightest)
+    bassfinger: { sr: 16000, len: 3.2, t60: 3.6, bright: 0.35, pick: 0.22, damp: 0.5 },
+    basspick: { sr: 20000, len: 3, t60: 3.4, bright: 0.75, pick: 0.1, damp: 0.42 },
+    bassslap: { sr: 24000, len: 2.6, t60: 2.6, bright: 0.95, pick: 0.05, damp: 0.32 }
   };
   var gtr = { chord: 0, chords: [], shapes: {}, sound: 'acoustic', ring: false, n: 6, strVoice: [], strEls: [], held: {}, ptr: {}, rect: null };
   var ksCache = {}, ksKeys = [];
@@ -2161,7 +2365,9 @@ body[data-screen="home"] .rotate { display: none !important; }
   // Each finger (or played-back finger) owns one voice, steered by pitch m (MIDI, may be fractional)
   // and level l. These calls are what the recorder stores, so playback drives the same sound engine.
   var vmap = {}, ENG = {}, chains = {}, nread = $('nread');
-  var NST = { harmonica: { rev: 0.3 }, violin: { rev: 0.35 }, cello: { rev: 0.35 }, horn: { rev: 0.45 } };
+  var NST = { harmonica: { rev: 0.3 }, violin: { rev: 0.35 }, cello: { rev: 0.35 }, horn: { rev: 0.45 },
+              trumpet: { rev: 0.35 }, viola: { rev: 0.35 }, organ: { rev: 0.6 }, sax: { rev: 0.35 }, xylo: { rev: 0.3 },
+              synth: { rev: 0.25 }, ebass: { rev: 0.1 }, rhythm: { rev: 0.2 } };
   function isNew(tab) { return !!NST[tab]; }
   function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
   function recNow() { return performance.now() - recStart; }
@@ -2169,7 +2375,9 @@ body[data-screen="home"] .rotate { display: none !important; }
   function vStart(tab, id, m, l, x, pb) {
     init();
     vStop(id, true);
+    for (var k in vmap) if (vmap[k].v.done) delete vmap[k]; // hits and strums that have rung out
     if (recording && !pb) rec.push({ t: recNow(), type: 'v', op: 'start', key: id, tab: tab, m: m, l: l, x: x });
+    if (pb && window.__PB_TEST__) (window.__pbPlayed = window.__pbPlayed || []).push(tab);
     vmap[id] = { tab: tab, v: ENG[tab].make(m, l, x || {}) };
     showNote(m, tab);
   }
@@ -2203,6 +2411,15 @@ body[data-screen="home"] .rotate { display: none !important; }
     c.send.gain.value = NST[tab].rev;
     c.out.connect(bus); c.out.connect(c.send); c.send.connect(hall);
     return c;
+  }
+
+  // Gentle tanh soft-clipper: y = A tanh(x / A). Below about A / 3 it is transparent; it never exceeds A.
+  // Oversampled so the rounding never folds back as aliasing.
+  function softClip(A) {
+    var sh = ctx.createWaveShaper(), n = 2049, cv = new Float32Array(n);
+    for (var i = 0; i < n; i++) { var x = (i / (n - 1)) * 2 - 1; cv[i] = A * Math.tanh(x / A); }
+    sh.curve = cv; sh.oversample = '4x';
+    return sh;
   }
 
   // Looping breath / bow noise through a bandpass, mixed into node
@@ -2363,7 +2580,12 @@ body[data-screen="home"] .rotate { display: none !important; }
               body: [[480, 1.6, 4], [1100, 1.4, 2], [2900, 1.1, 7], [4600, 2, 3]], top: 10000, noise: [5, 0.06], gain: 0.3, pizz: 'pizz' },
     cello: { open: [36, 43, 50, 57], names: ['C', 'G', 'D', 'A'], th: [4.8, 4, 3.2, 2.5], att: 0.22, rel: 0.3,
              osc: [['sawtooth', 0.45, -6], ['sawtooth', 0.45, 6], ['triangle', 0.4, 0]], vib: [5, 20], lp: [520, 1800, 3000], hp: 35,
-             body: [[105, 1.1, 6], [210, 1.4, 5], [520, 1.2, 2], [1600, 1, -4]], top: 3400, noise: [3, 0.035], gain: 0.42, pizz: 'pizzC' }
+             body: [[105, 1.1, 6], [210, 1.4, 5], [520, 1.2, 2], [1600, 1, -4]], top: 3400, noise: [3, 0.035], gain: 0.42, pizz: 'pizzC' },
+    // The viola sits between them: a fifth below the violin, a warmer, nasal body (peaks lower than the violin's)
+    // and a medium attack
+    viola: { open: [48, 55, 62, 69], names: ['C', 'G', 'D', 'A'], th: [4, 3.3, 2.7, 2.1], att: 0.12, rel: 0.22,
+             osc: [['sawtooth', 0.48, -5], ['sawtooth', 0.48, 5], ['triangle', 0.2, 0]], vib: [5.5, 17], lp: [1300, 3400, 6000], hp: 100,
+             body: [[300, 1.3, 5], [650, 1.5, 3], [1900, 1.2, 4], [3500, 2, 1]], top: 6500, noise: [4, 0.05], gain: 0.34, pizz: 'pizzV' }
   };
   var BOW_SPAN = 14; // semitones above the open string along the fingerboard
   var FB = 0.74;     // the fingerboard's share of the width; the rest, by the bridge, is where the bow plays
@@ -2433,6 +2655,7 @@ body[data-screen="home"] .rotate { display: none !important; }
   }
   ENG.violin = bowEngine('violin');
   ENG.cello = bowEngine('cello');
+  ENG.viola = bowEngine('viola');
 
   function fbW() { return bw.pizz ? 1 : FB; }                        // fingerboard width, 0-1
   function bowX(s) { return (s + 0.5) / (BOW_SPAN + 1) * fbW(); }   // where semitone s sits across the board, 0-1
@@ -2644,9 +2867,13 @@ body[data-screen="home"] .rotate { display: none !important; }
     c.hp = ctx.createBiquadFilter(); c.hp.type = 'highpass'; c.hp.frequency.value = 30; c.hp.Q.value = 0.7;
     c.pk = ctx.createBiquadFilter(); c.pk.type = 'peaking'; c.pk.frequency.value = 2900; c.pk.Q.value = 2.5; c.pk.gain.value = 0;
     c.lvl = ctx.createGain();
+    sh.oversample = '4x'; // the buzz is deliberate; oversampling keeps it from aliasing into a crackle
+    // A gentle soft-clipper before the master limiter: linear for normal playing, it rounds off the odd peak
+    // where detuned copies line up, so the limiter never has to grab the horn hard (that was the crackle)
+    c.sat = softClip(0.9);
     c.in.connect(body); body.connect(c.open); body.connect(sh); sh.connect(c.buzz);
     c.open.connect(c.hp); c.buzz.connect(c.hp);
-    c.hp.connect(c.pk); c.pk.connect(bell); bell.connect(c.lvl); c.lvl.connect(c.out);
+    c.hp.connect(c.pk); c.pk.connect(bell); bell.connect(c.lvl); c.lvl.connect(c.sat); c.sat.connect(c.out);
     chains.horn = c; hnStopTone();
     return c;
   }
@@ -2659,15 +2886,19 @@ body[data-screen="home"] .rotate { display: none !important; }
     glideTo(c.hp.frequency, hn.stop ? 380 : 30, 0.05);
     glideTo(c.lvl.gain, hn.stop ? 0.45 : 1, 0.05);
   }
-  // Low-pass cut-off: more breath opens it up, but a horn never gets bright
-  function hnBright(f, l) { return Math.min(3200, f * (1.3 + 3.2 * l) + 180); }
+  // Low-pass cut-off: more breath opens it up, but a horn never gets bright. It tracks the pitch, so high notes
+  // keep only their lowest few harmonics and nothing near the top of the audio band.
+  function hnBright(f, l) { return Math.min(3200, f * (1.2 + 3.6 * l) + 180); }
+  // Breath sets the level over about 5 dB (and the brightness over much more), so full breath stays below the
+  // limiter: the trim in LEVEL is calibrated on a full-breath note
+  function hnLevel(l) { return 0.35 + 0.65 * l; }
 
   ENG.horn = {
     make: function (m, l) {
       var c = hnChain(), t = ctx.currentTime, f = mtof(m), all = [], os = [];
       var g = ctx.createGain(), lv = ctx.createGain(), lp1 = ctx.createBiquadFilter(), lp2 = ctx.createBiquadFilter();
       g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.4 * LEVEL.horn, t + HN_ATT);
-      lv.gain.value = l;
+      lv.gain.value = hnLevel(l);
       [lp1, lp2].forEach(function (lp, k) {
         lp.type = 'lowpass'; lp.Q.value = k ? 0.9 : 0.5;
         lp.frequency.setValueAtTime(f * 0.9 + 120, t);                         // speaks dark ...
@@ -2690,7 +2921,7 @@ body[data-screen="home"] .rotate { display: none !important; }
     set: function (v, m, l, x) {
       var t = ctx.currentTime, f = mtof(m);
       v.os.forEach(function (o) { o.frequency.setTargetAtTime(f, t, x.glide || 0.02); });
-      v.lv.gain.setTargetAtTime(l, t, 0.06);
+      v.lv.gain.setTargetAtTime(hnLevel(l), t, 0.06);
       v.lps.forEach(function (lp) { lp.frequency.setTargetAtTime(hnBright(f, l), t, 0.06); });
     }
   };
@@ -2754,11 +2985,746 @@ body[data-screen="home"] .rotate { display: none !important; }
   });
   horn.addEventListener('contextmenu', function (e) { e.preventDefault(); });
 
-  // Lift every finger on the four new instruments (playback keeps going)
+  /* ---------- Shared pieces for the eight newer instruments ---------- */
+  function biq(type, f, q, gain) {
+    var b = ctx.createBiquadFilter();
+    b.type = type; b.frequency.value = f;
+    if (q !== undefined) b.Q.value = q;
+    if (gain !== undefined) b.gain.value = gain;
+    return b;
+  }
+  function series(nodes) { for (var i = 1; i < nodes.length; i++) nodes[i - 1].connect(nodes[i]); return nodes[nodes.length - 1]; }
+  // The rest of a voice's chain after its filters: a dry path to the mix, a hall send, and a soft-clipper first
+  function softChain(tab, filters) {
+    if (chains[tab]) return chains[tab];
+    var c = chainOut(tab), sat = softClip(0.9);
+    series([c.in].concat(filters || []).concat([sat, c.out]));
+    return chains[tab] = c;
+  }
+  // Growl: the player hums into the instrument, a fast flutter in level plus some rasp. src -> dst.
+  function growl(t, rate, src, dst, all) {
+    var am = ctx.createGain(), d = ctx.createGain(), lfo = ctx.createOscillator(), sh = ctx.createWaveShaper(), dg = ctx.createGain();
+    var cv = new Float32Array(1024);
+    for (var i = 0; i < 1024; i++) cv[i] = Math.tanh((i / 511.5 - 1) * 4) / Math.tanh(4);
+    sh.curve = cv; sh.oversample = '4x';
+    am.gain.value = 0.7; d.gain.value = 0.3; dg.gain.value = 0.3;
+    lfo.frequency.value = rate; lfo.connect(d); d.connect(am.gain); lfo.start(t); all.push(lfo);
+    src.connect(am); src.connect(sh); sh.connect(dg); dg.connect(am); am.connect(dst);
+  }
+  // Oscillators for a held voice: [wave, level, cents]; random start phase so detuned copies don't flare up together
+  function oscStack(t, f, list, dst, vd, os, all) {
+    list.forEach(function (h) {
+      var o = ctx.createOscillator(), og = ctx.createGain();
+      o.type = h[0]; o.frequency.value = f; o.detune.value = h[2]; og.gain.value = h[1];
+      if (vd) vd.connect(o.detune);
+      o.connect(og); og.connect(dst); o.start(t + Math.random() / f); os.push(o); all.push(o);
+    });
+  }
+  // Fade a voice out from a future time (a scheduled strum damping the one before it)
+  function dampAt(v, when, rel) {
+    if (!v || v.done) return;
+    v.done = true;
+    var p = v.g.gain;
+    try {
+      if (p.cancelAndHoldAtTime) p.cancelAndHoldAtTime(when); else { p.cancelScheduledValues(when); p.setValueAtTime(p.value, when); }
+      p.setTargetAtTime(0, when, rel / 4);
+    } catch (e) {}
+    v.oscs.forEach(function (o) { try { o.stop(when + rel + 0.05); } catch (e) {} });
+  }
+
+  /* ---------- Monophonic wind rows: trumpet and saxophone ---------- */
+  // Like the horn: one note at a time, the newest finger plays and lifting it hands back to a finger still down.
+  // Notes are two octaves of the key's scale from the root at or above `low`; height on a note sets the breath.
+  function windRow(tab, row, dot, low, opts) {
+    var w = { tab: tab, notes: [], cells: [], stack: [], pos: {}, rect: null, raf: 0, cur: -1, last: null };
+    w.build = function () {
+      w.stopAll();
+      var st = TONAL[tab], root = T.rootFrom(st.key, low);
+      w.cells.forEach(function (c) { c.remove(); });
+      w.cells = [];
+      w.notes = T.run(root, st.scale, 2 * T.iv(st.scale).length + 1);
+      w.notes.forEach(function (m) {
+        var c = document.createElement('div');
+        c.className = 'wcell' + (T.pc(m) === st.key ? ' root' : '');
+        c.textContent = noteText(m, st.key);
+        row.insertBefore(c, dot); w.cells.push(c);
+      });
+    };
+    w.apply = function () {
+      w.raf = 0;
+      var id = w.stack[w.stack.length - 1];
+      if (id === undefined) { w.silence(); return; }
+      var p = w.pos[id], r = w.rect;
+      var x = clamp(p.x - r.left, 0, r.width - 1), y = clamp(p.y - r.top, 0, r.height);
+      var idx = clamp(Math.floor(x / r.width * w.notes.length), 0, w.notes.length - 1);
+      var m = w.notes[idx] - (opts.lower ? opts.lower() : 0), l = 0.3 + 0.7 * (1 - y / r.height);
+      w.last = { m: m, l: l };
+      if (!vmap[tab] || vmap[tab].v.done) vStart(tab, tab, m, l, opts.x());
+      else vSet(tab, m, l, { glide: 0.015 });
+      if (opts.shown) opts.shown(m);
+      if (w.cur !== idx) {
+        if (w.cells[w.cur]) w.cells[w.cur].classList.remove('on');
+        w.cur = idx; w.cells[idx].classList.add('on');
+      }
+      dot.style.display = 'block';
+      dot.style.transform = 'translate(' + x + 'px,' + y + 'px)';
+    };
+    w.silence = function () {
+      vStop(tab);
+      if (w.cells[w.cur]) w.cells[w.cur].classList.remove('on');
+      w.cur = -1; w.last = null; dot.style.display = 'none';
+      if (opts.shown) opts.shown(null);
+    };
+    w.up = function (id) {
+      if (!w.pos[id]) return;
+      delete w.pos[id];
+      w.stack = w.stack.filter(function (k) { return k !== id; });
+      w.apply();
+    };
+    w.stopAll = function () { w.stack = []; w.pos = {}; w.silence(); };
+    row.addEventListener('pointerdown', function (e) {
+      e.preventDefault();
+      try { row.setPointerCapture(e.pointerId); } catch (err) {}
+      w.rect = row.getBoundingClientRect();
+      w.pos[e.pointerId] = { x: e.clientX, y: e.clientY };
+      w.stack.push(e.pointerId);
+      w.apply();
+    });
+    row.addEventListener('pointermove', function (e) {
+      if (!w.pos[e.pointerId]) return;
+      w.pos[e.pointerId] = { x: e.clientX, y: e.clientY };
+      if (!w.raf) w.raf = requestAnimationFrame(w.apply);
+    });
+    row.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+    return w;
+  }
+
+  /* ---------- Trumpet ---------- */
+  // Bright brass: two sawtooths through a pitch- and breath-tracking low-pass (brass gets brighter the harder it is
+  // blown), a lip "blat" at the start (the pitch scoops up and the tone opens fast), a forward body around 1.2 kHz.
+  // Mute: a harmon-style mute (no lows, a nasal peak, quieter). Growl: a hummed flutter plus rasp.
+  var tp = { growl: false, mute: false, valves: [false, false, false], vptr: {} };
+  var VALVE = [2, 1, 3]; // semitones each valve lowers the note
+  function tpBright(f, l) { return Math.min(10000, f * (2.5 + 9 * l) + 300); }
+  function tpLevel(l) { return 0.3 + 0.7 * l; }
+  ENG.trumpet = {
+    make: function (m, l, x) {
+      var c = softChain('trumpet', [biq('highpass', 140, 0.7), biq('peaking', 1250, 0.9, 4), biq('lowpass', 9500, 0.5)]);
+      var t = ctx.currentTime, f = mtof(m), all = [], os = [];
+      var g = ctx.createGain(), lv = ctx.createGain(), lp1 = biq('lowpass', f * 1.5 + 200, 0.6), lp2 = biq('lowpass', f * 1.5 + 200, 0.8);
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.4 * LEVEL.trumpet, t + 0.035);
+      lv.gain.value = tpLevel(l);
+      [lp1, lp2].forEach(function (lp) { lp.frequency.setTargetAtTime(tpBright(f, l), t + 0.005, 0.03); });
+      oscStack(t, f, [['sawtooth', 0.45, -3], ['sawtooth', 0.45, 3]], lp1, null, os, all);
+      os.forEach(function (o) { o.frequency.setValueAtTime(f * 0.97, t); o.frequency.setTargetAtTime(f, t, 0.025); }); // lip scoop
+      breath(t, 2500, 0.8, 0.012, lv, all);
+      lp1.connect(lp2);
+      var tail = lp2;
+      if (x.mute) tail = series([lp2, biq('highpass', 700, 0.7), biq('peaking', 1700, 2.5, 9), biq('lowpass', 4200, 0.7)]);
+      var mg = ctx.createGain(); mg.gain.value = x.mute ? 0.5 : 1;
+      if (x.growl) growl(t, 32, tail, mg, all); else tail.connect(mg);
+      mg.connect(lv); lv.connect(g); g.connect(c.in);
+      var v = { g: g, lv: lv, lps: [lp1, lp2], os: os, oscs: all, rel: 0.09, done: false };
+      os[0].onended = function () { v.done = true; g.disconnect(); };
+      track(v);
+      return v;
+    },
+    set: function (v, m, l, x) {
+      var t = ctx.currentTime, f = mtof(m);
+      v.os.forEach(function (o) { o.frequency.setTargetAtTime(f, t, x.glide || 0.015); });
+      v.lv.gain.setTargetAtTime(tpLevel(l), t, 0.05);
+      v.lps.forEach(function (lp) { lp.frequency.setTargetAtTime(tpBright(f, l), t, 0.05); });
+    }
+  };
+  // The valves that play note m on a C trumpet: the nearest harmonic at or above it, lowered by 0-6 semitones
+  var TP_PARTIALS = [60, 67, 72, 76, 79, 84, 86, 88, 91];
+  var TP_FINGER = [[], [1], [0], [0, 1], [1, 2], [0, 2], [0, 1, 2]];
+  function tpFingering(m) {
+    m = Math.round(m);
+    for (var i = 0; i < TP_PARTIALS.length; i++) { var d = TP_PARTIALS[i] - m; if (d >= 0 && d <= 6) return TP_FINGER[d]; }
+    return m < 60 ? TP_FINGER[6] : [];
+  }
+  function tpLower() { var s = 0; tp.valves.forEach(function (on, i) { if (on) s += VALVE[i]; }); return s; }
+  var valveEls = document.querySelectorAll('.valve');
+  function tpShowValves(m) {
+    var fg = m === null ? [] : tpFingering(m);
+    valveEls.forEach(function (b, i) { b.classList.toggle('hint', fg.indexOf(i) >= 0); b.setAttribute('aria-pressed', tp.valves[i]); });
+  }
+  var tpRow = windRow('trumpet', $('tptRow'), $('tdot'), 52, {
+    x: function () { return { growl: tp.growl, mute: tp.mute }; }, lower: tpLower, shown: tpShowValves
+  });
+  function tpValve(i, on) { tp.valves[i] = on; tpShowValves(tpRow.last ? tpRow.last.m : null); if (tpRow.stack.length) tpRow.apply(); }
+  $('valves').addEventListener('pointerdown', function (e) {
+    var b = e.target.closest('.valve');
+    if (!b) return;
+    e.preventDefault(); init();
+    tp.vptr[e.pointerId] = +b.dataset.v; tpValve(+b.dataset.v, true);
+  });
+  $('valves').addEventListener('contextmenu', function (e) { e.preventDefault(); });
+  function tpValveUp(id) {
+    if (tp.vptr[id] === undefined) return;
+    var i = tp.vptr[id]; delete tp.vptr[id];
+    for (var k in tp.vptr) if (tp.vptr[k] === i) return; // another finger still holds it
+    tpValve(i, false);
+  }
+
+  /* ---------- Saxophone ---------- */
+  // A reed: a sawtooth plus a little square (a conical bore keeps every harmonic) through vowel-like formants,
+  // a soft attack that opens with the air, breath noise, a delayed vibrato and an optional growl.
+  var sx = { growl: false, vib: true };
+  function sxBright(f, l) { return Math.min(7500, f * (1.8 + 6 * l) + 350); }
+  ENG.sax = {
+    make: function (m, l, x) {
+      var c = softChain('sax', [biq('highpass', 110, 0.7), biq('peaking', 600, 1.1, 5), biq('peaking', 1650, 1.6, 4), biq('peaking', 2900, 2.2, 2), biq('lowpass', 7000, 0.5)]);
+      var t = ctx.currentTime, f = mtof(m), all = [], os = [];
+      var g = ctx.createGain(), lv = ctx.createGain(), lp = biq('lowpass', f * 1.2 + 200, 0.7);
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.4 * LEVEL.sax, t + 0.07); // soft attack
+      lv.gain.value = 0.3 + 0.7 * l;
+      lp.frequency.setTargetAtTime(sxBright(f, l), t + 0.01, 0.06);
+      var vd = vibrato(t, 5.2, x.vib ? 16 : 0, 0.35, all);
+      oscStack(t, f, [['sawtooth', 0.5, -2], ['square', 0.22, 3]], lp, vd, os, all);
+      breath(t, Math.min(5000, f * 3), 0.7, 0.04, lv, all);
+      breath(t, 6500, 0.6, 0.015, lv, all);
+      if (x.growl) growl(t, 27, lp, lv, all); else lp.connect(lv);
+      lv.connect(g); g.connect(c.in);
+      var v = { g: g, lv: lv, lp: lp, os: os, oscs: all, rel: 0.1, done: false };
+      os[0].onended = function () { v.done = true; g.disconnect(); };
+      track(v);
+      return v;
+    },
+    set: function (v, m, l, x) {
+      var t = ctx.currentTime, f = mtof(m);
+      v.os.forEach(function (o) { o.frequency.setTargetAtTime(f, t, x.glide || 0.015); });
+      v.lv.gain.setTargetAtTime(0.3 + 0.7 * l, t, 0.05);
+      v.lp.frequency.setTargetAtTime(sxBright(f, l), t, 0.05);
+    }
+  };
+  var sxRow = windRow('sax', $('saxRow'), $('sdot'), 49, { x: function () { return { growl: sx.growl, vib: sx.vib }; } });
+
+  /* ---------- Keyboards of scale notes (pipe organ manuals, synth) ---------- */
+  // One key per scale note (a chromatic scale gives every semitone, sharps drawn dark). Multi-touch; sliding onto
+  // another key plays it. down(id, m, vel) / up(id) start and stop the note.
+  function keyRow(el, label, down, up) {
+    var kr = { el: el, keys: [], ptr: {} };
+    kr.build = function (notes, key, scale) {
+      kr.stopAll();
+      el.innerHTML = label ? '<span class="mlbl">' + label + '</span>' : '';
+      kr.keys = notes.map(function (m) {
+        var b = document.createElement('button');
+        b.className = 'mkey' + (isBlack(m) && T.iv(scale).length === 12 ? ' sharp' : '') + (T.pc(m) === key ? ' root' : '');
+        b.dataset.m = m; b.textContent = noteText(m, key);
+        b.setAttribute('aria-label', T.name(m));
+        el.appendChild(b);
+        return b;
+      });
+    };
+    function keyAt(x, y) { var k = document.elementFromPoint(x, y); return k && k.parentNode === el && k.dataset.m !== undefined ? k : null; }
+    function vel(k, y) { var r = k.getBoundingClientRect(); return 0.45 + 0.55 * clamp((y - r.top) / r.height, 0, 1); }
+    function on(id, k, y) { kr.ptr[id] = k; k.classList.add('on'); down(id, +k.dataset.m, vel(k, y)); }
+    function off(id) { var k = kr.ptr[id]; if (!k) return; delete kr.ptr[id]; k.classList.remove('on'); up(id); }
+    el.addEventListener('pointerdown', function (e) {
+      var k = e.target.closest('.mkey');
+      if (!k) return;
+      e.preventDefault();
+      if (k.hasPointerCapture && k.hasPointerCapture(e.pointerId)) k.releasePointerCapture(e.pointerId);
+      off(e.pointerId); on(e.pointerId, k, e.clientY);
+    });
+    el.addEventListener('pointermove', function (e) {
+      if (!kr.ptr[e.pointerId]) return;
+      var k = keyAt(e.clientX, e.clientY);
+      if (k && k !== kr.ptr[e.pointerId]) { off(e.pointerId); on(e.pointerId, k, e.clientY); }
+    });
+    el.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+    kr.up = off;
+    kr.stopAll = function () { Object.keys(kr.ptr).forEach(off); };
+    return kr;
+  }
+  function scaleKeys(root, scale, octaves) { return T.run(root, scale, octaves * T.iv(scale).length + 1); }
+
+  /* ---------- Pipe organ ---------- */
+  // Each key opens one pipe per drawn stop: 8' (unison), 4' (octave), 2 2/3' (twelfth), 2' (fifteenth). The lower
+  // manual has principal pipes (bright, many harmonics), the upper one stopped flute pipes (soft, odd harmonics).
+  // Pipes speak with a breathy chiff, hold their level for as long as the key is down, and play into a cathedral.
+  var org = { stops: [true, true, false, false] };
+  var ORG_RANK = [1, 2, 3, 4], ORG_LVL = [0.42, 0.3, 0.2, 0.2];
+  function cathedral() {
+    if (chains.cath) return chains.cath;
+    var cv = ctx.createConvolver(), len = Math.floor(ctx.sampleRate * 5.5), ir = ctx.createBuffer(2, len, ctx.sampleRate), pre = Math.floor(ctx.sampleRate * 0.03);
+    for (var ch = 0; ch < 2; ch++) {
+      var d = ir.getChannelData(ch), sm = 0;
+      for (var i = pre; i < len; i++) { sm += 0.3 * ((Math.random() * 2 - 1) - sm); d[i] = sm * Math.exp(-6.9 * (i - pre) / (len - pre)); }
+    }
+    cv.buffer = ir;
+    var out = ctx.createGain(); out.gain.value = 0.5;
+    cv.connect(out); out.connect(master);
+    return chains.cath = cv;
+  }
+  function orgChain() {
+    if (chains.organ) return chains.organ;
+    var c = { in: ctx.createGain(), out: ctx.createGain(), send: ctx.createGain() }, sat = softClip(0.9);
+    c.send.gain.value = NST.organ.rev;
+    c.in.connect(sat); sat.connect(c.out); c.out.connect(bus); c.out.connect(c.send); c.send.connect(cathedral());
+    function wave(h) { var re = new Float32Array(h.length + 1), im = new Float32Array(h.length + 1); h.forEach(function (a, i) { im[i + 1] = a; }); return ctx.createPeriodicWave(re, im); }
+    c.waves = [wave([1, 0.5, 0.3, 0.18, 0.1, 0.06, 0.04, 0.02]), wave([1, 0.04, 0.2, 0.02, 0.06])];
+    return chains.organ = c;
+  }
+  ENG.organ = {
+    make: function (m, l, x) {
+      var c = orgChain(), t = ctx.currentTime, f = mtof(m), all = [], ranks = [];
+      var g = ctx.createGain(), sum = ctx.createGain(), tone = biq('lowpass', x.up ? 4500 : 8000, 0.5);
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.32 * LEVEL.organ, t + 0.03);
+      ORG_RANK.forEach(function (r, i) {
+        var o = ctx.createOscillator(), rg = ctx.createGain();
+        o.setPeriodicWave(c.waves[x.up ? 1 : 0]);
+        o.frequency.value = f * r; // ranks exactly in tune, so a held chord never swells or sags as they drift
+        rg.gain.setValueAtTime(0, t); rg.gain.linearRampToValueAtTime(x.stops[i] ? ORG_LVL[i] : 0, t + 0.02 + 0.02 / r);
+        o.connect(rg); rg.connect(sum); o.start(t); all.push(o); ranks.push(rg);
+      });
+      // chiff: the burst of air as a pipe starts to speak
+      var ns = ctx.createBufferSource(), nf = biq('bandpass', clamp(f * 6, 3000, 10000), 0.9), ng = ctx.createGain();
+      ns.buffer = noiseBuf;
+      ng.gain.setValueAtTime(0, t); ng.gain.linearRampToValueAtTime(x.up ? 0.4 : 0.7, t + 0.004); ng.gain.setTargetAtTime(0, t + 0.004, 0.025);
+      var cg = ctx.createGain(); cg.gain.value = 0.32 * LEVEL.organ; // past the pipe's own (slower) attack
+      ns.connect(nf); nf.connect(ng); ng.connect(cg); cg.connect(c.in); ns.start(t, Math.random() * 1.5); ns.stop(t + 0.2);
+      sum.connect(tone); tone.connect(g); g.connect(c.in);
+      var v = { g: g, ranks: ranks, oscs: all, rel: 0.12, done: false };
+      all[0].onended = function () { v.done = true; g.disconnect(); };
+      track(v);
+      return v;
+    },
+    set: function () {}
+  };
+  // Drawing or pushing in a stop changes the pipes of every held note too
+  function orgStops() {
+    document.querySelectorAll('.ostop').forEach(function (b) { b.setAttribute('aria-pressed', org.stops[+b.dataset.stop]); });
+    Object.keys(vmap).forEach(function (k) {
+      var a = vmap[k];
+      if (a.tab === 'organ' && !a.v.done) a.v.ranks.forEach(function (rg, i) { glideTo(rg.gain, org.stops[i] ? ORG_LVL[i] : 0, 0.02); });
+    });
+  }
+  document.querySelectorAll('.ostop').forEach(function (b) {
+    b.onclick = function () {
+      var i = +b.dataset.stop;
+      org.stops[i] = !org.stops[i];
+      if (!org.stops.some(Boolean)) org.stops[0] = true; // one stop always stays drawn
+      orgStops();
+    };
+  });
+  var orgMan = [0, 1].map(function (up) {
+    return keyRow($('man' + up), up ? 'Swell · flutes' : 'Great · principals', function (id, m) {
+      vStart('organ', 'o' + up + '_' + id, m, 1, { stops: org.stops.slice(), up: up });
+    }, function (id) { vStop('o' + up + '_' + id); });
+  });
+  function buildOrgan() {
+    var st = TONAL.organ, root = T.rootFrom(st.key, 48), oct = T.iv(st.scale).length === 12 ? 1 : 2;
+    orgMan[0].build(scaleKeys(root, st.scale, oct), st.key, st.scale);
+    orgMan[1].build(scaleKeys(root + 12, st.scale, oct), st.key, st.scale);
+  }
+
+  /* ---------- Synth ---------- */
+  // Four presets; the knobs (filter, attack, release, vibrato) start from the preset and are kept per preset.
+  var SYN = {
+    lead: { cut: 62, att: 8, rel: 250, vib: 10, q: 3, osc: [['sawtooth', 0.5, -5], ['square', 0.3, 5]] },
+    pad: { cut: 48, att: 700, rel: 1600, vib: 0, q: 0.8, osc: [['sawtooth', 0.35, -11], ['sawtooth', 0.35, 10], ['triangle', 0.4, 0]] },
+    pluck: { cut: 70, att: 2, rel: 350, vib: 0, q: 2, osc: [['sawtooth', 0.55, 0], ['square', 0.25, 7]] },
+    supersaw: { cut: 78, att: 15, rel: 600, vib: 0, q: 0.7, osc: [-26, -15, -7, 0, 7, 15, 26].map(function (c) { return ['sawtooth', 0.2, c]; }) }
+  };
+  var sy = { preset: 'lead', oct: 3, knobs: {} };
+  Object.keys(SYN).forEach(function (k) { var p = SYN[k]; sy.knobs[k] = { cut: p.cut, att: p.att, rel: p.rel, vib: p.vib }; });
+  function syCutHz(pct) { return 120 * Math.pow(100, pct / 100); } // 0-100% of the knob: 120 Hz to 12 kHz
+  ENG.synth = {
+    make: function (m, l, x) {
+      var c = softChain('synth'), p = SYN[x.p] || SYN.lead, t = ctx.currentTime, f = mtof(m), all = [], os = [];
+      var g = ctx.createGain(), flt = biq('lowpass', 1000, p.q), peak = 0.36 * LEVEL.synth[x.p] * (0.5 + 0.5 * l), att = Math.max(0.002, x.att / 1000);
+      var cut = Math.min(18000, syCutHz(x.cut) * Math.pow(f / 261.6, 0.5)); // the filter follows the keyboard
+      var vd = vibrato(t, 5.6, x.vib, 0.25, all);
+      oscStack(t, f, p.osc, flt, vd, os, all);
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(peak, t + att);
+      if (x.p === 'pluck') { // filter and level fall away even while held
+        flt.frequency.setValueAtTime(cut, t); flt.frequency.setTargetAtTime(Math.max(100, cut * 0.15), t + 0.005, 0.12);
+        g.gain.setTargetAtTime(peak * 0.04, t + att, 0.35);
+      } else {
+        flt.frequency.value = cut;
+        if (x.p !== 'pad') g.gain.setTargetAtTime(peak * 0.85, t + att, 0.1);
+      }
+      flt.connect(g); g.connect(c.in);
+      var v = { g: g, os: os, oscs: all, rel: Math.max(0.02, x.rel / 1000), done: false };
+      os[0].onended = function () { v.done = true; g.disconnect(); };
+      track(v);
+      return v;
+    },
+    set: function () {}
+  };
+  var syKeys = keyRow($('synKeys'), '', function (id, m, vel) {
+    var k = sy.knobs[sy.preset];
+    vStart('synth', 's' + id, m, vel, { p: sy.preset, cut: k.cut, att: k.att, rel: k.rel, vib: k.vib });
+  }, function (id) { vStop('s' + id); });
+  function buildSynth() {
+    var st = TONAL.synth;
+    syKeys.build(scaleKeys(12 * (sy.oct + 1) + st.key, st.scale, T.iv(st.scale).length === 12 ? 1 : 2), st.key, st.scale);
+  }
+  function syK() { return sy.knobs[sy.preset]; }
+  makeKnob($('kcut'), $('vcut'), 0, 100, 1, 62, function () { return syK().cut; }, function (v) { syK().cut = v; },
+    function (v) { var h = syCutHz(v); return h >= 1000 ? (h / 1000).toFixed(1) + ' kHz' : Math.round(h) + ' Hz'; });
+  makeKnob($('katt'), $('vatt'), 2, 2000, 2, 8, function () { return syK().att; }, function (v) { syK().att = v; },
+    function (v) { return v >= 1000 ? (v / 1000).toFixed(1) + ' s' : v + ' ms'; });
+  makeKnob($('krel'), $('vrel'), 20, 3000, 10, 250, function () { return syK().rel; }, function (v) { syK().rel = v; },
+    function (v) { return v >= 1000 ? (v / 1000).toFixed(1) + ' s' : v + ' ms'; });
+  makeKnob($('kvib'), $('vvib'), 0, 50, 1, 0, function () { return syK().vib; }, function (v) { syK().vib = v; },
+    function (v) { return v + ' c'; });
+
+  /* ---------- Xylophone ---------- */
+  // Rosewood bars: a short-lived fundamental, the bar's tuned twelfth (3x) and two higher, untuned modes that die
+  // almost at once, plus the knock of the mallet. Higher bars ring for less time.
+  var XY_MODES = [[1, 1, 0.9], [3, 0.3, 0.25], [6.27, 0.12, 0.08], [9.85, 0.05, 0.04]]; // ratio, level, seconds to -60 dB
+  var xy = { notes: [], bars: [], ptr: {}, n: 0 };
+  ENG.xylo = {
+    make: function (m, l) {
+      var c = softChain('xylo'), t = ctx.currentTime, f = mtof(m), k = Math.pow(523 / f, 0.35), all = [], longest = null, lt = 0;
+      var g = ctx.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.5 * l * LEVEL.xylo, t + 0.001);
+      XY_MODES.forEach(function (md) {
+        if (f * md[0] > 16000) return;
+        var o = ctx.createOscillator(), og = ctx.createGain(), T60 = md[2] * k;
+        o.frequency.value = f * md[0];
+        og.gain.setValueAtTime(0, t); og.gain.linearRampToValueAtTime(md[1], t + 0.0015); og.gain.exponentialRampToValueAtTime(0.001, t + T60);
+        o.connect(og); og.connect(g); o.start(t); o.stop(t + T60 + 0.02); all.push(o);
+        if (T60 > lt) { lt = T60; longest = o; }
+      });
+      var ns = ctx.createBufferSource(), nf = biq('bandpass', 2500, 0.8), ng = ctx.createGain();
+      ns.buffer = noiseBuf;
+      ng.gain.setValueAtTime(0.25, t); ng.gain.exponentialRampToValueAtTime(0.0001, t + 0.008);
+      ns.connect(nf); nf.connect(ng); ng.connect(g); ns.start(t, Math.random() * 1.5); ns.stop(t + 0.02); all.push(ns);
+      g.connect(c.in);
+      var v = { g: g, oscs: all, rel: 0.25, done: false };
+      longest.onended = function () { v.done = true; g.disconnect(); };
+      track(v);
+      return v;
+    },
+    set: function () {}
+  };
+  var xylo = $('xylo');
+  function buildXylo() {
+    xyStopAll();
+    var st = TONAL.xylo, root = T.rootFrom(st.key, 65), n;
+    xy.notes = T.run(root, st.scale, 2 * T.iv(st.scale).length + 1);
+    n = xy.notes.length;
+    xylo.innerHTML = '';
+    xy.bars = xy.notes.map(function (m, i) {
+      var b = document.createElement('div');
+      b.className = 'xbar' + (T.pc(m) === st.key ? ' root' : '');
+      b.style.height = (92 - 42 * i / Math.max(1, n - 1)).toFixed(1) + '%';
+      b.textContent = noteText(m, st.key);
+      xylo.appendChild(b);
+      return b;
+    });
+  }
+  function xyBar(x) { var r = xy.rect; return clamp(Math.floor((x - r.left) / r.width * xy.bars.length), 0, xy.bars.length - 1); }
+  function xyHit(id, i, vel) {
+    var p = xy.ptr[id], hid = 'x' + (++xy.n);
+    p.hits.push(hid); p.bar = i;
+    if (p.hits.length > 6) vStop(p.hits.shift()); // a long glissando: the oldest bars fade
+    vStart('xylo', hid, xy.notes[i], vel, {});
+    var b = xy.bars[i]; b.classList.add('on'); clearTimeout(b._t);
+    b._t = setTimeout(function () { b.classList.remove('on'); }, 120);
+  }
+  xylo.addEventListener('pointerdown', function (e) {
+    e.preventDefault();
+    try { xylo.setPointerCapture(e.pointerId); } catch (err) {}
+    var r = xy.rect = xylo.getBoundingClientRect();
+    xy.ptr[e.pointerId] = { hits: [], bar: -1 };
+    xyHit(e.pointerId, xyBar(e.clientX), 0.45 + 0.55 * clamp((e.clientY - r.top) / r.height, 0, 1)); // lower is louder
+  });
+  xylo.addEventListener('pointermove', function (e) {
+    var p = xy.ptr[e.pointerId];
+    if (!p) return;
+    var i = xyBar(e.clientX);
+    if (i === p.bar) return;
+    var d = i > p.bar ? 1 : -1; // a fast swipe can skip a bar between events: strike every bar it crossed
+    for (var k = p.bar + d; k !== i + d; k += d) xyHit(e.pointerId, k, 0.6);
+  });
+  xylo.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+  function xyUp(id) { var p = xy.ptr[id]; if (!p) return; delete xy.ptr[id]; p.hits.forEach(function (h) { vStop(h); }); }
+  function xyStopAll() { Object.keys(xy.ptr).forEach(xyUp); }
+
+  /* ---------- Electric bass ---------- */
+  // Four strings E A D G on a fretted board (open + 12 frets). With "Snap to scale" on, a fret outside the key's
+  // scale plays the nearest scale fret on that string. Sliding along a string moves fret by fret.
+  var EB_OPEN = [28, 33, 38, 43], EB_NAMES = ['E', 'A', 'D', 'G'], EB_FRETS = 12;
+  var eb = { mode: 'finger', snap: true, rows: [], ptr: {}, rect: null, str: [] };
+  function ebChain() {
+    if (chains.ebass) return chains.ebass;
+    // a little drive gives the low notes upper harmonics a phone speaker can play
+    var c = chainOut('ebass'), dr = ctx.createWaveShaper(), cv = new Float32Array(1024), hp = biq('highpass', 35, 0.7), sat = softClip(0.9);
+    for (var i = 0; i < 1024; i++) cv[i] = Math.tanh((i / 511.5 - 1) * 1.6) / Math.tanh(1.6);
+    dr.curve = cv; dr.oversample = '4x';
+    series([c.in, dr, hp, sat, c.out]);
+    return chains.ebass = c;
+  }
+  ENG.ebass = {
+    make: function (m, l, x) {
+      var c = ebChain(), t = ctx.currentTime, mode = x.mode || 'finger', r = Math.round(m), all = [];
+      var s = ctx.createBufferSource(), g = ctx.createGain();
+      s.buffer = ksBuffer(r, 'bass' + mode); s.playbackRate.value = Math.pow(2, (m - r) / 12);
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.6 * l * LEVEL.ebass[mode], t + 0.003);
+      var tone = mode === 'finger' ? [biq('lowpass', 1800, 0.5)]
+        : mode === 'pick' ? [biq('lowpass', 4500, 0.6), biq('peaking', 2500, 1, 3)]
+        : [biq('peaking', 450, 1, -7), biq('highshelf', 2200, 0.7, 7)];
+      s.connect(tone[0]); series(tone).connect(g); s.start(t); all.push(s);
+      if (mode !== 'finger') { // the pick or the thumb on the string
+        var ns = ctx.createBufferSource(), nf = biq('highpass', mode === 'slap' ? 1500 : 2500, 0.7), ng = ctx.createGain();
+        ns.buffer = noiseBuf;
+        ng.gain.setValueAtTime(mode === 'slap' ? 0.5 : 0.25, t); ng.gain.exponentialRampToValueAtTime(0.0001, t + (mode === 'slap' ? 0.012 : 0.006));
+        ns.connect(nf); nf.connect(ng); ng.connect(g); ns.start(t, Math.random() * 1.5); ns.stop(t + 0.03); all.push(ns);
+      }
+      g.connect(c.in);
+      var v = { g: g, src: s, base: r, oscs: all, rel: 0.12, done: false };
+      s.onended = function () { v.done = true; g.disconnect(); };
+      track(v);
+      return v;
+    },
+    set: function (v, m) { v.src.playbackRate.setTargetAtTime(Math.pow(2, (m - v.base) / 12), ctx.currentTime, 0.006); }
+  };
+  var ebEl = $('ebass');
+  function ebX(fret) { return (fret + 0.5) / (EB_FRETS + 1); }      // where a fret's note sits across the board, 0-1
+  function buildEbass() {
+    ebStopAll();
+    var st = TONAL.ebass, h = '', i, f;
+    for (f = 0; f <= EB_FRETS; f++) h += '<div class="fret' + (f === 0 ? ' nut' : '') + '" style="left:' + ((f + 1) / (EB_FRETS + 1) * 100).toFixed(2) + '%"></div>';
+    [3, 5, 7, 9, 12].forEach(function (k) { h += '<div class="inlay" style="left:' + (ebX(k) * 100).toFixed(2) + '%"></div>'; });
+    ebEl.innerHTML = h;
+    eb.rows = [];
+    for (i = 0; i < 4; i++) {
+      var row = document.createElement('div'), r = '<i style="height:' + (5.5 - i * 0.9).toFixed(1) + 'px"></i><span class="sn">' + EB_NAMES[i] + '</span>';
+      row.className = 'brow';
+      for (f = 0; f <= EB_FRETS; f++) {
+        var m = EB_OPEN[i] + f;
+        if (!T.inScale(m, st.key, st.scale)) continue;
+        r += '<span class="fmark' + (T.pc(m) === st.key ? ' root' : '') + '" data-m="' + m + '" style="left:' + (ebX(f) * 100).toFixed(2) + '%"><b>' + noteText(m, st.key) + '</b></span>';
+      }
+      row.innerHTML = r;
+      ebEl.appendChild(row); eb.rows.push(row);
+    }
+  }
+  function ebNote(str, x) {
+    var f = clamp(Math.floor(x / eb.rect.width * (EB_FRETS + 1)), 0, EB_FRETS), m = EB_OPEN[str] + f, st = TONAL.ebass;
+    return eb.snap ? T.snap(m, st.key, st.scale, EB_OPEN[str], EB_OPEN[str] + EB_FRETS) : m;
+  }
+  function ebLight() {
+    var on = {};
+    Object.keys(eb.ptr).forEach(function (k) { on[eb.ptr[k].str] = 1; });
+    eb.rows.forEach(function (r, i) { r.classList.toggle('on', !!on[i]); });
+  }
+  ebEl.addEventListener('pointerdown', function (e) {
+    e.preventDefault();
+    try { ebEl.setPointerCapture(e.pointerId); } catch (err) {}
+    var r = eb.rect = ebEl.getBoundingClientRect(), str = clamp(Math.floor((e.clientY - r.top) / r.height * 4), 0, 3);
+    var m = ebNote(str, e.clientX - r.left), id = 'b' + e.pointerId;
+    if (eb.str[str] && eb.str[str] !== id) vStop(eb.str[str]); // one note per string
+    eb.str[str] = id;
+    eb.ptr[e.pointerId] = { str: str, m: m };
+    vStart('ebass', id, m, 0.8, { mode: eb.mode });
+    ebLight();
+  });
+  ebEl.addEventListener('pointermove', function (e) {
+    var p = eb.ptr[e.pointerId];
+    if (!p) return;
+    var m = ebNote(p.str, e.clientX - eb.rect.left);
+    if (m !== p.m) { p.m = m; vSet('b' + e.pointerId, m, 0.8); } // slide fret by fret
+  });
+  ebEl.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+  function ebUp(id) {
+    var p = eb.ptr[id];
+    if (!p) return;
+    delete eb.ptr[id];
+    vStop('b' + id);
+    if (eb.str[p.str] === 'b' + id) eb.str[p.str] = null;
+    ebLight();
+  }
+  function ebStopAll() { Object.keys(eb.ptr).forEach(ebUp); }
+
+  /* ---------- Rhythm guitar ---------- */
+  // Chord buttons (the seven chords of the key), strums down or up, muted strums, palm mute, and an auto-strum
+  // that plays a preset pattern at a set tempo. One strum is one voice: six rendered strings, staggered.
+  // Patterns are eight eighth notes: D down, U up, X muted strum, - rest.
+  var RPAT = [
+    ['folk', 'Folk', 'D-DU-UDU'], ['down', 'On the beat', 'D-D-D-D-'], ['pop', 'Pop', 'D-DUXUDU'],
+    ['rock', 'Rock eighths', 'DDDDDDDD'], ['offbeat', 'Off-beat', '-U-U-U-U'], ['ballad', 'Ballad', 'D--UDUDU']
+  ];
+  var rh = { chord: 0, chords: [], strEls: [], auto: false, pat: 0, bpm: 96, palm: false, next: 0, n: 0, timer: 0, ptr: {}, prev: null, stepEls: [], cur: -1 };
+  function rhChain() {
+    return softChain('rhythm', [biq('peaking', 110, 1.2, 5), biq('peaking', 220, 1.5, 3), biq('lowpass', 7000, 0.5)]);
+  }
+  ENG.rhythm = {
+    make: function (m, l, x) {
+      var c = rhChain(), t = ctx.currentTime, when = t + (x.dl || 0), notes = x.notes, all = [], last = null;
+      var g = ctx.createGain(), sum = ctx.createGain(), peak = 0.42 * l * LEVEL.rhythm;
+      g.gain.setValueAtTime(0, t); g.gain.setValueAtTime(0, when); g.gain.linearRampToValueAtTime(peak, when + 0.003);
+      if (x.palm) { // the side of the hand on the bridge: dark, and dies quickly
+        series([sum, biq('lowpass', 900, 0.7), g]);
+        g.gain.setTargetAtTime(peak * 0.02, when + 0.02, 0.09);
+      } else if (x.mute) { // muted strum: the fretting hand lifts off, a percussive "chk"
+        sum.connect(g);
+        g.gain.setTargetAtTime(0, when + 0.01, 0.012);
+        var ns = ctx.createBufferSource(), nf = biq('bandpass', 1800, 0.9), ng = ctx.createGain();
+        ns.buffer = noiseBuf;
+        ng.gain.setValueAtTime(0, t); ng.gain.setValueAtTime(0.9, when); ng.gain.exponentialRampToValueAtTime(0.0001, when + 0.04);
+        ns.connect(nf); nf.connect(ng); ng.connect(c.in); ns.start(t, Math.random() * 1.5); ns.stop(when + 0.06); all.push(ns);
+      } else sum.connect(g);
+      var n = notes.length, down = x.dir !== -1, gap = 0.011;
+      for (var k = 0; k < n; k++) {
+        var i = down ? k : n - 1 - k;
+        if (notes[i] < 0) continue;
+        // an up-strum mostly catches the top strings
+        var s = ctx.createBufferSource(), sg = ctx.createGain(), w = down || n === 1 ? 1 : [0.35, 0.5, 0.75, 1, 1, 1][i] || 1;
+        s.buffer = ksBuffer(notes[i], 'acoustic');
+        s.playbackRate.value = Math.pow(2, (Math.random() * 2 - 1) * 1.5 / 1200);
+        sg.gain.value = w;
+        s.connect(sg); sg.connect(sum); s.start(when + k * gap + Math.random() * 0.002); all.push(s); last = s;
+      }
+      g.connect(c.in);
+      var v = { g: g, oscs: all, rel: x.palm ? 0.06 : 0.3, done: false };
+      if (!last) { v.done = true; return v; }
+      last.onended = function () { v.done = true; g.disconnect(); };
+      dampAt(rh.prev, when, 0.05); // the pick meeting the strings stops what they were playing
+      rh.prev = v;
+      track(v);
+      return v;
+    },
+    set: function () {}
+  };
+  function rhShape() {
+    var c = rh.chords[rh.chord];
+    return SHAPES[c.name] || voicing(GTR6, c, true);
+  }
+  function rhNotes() { return rhShape().map(function (f, i) { return f < 0 ? -1 : GTR6[i] + f; }); }
+  function buildRhythm() {
+    var st = TONAL.rhythm, wrap = $('rchords');
+    rh.chords = [];
+    for (var d = 0; d < 7; d++) rh.chords.push(T.chord(st.key, st.scale, d));
+    rh.chord = clamp(rh.chord, 0, 6);
+    wrap.innerHTML = '';
+    rh.chords.forEach(function (c, i) {
+      var b = document.createElement('button');
+      b.textContent = c.name; b.dataset.chord = i; b.setAttribute('aria-pressed', i === rh.chord);
+      wrap.appendChild(b);
+    });
+    wrap.style.gridTemplateRows = 'repeat(4, 1fr)';
+    rhLabel();
+    if (ctx) rhNotes().forEach(function (m) { if (m >= 0) ksBuffer(m, 'acoustic'); });
+  }
+  function rhLabel() {
+    var ns = rhNotes();
+    rh.strEls.forEach(function (el, i) { el.classList.toggle('mute', ns[i] < 0); el.lastChild.textContent = ns[i] < 0 ? '×' : CHROMA[ns[i] % 12]; });
+  }
+  function rhFlash(dl) {
+    setTimeout(function () { rh.strEls.forEach(function (el) { gtrFlash(el); }); }, Math.max(0, dl * 1000));
+  }
+  // One strum now (or dl seconds from now). id: the finger that strummed, or the auto-strum's own id.
+  function rhStrum(id, dir, vel, mute, dl) {
+    init();
+    vStart('rhythm', id, 0, vel, { notes: rhNotes(), dir: dir, mute: !!mute, palm: rh.palm && !mute, dl: dl || 0 });
+    rhFlash(dl || 0);
+  }
+  function rhTick() {
+    if (!rh.auto) return;
+    var pat = RPAT[rh.pat][2], stepT = 30 / rh.bpm;
+    while (rh.next < ctx.currentTime + 0.1) {
+      var ch = pat[rh.n % 8], dl = rh.next - ctx.currentTime;
+      if (ch !== '-') rhStrum('ra' + rh.n, ch === 'U' ? -1 : 1, ch === 'U' ? 0.6 : 0.75, ch === 'X', dl);
+      (function (k, d) { setTimeout(function () { rhStep(k); }, Math.max(0, d * 1000)); })(rh.n % 8, dl);
+      rh.next += stepT; rh.n++;
+    }
+  }
+  function rhStep(k) {
+    if (rh.stepEls[rh.cur]) rh.stepEls[rh.cur].classList.remove('now');
+    rh.cur = k; if (k >= 0 && rh.auto) rh.stepEls[k].classList.add('now');
+  }
+  function rhAuto(on) {
+    if (on && !rh.auto) {
+      init();
+      rh.auto = true; rh.n = 0; rh.next = ctx.currentTime + 0.05;
+      rhTick(); rh.timer = setInterval(rhTick, 25);
+    } else if (!on && rh.auto) {
+      rh.auto = false; clearInterval(rh.timer); rhStep(-1);
+    }
+    $('rauto').setAttribute('aria-pressed', rh.auto);
+    $('rauto').textContent = rh.auto ? 'Stop strum' : 'Auto strum';
+  }
+  function rhSteps() {
+    var pat = RPAT[rh.pat][2];
+    rh.stepEls.forEach(function (el, i) { el.textContent = pat[i] === '-' ? '' : pat[i] === 'X' ? '×' : pat[i] === 'U' ? '↑' : '↓'; });
+  }
+  (function buildRhythmUi() {
+    var neck = $('rneck'), steps = $('rsteps');
+    for (var i = 0; i < 6; i++) {
+      var s = document.createElement('div');
+      s.className = 'gstr'; s.style.top = ((i + 0.5) / 6 * 100) + '%';
+      s.innerHTML = '<i style="height:' + (5 - i * 0.6).toFixed(1) + 'px"></i><b></b>';
+      neck.appendChild(s); rh.strEls.push(s);
+    }
+    for (var k = 0; k < 8; k++) { var st = document.createElement('i'); steps.appendChild(st); rh.stepEls.push(st); }
+    RPAT.forEach(function (p, j) { var o = document.createElement('option'); o.value = j; o.textContent = p[1]; $('rpat').appendChild(o); });
+    rhSteps();
+    $('rchords').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-chord]');
+      if (!b) return;
+      rh.chord = +b.dataset.chord;
+      $('rchords').querySelectorAll('[data-chord]').forEach(function (x) { x.setAttribute('aria-pressed', x === b); });
+      rhLabel();
+      if (ctx) rhNotes().forEach(function (m) { if (m >= 0) ksBuffer(m, 'acoustic'); });
+    });
+    // Swipe down or up: each change of direction is a new strum, faster is louder. A tap strums down.
+    neck.addEventListener('pointerdown', function (e) {
+      e.preventDefault();
+      try { neck.setPointerCapture(e.pointerId); } catch (err) {}
+      rh.ptr[e.pointerId] = { y: e.clientY, ext: e.clientY, t: e.timeStamp, dir: 1, n: 0 };
+      rhStrum('r' + e.pointerId + '_0', 1, 0.75);
+    });
+    neck.addEventListener('pointermove', function (e) {
+      var p = rh.ptr[e.pointerId];
+      if (!p) return;
+      var y = e.clientY;
+      if ((y - p.ext) * p.dir > 0) { p.ext = y; p.t = e.timeStamp; return; } // still going the same way
+      if (Math.abs(y - p.ext) < 14) return;
+      var sp = Math.abs(y - p.ext) / Math.max(1, e.timeStamp - p.t);
+      p.dir = -p.dir; p.ext = y; p.t = e.timeStamp;
+      rhStrum('r' + e.pointerId + '_' + (++p.n), p.dir, 0.5 + 0.4 * clamp(sp / 1.5, 0, 1));
+    });
+    neck.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+    $('rchuck').addEventListener('pointerdown', function (e) {
+      e.preventDefault();
+      rhStrum('rx' + e.pointerId, 1, 0.8, true);
+      var b = this; b.classList.add('on'); clearTimeout(b._t); b._t = setTimeout(function () { b.classList.remove('on'); }, 120);
+    });
+    $('rpat').onchange = function () { rh.pat = +this.value; rhSteps(); };
+    $('rbpm').oninput = function () { rh.bpm = +this.value; $('rbpmLbl').textContent = rh.bpm + ' BPM'; };
+    $('rauto').onclick = function () { rhAuto(!rh.auto); };
+    $('rpalm').onclick = function () { rh.palm = !rh.palm; this.setAttribute('aria-pressed', rh.palm); };
+  })();
+  // Lifting a strumming finger lets its last strum fade (a muted strum or an auto-strum is already short or timed)
+  function rhUp(id) {
+    var p = rh.ptr[id];
+    if (!p) return;
+    delete rh.ptr[id];
+    vStop('r' + id + '_' + p.n);
+  }
+  function rhStopAll() { Object.keys(rh.ptr).forEach(rhUp); }
+
+  // Every touch-driven part of the eight newer instruments
+  function moreStopAll() {
+    tpRow.stopAll(); sxRow.stopAll(); orgMan[0].stopAll(); orgMan[1].stopAll(); syKeys.stopAll();
+    xyStopAll(); ebStopAll(); rhStopAll();
+    tp.vptr = {}; tp.valves = [false, false, false]; tpShowValves(null);
+  }
+  function moreUp(id) {
+    tpRow.up(id); sxRow.up(id); tpValveUp(id); orgMan[0].up(id); orgMan[1].up(id); syKeys.up(id); xyUp(id); ebUp(id); rhUp(id);
+  }
+
+  // Lift every finger on the held-voice instruments (playback and the auto-strum keep going)
   function newStopAll() {
-    Object.keys(vmap).forEach(function (k) { if (k.indexOf('pb') !== 0) vStop(k); });
+    Object.keys(vmap).forEach(function (k) { if (k.indexOf('pb') !== 0 && k.indexOf('ra') !== 0) vStop(k); }); // auto-strum keeps its time
     hm.ptr = {}; bw.fing = {}; bw.bow = null;
-    hnStopAll(); hmLights(); bwDraw();
+    hnStopAll(); hmLights(); bwDraw(); moreStopAll();
   }
 
   // Key and scale for every melodic instrument; reverb for the held-voice ones. All remembered per instrument.
@@ -2782,7 +3748,14 @@ body[data-screen="home"] .rotate { display: none !important; }
     else if (tab === 'flute') buildFlute();
     else if (tab === 'harmonica') buildHarp();
     else if (tab === 'horn') buildHorn();
-    else if (tab === 'violin' || tab === 'cello') { bw.tab = tab; buildBowed(); }
+    else if (tab === 'violin' || tab === 'cello' || tab === 'viola') { bw.tab = tab; buildBowed(); }
+    else if (tab === 'trumpet') tpRow.build();
+    else if (tab === 'sax') sxRow.build();
+    else if (tab === 'organ') buildOrgan();
+    else if (tab === 'synth') buildSynth();
+    else if (tab === 'xylo') buildXylo();
+    else if (tab === 'ebass') buildEbass();
+    else if (tab === 'rhythm') buildRhythm();
   }
   function syncNewControls(tab) {
     $('irev').value = NST[tab].rev;
@@ -2805,6 +3778,14 @@ body[data-screen="home"] .rotate { display: none !important; }
   toggleBtn('bpizz', function () { bw.pizz = !bw.pizz; buildBowed(); return bw.pizz; });
   toggleBtn('hstop', function () { hn.stop = !hn.stop; hnStopTone(); return hn.stop; });
   $('hslide').oninput = function () { hn.slide = +this.value; };
+  toggleBtn('tgrowl', function () { return tp.growl = !tp.growl; });
+  toggleBtn('tmute', function () { return tp.mute = !tp.mute; });
+  toggleBtn('sxgrowl', function () { return sx.growl = !sx.growl; });
+  toggleBtn('sxvib', function () { return sx.vib = !sx.vib; });
+  toggleBtn('bxsnap', function () { return eb.snap = !eb.snap; });
+  $('bmode').onchange = function () { eb.mode = this.value; };
+  $('spreset').onchange = function () { sy.preset = this.value; knobDraw.forEach(function (f) { f(); }); };
+  $('soct').onchange = function () { sy.oct = +this.value; buildSynth(); };
 
   /* ---------- Releasing notes: every path that ends a touch ---------- */
   function releasePointer(id) {
@@ -2812,7 +3793,7 @@ body[data-screen="home"] .rotate { display: none !important; }
     gtrRelease(id);
     fluteUp(id);
     tablaUp(id);
-    hmUp(id); bwUp(id); hnUp(id);
+    hmUp(id); bwUp(id); hnUp(id); moreUp(id);
   }
   // Silence everything a finger, mouse or key is holding (not piano playback)
   function releaseAllHeld() {
@@ -2832,7 +3813,7 @@ body[data-screen="home"] .rotate { display: none !important; }
   window.addEventListener('blur', releaseAllHeld);
   document.addEventListener('visibilitychange', function () {
     if (!document.hidden) return;
-    releaseAllHeld(); setDrone(false); seqPlay(false);
+    releaseAllHeld(); setDrone(false); seqPlay(false); rhAuto(false);
   });
 
   // Safety net: when no finger is on the screen, nothing touch-driven may keep sounding
@@ -2844,7 +3825,7 @@ body[data-screen="home"] .rotate { display: none !important; }
     fluteStopAll();
     tb.bend = {}; tb.slide = {};
     Object.keys(vmap).forEach(function (k) { if (/^(bs)?\d+$/.test(k)) vStop(k); });
-    hm.ptr = {}; bw.fing = {}; bw.bow = null; hnStopAll(); hmLights(); bwDraw();
+    hm.ptr = {}; bw.fing = {}; bw.bow = null; hnStopAll(); hmLights(); bwDraw(); moreStopAll();
   }
   window.addEventListener('touchend', noTouchesLeft, { passive: true });
   window.addEventListener('touchcancel', noTouchesLeft, { passive: true });
@@ -2984,7 +3965,61 @@ body[data-screen="home"] .rotate { display: none !important; }
       '<circle cx="58" cy="62" r="30" fill="none" stroke="#e8a92a" stroke-width="9"/><circle cx="58" cy="62" r="17" fill="none" stroke="#f3c45a" stroke-width="6"/>' +
       '<rect x="45" y="25" width="7" height="13" rx="2" fill="#c9d0d7"/><rect x="55" y="23" width="7" height="13" rx="2" fill="#c9d0d7"/><rect x="65" y="25" width="7" height="13" rx="2" fill="#c9d0d7"/>' +
       '<path d="M82.8 77.2Q95 85 111.3 88.7L88.7 111.3Q85 95 77.2 82.8Z" fill="#f3b33d"/>' +
-      '<ellipse cx="100" cy="100" rx="16" ry="5" transform="rotate(-45 100 100)" fill="#b77d14"/>')
+      '<ellipse cx="100" cy="100" rx="16" ry="5" transform="rotate(-45 100 100)" fill="#b77d14"/>'),
+    trumpet: svg('<g transform="rotate(-18 60 60)"><rect x="26" y="62" width="60" height="16" rx="8" fill="none" stroke="#e8a92a" stroke-width="5"/>' +
+      '<path d="M12 58h78" stroke="#f3c45a" stroke-width="6" stroke-linecap="round"/><path d="M86 55L112 39V79L86 63Z" fill="#f3b33d"/>' +
+      '<ellipse cx="112" cy="59" rx="4.5" ry="20" fill="#b77d14"/><rect x="5" y="54" width="9" height="8" rx="2" fill="#c9d0d7"/>' +
+      [46, 57, 68].map(function (x) {
+        return '<rect x="' + x + '" y="48" width="8" height="30" rx="2" fill="#d99a1e"/><rect x="' + (x + 2.5) + '" y="42" width="3" height="7" fill="#c9d0d7"/>' +
+          '<rect x="' + (x - 0.5) + '" y="37" width="9" height="6" rx="3" fill="#fff6e0"/>';
+      }).join('') + '</g>'),
+    sax: svg('<path d="M30 18Q48 12 54 26" fill="none" stroke="#d99a1e" stroke-width="5" stroke-linecap="round"/>' +
+      '<rect x="22" y="14" width="10" height="7" rx="2" transform="rotate(-20 27 17)" fill="#1f1d1b"/>' +
+      '<path d="M54 26L62 82Q66 102 82 100Q96 98 94 80L92 70" fill="none" stroke="#e8a92a" stroke-width="13" stroke-linejoin="round" stroke-linecap="round"/>' +
+      '<path d="M84 74L79 57H109L101 74Z" fill="#f3b33d"/><ellipse cx="94" cy="57" rx="15" ry="4.5" fill="#b77d14"/>' +
+      '<circle cx="57" cy="40" r="3.4" fill="#fff6e0"/><circle cx="59" cy="51" r="3.4" fill="#fff6e0"/><circle cx="61" cy="62" r="3.4" fill="#fff6e0"/><circle cx="64" cy="73" r="3.4" fill="#fff6e0"/>' +
+      note(98, 30, '#c8463a')),
+    viola: svg(fiddleArt('#b8662a', 16, false) + bowArt(-30)),
+    ebass: svg('<g transform="rotate(-40 60 60)"><rect x="56" y="-4" width="8" height="72" fill="#c9a26b"/>' +
+      '<path d="M56 8h8M56 18h8M56 27h8M56 35h8M56 42h8M56 49h8" stroke="#8f8f8f" stroke-width="1.2"/>' +
+      '<rect x="53" y="-15" width="14" height="13" rx="3" fill="#1f1d1b"/><circle cx="50" cy="-11" r="2.2" fill="#c9d0d7"/><circle cx="70" cy="-11" r="2.2" fill="#c9d0d7"/><circle cx="50" cy="-5" r="2.2" fill="#c9d0d7"/><circle cx="70" cy="-5" r="2.2" fill="#c9d0d7"/>' +
+      '<path d="M40 70Q36 56 48 60Q56 63 60 58Q64 63 72 60Q86 56 80 72Q93 96 72 106Q60 112 48 106Q27 96 40 70Z" fill="#c8463a"/>' +
+      '<path d="M48 72Q60 67 72 72L73 92Q60 99 47 92Z" fill="#fff6e0"/><rect x="51" y="82" width="18" height="5" rx="2" fill="#1f1d1b"/>' +
+      '<path d="M57.5 -4v104M59.2 -4v104M60.8 -4v104M62.5 -4v104" stroke="#e9dfc8" stroke-width=".8"/></g>'),
+    rhythm: svg('<g transform="rotate(-38 60 60)"><rect x="56" y="6" width="8" height="58" fill="#7a4424"/>' +
+      '<path d="M56 18h8M56 28h8M56 37h8M56 45h8" stroke="#c9b98f" stroke-width="1.2"/><rect x="53" y="0" width="14" height="14" rx="3" fill="#5a2f17"/>' +
+      '<circle cx="60" cy="72" r="17" fill="#2a9d8f"/><circle cx="60" cy="96" r="22" fill="#2a9d8f"/><circle cx="60" cy="80" r="7" fill="#1f1d1b"/>' +
+      '<rect x="51" y="98" width="18" height="5" rx="2" fill="#1f1d1b"/><path d="M58 8v92M60 8v92M62 8v92" stroke="#fff6e0" stroke-width=".7"/></g>' +
+      '<path d="M98 16v28m-7-7l7 7 7-7" stroke="#e4572e" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>' +
+      '<path d="M84 52V24m-7 7l7-7 7 7" stroke="#f3b33d" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>' +
+      '<path d="M90 82q8-4 12 4q-2 10-10 12q-6-8-2-16z" fill="#e4572e"/>'),
+    organ: svg((function () {
+      var s = '', hs = [36, 48, 58, 66, 58, 48, 36];
+      hs.forEach(function (ph, i) {
+        var x = 21 + i * 11.4;
+        s += '<rect x="' + x + '" y="' + (70 - ph) + '" width="8.5" height="' + ph + '" rx="1.5" fill="#d5dbe1"/><rect x="' + x + '" y="' + (70 - ph) + '" width="3" height="' + ph + '" fill="#fff" opacity=".55"/>' +
+          '<path d="M' + (x + 1.5) + ' ' + (62 - ph * 0.15) + 'h5.5l-2.75 -4z" fill="#3d405b"/>';
+      });
+      return s + '<rect x="12" y="68" width="96" height="44" rx="6" fill="#7a4424"/><rect x="20" y="77" width="80" height="10" rx="2" fill="#fff6e0"/><rect x="24" y="93" width="72" height="10" rx="2" fill="#fff6e0"/>' +
+        '<path d="M30 77v10M40 77v10M50 77v10M60 77v10M70 77v10M80 77v10M90 77v10M33 93v10M43 93v10M53 93v10M63 93v10M73 93v10M83 93v10" stroke="#c9b98f" stroke-width="1.4"/>';
+    })()),
+    synth: svg('<rect x="8" y="30" width="104" height="62" rx="9" fill="#3d405b"/><rect x="62" y="38" width="40" height="13" rx="3" fill="#2fb3a8"/>' +
+      '<path d="M66 45l5-4 4 7 5-9 4 8 5-4 5 2" stroke="#fff6e0" stroke-width="1.6" fill="none"/>' +
+      '<circle cx="22" cy="45" r="6" fill="#f3b33d"/><circle cx="38" cy="45" r="6" fill="#e4572e"/><circle cx="54" cy="45" r="5" fill="#9a7bd8"/>' +
+      '<path d="M22 45l3-4M38 45l-2-4.5" stroke="#3d405b" stroke-width="2" stroke-linecap="round"/>' +
+      '<rect x="14" y="58" width="92" height="28" rx="3" fill="#fff"/>' +
+      '<path d="M25.5 58v28M37 58v28M48.5 58v28M60 58v28M71.5 58v28M83 58v28M94.5 58v28" stroke="#d8d1bd" stroke-width="1.5"/>' +
+      '<path d="M22 58h7v16h-7zM33.5 58h7v16h-7zM56.5 58h7v16h-7zM68 58h7v16h-7zM79.5 58h7v16h-7z" fill="#1f1d1b"/>'),
+    xylo: svg((function () {
+      var s = '';
+      for (var i = 0; i < 8; i++) {
+        var bh = 68 - i * 5.5, x = 13 + i * 12;
+        s += '<rect x="' + x + '" y="' + (68 - bh / 2) + '" width="10" height="' + bh + '" rx="3" fill="' + (i % 2 ? '#c97b44' : '#b56a37') + '"/>';
+      }
+      return s + '<path d="M10 52h98M10 84h98" stroke="#5a3a1e" stroke-width="2.5"/>' +
+        '<path d="M58 30L86 12M74 36L104 24" stroke="#7a4424" stroke-width="3.5" stroke-linecap="round"/>' +
+        '<circle cx="56" cy="31" r="6.5" fill="#e4572e"/><circle cx="72" cy="37" r="6.5" fill="#2a9d8f"/>';
+    })())
   };
 
   var INSTR = [
@@ -2998,7 +4033,15 @@ body[data-screen="home"] .rotate { display: none !important; }
     { tab: 'harmonica', name: 'Harmonica', cat: 'wind', c: '#fdffb6' },
     { tab: 'violin', name: 'Violin', cat: 'strings', c: '#ffcfd2' },
     { tab: 'cello', name: 'Cello', cat: 'strings', c: '#cfe8d5' },
-    { tab: 'horn', name: 'French horn', cat: 'wind', c: '#d7e3fc' }
+    { tab: 'horn', name: 'French horn', cat: 'wind', c: '#d7e3fc' },
+    { tab: 'trumpet', name: 'Trumpet', cat: 'wind', c: '#fff3b0' },
+    { tab: 'viola', name: 'Viola', cat: 'strings', c: '#ffd8be' },
+    { tab: 'organ', name: 'Pipe organ', cat: 'keys', c: '#e0d4ff' },
+    { tab: 'sax', name: 'Saxophone', cat: 'wind', c: '#ffe8cc' },
+    { tab: 'xylo', name: 'Xylophone', cat: 'perc', c: '#d0f4de' },
+    { tab: 'synth', name: 'Synth', cat: 'keys', c: '#c7ceea' },
+    { tab: 'ebass', name: 'Electric bass', cat: 'strings', c: '#cde7ff' },
+    { tab: 'rhythm', name: 'Rhythm guitar', cat: 'strings', c: '#e2f0cb' }
   ];
   var TAB_NAMES = {}, gallery = $('gallery'), cards = [], centred = null, opening = false;
   INSTR.forEach(function (it) {
@@ -3100,7 +4143,7 @@ body[data-screen="home"] .rotate { display: none !important; }
     releaseAllHeld();
     if (playing) stopPlayback();
     if (recording) $('rec').click();
-    setDrone(false); seqPlay(false);
+    setDrone(false); seqPlay(false); rhAuto(false);
     if (ctx) live.forEach(function (v) { releaseVoice(v, Math.min(v.rel || 0.1, 0.12)); });
     live = []; pedalHeld = [];
     nread.textContent = '';
@@ -3110,6 +4153,7 @@ body[data-screen="home"] .rotate { display: none !important; }
     silenceAll();
     state.tab = tab; state.screen = 'play';
     document.body.dataset.tab = tab;
+    document.body.dataset.g = groupsOf(tab);
     document.body.dataset.screen = 'play';
     $('iname').textContent = TAB_NAMES[tab];
     if (isNew(tab)) syncNewControls(tab);
@@ -3262,8 +4306,10 @@ body[data-screen="home"] .rotate { display: none !important; }
       var e = grp('epad'); e[kit] = e[kit] || [];
       for (var i = 0; i < 16; i++) if (e[kit][i] === undefined) e[kit][i] = 1;
     });
-    ['violin', 'cello'].forEach(function (k) { one(grp(k), 'bow'); one(grp(k), 'pizz'); });
-    ['flute', 'harmonica', 'horn', 'tanpura'].forEach(function (k) { if (LEVEL[k] === undefined) LEVEL[k] = 1; });
+    ['violin', 'cello', 'viola'].forEach(function (k) { one(grp(k), 'bow'); one(grp(k), 'pizz'); });
+    Object.keys(SYN).forEach(function (k) { one(grp('synth'), k); });
+    ['finger', 'pick', 'slap'].forEach(function (k) { one(grp('ebass'), k); });
+    ['flute', 'harmonica', 'horn', 'tanpura', 'trumpet', 'organ', 'sax', 'xylo', 'rhythm'].forEach(function (k) { if (LEVEL[k] === undefined) LEVEL[k] = 1; });
   })();
 
   try { var sv = parseFloat(localStorage.getItem('pb-vol')); if (sv >= 0 && sv <= 1.5) state.vol = sv; } catch (e) {}
@@ -3286,6 +4332,9 @@ body[data-screen="home"] .rotate { display: none !important; }
   if (window.__PB_TEST__) {
     window.PocketBandTest = {
       T: T, TONAL: TONAL, state: state, gtr: gtr, bw: bw, fl: fl, hn: hn, ep: ep, BOWCFG: BOWCFG, EKITS: EKITS, PADS: PADS, BOLS: BOLS, GTYPES: GTYPES,
+      tp: tp, tpRow: tpRow, sxRow: sxRow, sx: sx, org: org, orgMan: orgMan, sy: sy, SYN: SYN, xy: xy, eb: eb, rh: rh, RPAT: RPAT,
+      tpFingering: tpFingering, rhNotes: rhNotes, rhStrum: rhStrum, rhAuto: rhAuto, rhTick: rhTick, orgStops: orgStops, vmap: function () { return vmap; },
+      rec: function () { return rec; }, played: function () { return window.__pbPlayed || []; },
       level: function () { return LEVEL; }, setLevel: function (l) { LEVEL = l; },
       ctx: function () { return ctx; }, live: function () { return live; },
       init: init, open: openInstrument, rebuild: rebuildTonal, setTonal: function (tab, key, scale) {
@@ -3303,7 +4352,7 @@ body[data-screen="home"] .rotate { display: none !important; }
       reset: function () {
         silenceAll();
         ctx = null; chains = {}; ksCache = {}; ksKeys = []; live = []; vmap = {}; gtr.strVoice = []; gtr.held = {};
-        tb.dV = tb.bV = null; openHat = null; bw.fing = {}; bw.bow = null; bw.last = 0;
+        tb.dV = tb.bV = null; openHat = null; bw.fing = {}; bw.bow = null; bw.last = 0; rh.prev = null;
       }
     };
   }

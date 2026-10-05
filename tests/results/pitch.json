@@ -14,8 +14,8 @@
    "cases": 120,
    "notes": 630,
    "failed": 0,
-   "maxCents": 2.0067075034240722,
-   "meanCents": 1.0243917925515085,
+   "maxCents": 2.0098215812596503,
+   "meanCents": 1.0354428765408366,
    "keysDistinct": true
   },
   {
@@ -24,7 +24,7 @@
    "notes": 960,
    "failed": 0,
    "maxCents": 0.2911407179707566,
-   "meanCents": 0.2611932618027985,
+   "meanCents": 0.26119326191955855,
    "keysDistinct": true
   },
   {
@@ -32,8 +32,8 @@
    "cases": 120,
    "notes": 1200,
    "failed": 0,
-   "maxCents": 1.8901374766517771,
-   "meanCents": 1.0812524667370609,
+   "maxCents": 1.8901374752717108,
+   "meanCents": 1.081252466756689,
    "keysDistinct": true
   },
   {
@@ -42,7 +42,7 @@
    "notes": 980,
    "failed": 0,
    "maxCents": 0.5415225037184266,
-   "meanCents": 0.509019339911321,
+   "meanCents": 0.5090193399117713,
    "keysDistinct": true
   },
   {
@@ -50,8 +50,8 @@
    "cases": 120,
    "notes": 980,
    "failed": 0,
-   "maxCents": 0.7817063914613703,
-   "meanCents": 0.22279597619513797,
+   "maxCents": 0.781705698524894,
+   "meanCents": 0.22279598283263669,
    "keysDistinct": true
   },
   {
@@ -59,8 +59,80 @@
    "cases": 120,
    "notes": 960,
    "failed": 0,
-   "maxCents": 3.314533120152082,
-   "meanCents": 0.8378466839326246,
+   "maxCents": 3.311756180055344,
+   "meanCents": 0.8192517574064745,
+   "keysDistinct": true
+  },
+  {
+   "tab": "trumpet",
+   "cases": 120,
+   "notes": 960,
+   "failed": 0,
+   "maxCents": 0.038714472289139906,
+   "meanCents": 0.00937116488459181,
+   "keysDistinct": true
+  },
+  {
+   "tab": "viola",
+   "cases": 120,
+   "notes": 980,
+   "failed": 0,
+   "maxCents": 2.575739705604975,
+   "meanCents": 0.4360444028410713,
+   "keysDistinct": true
+  },
+  {
+   "tab": "organ",
+   "cases": 120,
+   "notes": 960,
+   "failed": 0,
+   "maxCents": 0.00015331597779836225,
+   "meanCents": 0.00006982321160002437,
+   "keysDistinct": true
+  },
+  {
+   "tab": "sax",
+   "cases": 120,
+   "notes": 960,
+   "failed": 0,
+   "maxCents": 1.7971650925330624,
+   "meanCents": 0.8612020936354392,
+   "keysDistinct": true
+  },
+  {
+   "tab": "xylo",
+   "cases": 120,
+   "notes": 960,
+   "failed": 0,
+   "maxCents": 0.008593202291839528,
+   "meanCents": 0.000574614672621481,
+   "keysDistinct": true
+  },
+  {
+   "tab": "synth",
+   "cases": 120,
+   "notes": 960,
+   "failed": 0,
+   "maxCents": 2.643862744691265,
+   "meanCents": 1.5623334643804354,
+   "keysDistinct": true
+  },
+  {
+   "tab": "ebass",
+   "cases": 120,
+   "notes": 910,
+   "failed": 0,
+   "maxCents": 0.030124320486389723,
+   "meanCents": 0.011154946355267216,
+   "keysDistinct": true
+  },
+  {
+   "tab": "rhythm",
+   "cases": 120,
+   "notes": 630,
+   "failed": 0,
+   "maxCents": 1.5112667356169474,
+   "meanCents": 0.7512266696627019,
    "keysDistinct": true
   }
  ],

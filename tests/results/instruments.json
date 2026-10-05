@@ -5,6 +5,11 @@
   "detail": "196.05 Hz (+0.50 c from G3), 293.75 Hz (+0.50 c from D4), 440.14 Hz (+0.53 c from A4), 659.45 Hz (+0.50 c from E5)"
  },
  {
+  "name": "viola: open strings",
+  "ok": true,
+  "detail": "130.81 Hz (+0.01 c from C3), 196.00 Hz (-0.02 c from G3), 293.65 Hz (-0.07 c from D4), 440.04 Hz (+0.15 c from A4)"
+ },
+ {
   "name": "cello: open strings",
   "ok": true,
   "detail": "65.43 Hz (+0.69 c from C2), 97.99 Hz (-0.09 c from G2), 146.86 Hz (+0.33 c from D3), 220.00 Hz (-0.01 c from A3)"
@@ -20,8 +25,8 @@
     "attack": 0.065
    },
    "cello": {
-    "centroid": 669.4226031243174,
-    "above2k": 0.015177363726129699,
+    "centroid": 669.4212845850882,
+    "above2k": 0.015177381519130404,
     "attack": 0.125
    }
   }
@@ -74,30 +79,119 @@
  {
   "name": "horn: attack, breath-opened low-pass, vibrato, hand-stop",
   "ok": true,
-  "detail": "attack (to 90%) 130 ms; brightness (centroid) soft 419 Hz → full breath 547 Hz; vibrato ±6.5 cents; hand-stop -3.7 dB quieter and brighter (630 Hz vs 480 Hz)",
+  "detail": "attack (to 90%) 135 ms; brightness (centroid) soft 419 Hz → full breath 560 Hz; vibrato ±6.7 cents; hand-stop -3.9 dB quieter and brighter (619 Hz vs 486 Hz)",
   "data": {
    "soft": {
-    "centroid": 418.93021314245834,
-    "rms": -18.47576867071878,
+    "centroid": 418.9536985419172,
+    "rms": -18.48036266774339,
     "attack": 0.13
    },
    "loud": {
-    "centroid": 547.4906147036302,
-    "rms": -9.08403189643732,
-    "attack": 0.12
+    "centroid": 559.7178877197475,
+    "rms": -13.7025466526224,
+    "attack": 0.145
    },
    "mid": {
-    "centroid": 479.57733883256066,
-    "rms": -11.817166699526238,
-    "attack": 0.13
+    "centroid": 485.8319266426429,
+    "rms": -15.578546695750672,
+    "attack": 0.135
    },
    "stopped": {
-    "centroid": 630.3249902420889,
-    "rms": -15.561579185272434,
-    "attack": 0.1
+    "centroid": 619.489657846731,
+    "rms": -19.508940634635646,
+    "attack": 0.125
    },
-   "vibrato": 6.540359842328486
+   "vibrato": 6.7001904728707435
   }
+ },
+ {
+  "name": "viola: timbre between violin and cello",
+  "ok": true,
+  "detail": "G3 on each, spectral centroid: violin 2743 Hz, viola 1662 Hz, cello 666 Hz"
+ },
+ {
+  "name": "viola: two-hand bowing",
+  "ok": true,
+  "detail": "246.94 Hz (+0.01 c from B3)"
+ },
+ {
+  "name": "trumpet: valve fingering shown for every note F♯3 to C6",
+  "ok": true,
+  "detail": "31 notes match the standard chart (e.g. D5: 1, C♯5: 1+2, A♭4: 2+3, F♯3: 1+2+3); the ringed valves light up as each note plays"
+ },
+ {
+  "name": "trumpet: holding valves lowers the note (2: one semitone, 1+3: five)",
+  "ok": true,
+  "detail": "open 523.25 Hz (-0.00 c from C5), valve 2 493.88 Hz (-0.00 c from B4), valves 1+3 391.99 Hz (-0.00 c from G4)"
+ },
+ {
+  "name": "trumpet: breath height, mute and growl",
+  "ok": true,
+  "detail": "G4: brightness (centroid) soft 1626 Hz → full breath 2463 Hz; mute -3.9 dB, centroid 2225 → 2140 Hz; growl: level flutter 4.2 → 8.5 dB"
+ },
+ {
+  "name": "organ: no decay while held, chiff, stops, two manuals, cathedral reverb",
+  "ok": true,
+  "detail": "C4 held 3 s: level in the 3rd second vs the 1st 0.00 dB; chiff: the first 30 ms carry 8 dB more energy above 3 kHz than the held pipe; drawing 4′, 2⅔′ and 2′ raises harmonics 2, 3, 4 by 8, 8, 15 dB; upper manual (flutes) centroid 595 Hz vs lower (principals) 844 Hz; cathedral: 2.8 s for the tail to fall 40 dB after the key is let go",
+  "data": {
+   "hold": 0.0035587745256489,
+   "chiff": 8.465368790111235,
+   "one": [
+    -29.125839998351655,
+    -35.15765744355941,
+    -39.57564384901781,
+    -43.97552128541605
+   ],
+   "all": [
+    -29.200039541417574,
+    -27.538874353197848,
+    -31.49603716684323,
+    -29.091471389037533
+   ],
+   "great": 844.0977409150526,
+   "swell": 595.0154734423982,
+   "tail": 2.83
+  }
+ },
+ {
+  "name": "saxophone: soft attack, breath noise, vibrato, growl",
+  "ok": true,
+  "detail": "E♭4: attack (to 90%) 50 ms; breath noise between the harmonics 46 dB below the fundamental (oscillators alone: below -90 dB); vibrato ±15.5 cents; growl: level flutter 6.4 → 11.2 dB"
+ },
+ {
+  "name": "xylophone: short inharmonic decay, glissando swipe",
+  "ok": true,
+  "detail": "C5: falls 40 dB in 0.58 s; untuned mode at 6.27× is 31 dB above where a 6th harmonic would be; a swipe across all 15 bars struck 15 of them, once each"
+ },
+ {
+  "name": "synth: presets and knobs (filter, attack, release)",
+  "ok": true,
+  "detail": "attack to full level: lead 20 ms, pad 740 ms; after 1.5 s held: pluck -29 dB, lead -2.3 dB; centroid lead 1193, pad 722, supersaw 2929 Hz; filter knob 30% → 90%: 539 → 3344 Hz; release knob 100 ms → 2 s: tail falls 40 dB in 0.07 s → 1.06 s"
+ },
+ {
+  "name": "electric bass: open strings, finger / pick / slap, fretted slide",
+  "ok": true,
+  "detail": "open strings 41.20 Hz (+0.01 c from E1), 55.00 Hz (-0.01 c from A1), 73.42 Hz (-0.01 c from D2), 98.00 Hz (-0.02 c from G2); attack brightness (centroid) finger 1236 Hz, pick 2609 Hz, slap 6342 Hz; slide on the A string 61.73 Hz (-0.01 c from B1) → 82.41 Hz (-0.00 c from E2)"
+ },
+ {
+  "name": "rhythm guitar: auto-strum timing, palm mute, muted strum",
+  "ok": true,
+  "detail": "120 BPM, on the beat: 5 strums, 502 / 500 / 500 / 500 ms apart; time to fall 30 dB: open 1.22 s, palm-muted 0.26 s (centroid 3015 → 1018 Hz), muted strum 0.05 s"
+ },
+ {
+  "name": "release: every newer instrument fades out cleanly when the finger lifts",
+  "ok": true,
+  "detail": "time from lifting the finger to 50 dB down, and the largest burst of energy above 7 kHz during the fade compared with the held note: trumpet 60 ms (-0.6 dB); sax 70 ms (+5.3 dB); viola 140 ms (+2.6 dB); organ 90 ms (+5.4 dB); synth 150 ms (+1.1 dB); xylo 130 ms (-10.6 dB); ebass 80 ms (+1.5 dB); rhythm 170 ms (-0.4 dB)"
+ },
+ {
+  "name": "note limit: the newer instruments share the limit",
+  "ok": true,
+  "detail": "organ: 20 notes started, 14 sounding (limit 14); synth: 20 notes started, 14 sounding (limit 14); xylo: 20 notes started, 14 sounding (limit 14)"
+ },
+ {
+  "name": "record and play back: every newer instrument",
+  "ok": true,
+  "detail": "trumpet: 3 events recorded, 1 notes replayed; sax: 3 events recorded, 1 notes replayed; viola: 2 events recorded, 1 notes replayed; organ: 2 events recorded, 1 notes replayed; synth: 2 events recorded, 1 notes replayed; xylo: 12 events recorded, 6 notes replayed; ebass: 3 events recorded, 1 notes replayed; rhythm: 2 events recorded, 1 notes replayed"
  },
  {
   "name": "limiter: chords and stacked notes never clip",
