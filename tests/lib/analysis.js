@@ -171,6 +171,40 @@
     return m;
   }
 
-  root.PBA = { rmsAbove: rmsAbove, tonePower: tonePower, envelope: envelope, mono: mono, db: db, peak: peak, rms: rms, activeRms: activeRms, pitch: pitch, midiOf: midiOf, cents: cents,
+  // In-place radix-2 FFT (re, im of length 2^k)
+  function fft(re, im) {
+    var n = re.length, i, j = 0, k, t;
+    for (i = 1; i < n; i++) { k = n >> 1; while (j & k) { j ^= k; k >>= 1; } j |= k; if (i < j) { t = re[i]; re[i] = re[j]; re[j] = t; t = im[i]; im[i] = im[j]; im[j] = t; } }
+    for (var len = 2; len <= n; len <<= 1) {
+      var ang = -2 * Math.PI / len, wr = Math.cos(ang), wi = Math.sin(ang);
+      for (i = 0; i < n; i += len) {
+        var cr = 1, ci = 0;
+        for (k = 0; k < len / 2; k++) {
+          var a = i + k, b = a + len / 2, xr = re[b] * cr - im[b] * ci, xi = re[b] * ci + im[b] * cr;
+          re[b] = re[a] - xr; im[b] = im[a] - xi; re[a] += xr; im[a] += xi;
+          t = cr * wr - ci * wi; ci = cr * wi + ci * wr; cr = t;
+        }
+      }
+    }
+  }
+  // Onset strength: positive spectral flux (sum of rises in log magnitude) per hop, 1024-point frames.
+  // lo / hi limit the band in Hz. Returns { hop, flux: [...], low: [...] } where low is the energy below `split` Hz.
+  function flux(x, sr, hop, lo, hi, split) {
+    var N = 1024, w = new Float64Array(N), prev = null, out = [], low = [], i;
+    for (i = 0; i < N; i++) w[i] = 0.5 - 0.5 * Math.cos(2 * Math.PI * i / (N - 1));
+    var b0 = Math.max(1, Math.floor(lo * N / sr)), b1 = Math.min(N / 2, Math.ceil(hi * N / sr)), bs = Math.round(split * N / sr);
+    for (var a = 0; a + N <= x.length; a += hop) {
+      var re = new Float64Array(N), im = new Float64Array(N);
+      for (i = 0; i < N; i++) re[i] = x[a + i] * w[i];
+      fft(re, im);
+      var mag = new Float64Array(N / 2), f = 0, le = 0;
+      for (i = 1; i < N / 2; i++) { var p = re[i] * re[i] + im[i] * im[i]; mag[i] = Math.log(p + 1e-12); if (i < bs) le += p; }
+      if (prev) for (i = b0; i < b1; i++) { var d = mag[i] - prev[i]; if (d > 0) f += d; }
+      out.push(f); low.push(10 * Math.log10(le / (N * N) + 1e-20)); prev = mag;
+    }
+    return { hop: hop, flux: out, low: low };
+  }
+
+  root.PBA = { fft: fft, flux: flux, rmsAbove: rmsAbove, tonePower: tonePower, envelope: envelope, mono: mono, db: db, peak: peak, rms: rms, activeRms: activeRms, pitch: pitch, midiOf: midiOf, cents: cents,
                energyAbove: energyAbove, centroid: centroid, maxStep: maxStep };
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pocket Band Self-test</title>
+<meta name="theme-color" content="#ded6c4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#172424" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="icon-192.png" type="image/png">
+<style>
+:root {
+  --bg: #efe9dc; --card: #fffdf7; --ink: #1d2a2a; --muted: #5d6a68; --edge: #bdb5a1; --accent: #1f8a83;
+  --ok: #1f7a4d; --bad: #b3261e; --warn: #9a6a00;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #0f1818; --card: #172424; --ink: #efe9da; --muted: #a6b2ae; --edge: #33413f; --accent: #2fb3a8; --ok: #5ccf94; --bad: #ff8a80; --warn: #f2c14e; }
+}
+:root[data-theme="dark"] { --bg: #0f1818; --card: #172424; --ink: #efe9da; --muted: #a6b2ae; --edge: #33413f; --accent: #2fb3a8; --ok: #5ccf94; --bad: #ff8a80; --warn: #f2c14e; }
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+main { max-width: 860px; margin: 0 auto; padding: 12px 16px 40px; padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); }
+header { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+h1 { font-size: 1.35rem; margin: 0; flex: 1 1 auto; }
+h2 { font-size: 1.1rem; margin: 0 0 4px; }
+p.lead { margin: 0 0 10px; color: var(--muted); }
+section { background: var(--card); border: 1px solid var(--edge); border-radius: 14px; padding: 14px; margin: 12px 0; }
+button, a.btn { font: inherit; font-weight: 600; min-height: 40px; padding: 6px 14px; border-radius: 10px; border: 2px solid var(--edge); background: transparent; color: var(--ink); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+button:disabled { opacity: .5; cursor: default; }
+button[aria-pressed="true"].yes { background: var(--ok); border-color: var(--ok); color: #fff; }
+button[aria-pressed="true"].no { background: var(--bad); border-color: var(--bad); color: #fff; }
+.tablewrap { overflow-x: auto; margin-top: 10px; }
+table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--edge); vertical-align: middle; white-space: nowrap; }
+td.det { white-space: normal; color: var(--muted); }
+.pass { color: var(--ok); font-weight: 700; } .fail { color: var(--bad); font-weight: 700; } .skip { color: var(--muted); }
+.row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.status { margin-top: 8px; color: var(--muted); min-height: 1.4em; }
+ul.check { list-style: none; padding: 0; margin: 8px 0; }
+ul.check li { padding: 6px 0; border-bottom: 1px solid var(--edge); }
+ul.check label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+ul.check input { width: 22px; height: 22px; flex: 0 0 auto; margin: 0; accent-color: var(--accent); }
+ul.check small { display: block; color: var(--muted); }
+textarea { width: 100%; min-height: 70px; font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--edge); border-radius: 10px; padding: 8px; }
+.cat { margin: 12px 0 0; font-weight: 700; }
+iframe.app { position: fixed; left: -10000px; top: 0; width: 900px; height: 420px; border: 0; visibility: hidden; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Self-test</h1>
+    <a class="btn" href="index.html">Back to the app</a>
+  </header>
+  <p class="lead">Three parts: an automatic check of every instrument's tuning and loudness, a sound check you listen to, and a checklist for the things only a person can judge. <span id="ver"></span></p>
+
+  <section aria-labelledby="h-auto">
+    <h2 id="h-auto">1. Automatic check</h2>
+    <p class="lead">Plays one note on each instrument silently (rendered offline, so you won't hear it) and measures it: tuning within 5 cents, peak level at or below -1 dBFS, no clipped samples.</p>
+    <div class="row"><button class="primary" id="runAuto">Run automatic check</button></div>
+    <div class="status" id="autoStatus" aria-live="polite"></div>
+    <div class="tablewrap"><table id="autoTable" hidden>
+      <thead><tr><th>Instrument</th><th>Result</th><th>Note</th><th>Tuning</th><th>Peak</th><th>RMS</th><th>Clipped</th></tr></thead><tbody></tbody>
+    </table></div>
+  </section>
+
+  <section aria-labelledby="h-guided">
+    <h2 id="h-guided">2. Sound check</h2>
+    <p class="lead">Turn the volume up to a normal level. Play the calibration tone first, then each instrument, and answer each one.</p>
+    <div class="tablewrap"><table id="guided"><thead><tr><th>Sound</th><th></th><th>Can you hear this clearly?</th></tr></thead><tbody></tbody></table></div>
+    <div class="status" id="guidedStatus" aria-live="polite"></div>
+  </section>
+
+  <section aria-labelledby="h-manual">
+    <h2 id="h-manual">3. Checklist</h2>
+    <p class="lead">Try each of these in the app and tick what works. Then copy the results and send them on.</p>
+    <div id="manual"></div>
+    <p class="cat"><label for="notes">Notes</label></p>
+    <textarea id="notes" placeholder="Anything that sounded wrong, and on which instrument"></textarea>
+    <div class="row" style="margin-top:10px"><button class="primary" id="copy">Copy results as text</button><span class="status" id="copyStatus" aria-live="polite"></span></div>
+  </section>
+</main>
+
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var SR = 48000;
+  var NAMES = ['C', 'C♯', 'D', 'E♭', 'E', 'F', 'F♯', 'G', 'A♭', 'A', 'B♭', 'B'];
+  var noteName = function (m) { return NAMES[((Math.round(m) % 12) + 12) % 12] + (Math.floor(Math.round(m) / 12) - 1); };
+
+  // One note per instrument, played through the app's own engines. m: the note asked for (null: unknown, so
+  // the check is that it is in tune with some note); pitch: false for drums and the strummed chord.
+  var RECIPES = [
+    { tab: 'piano', name: 'Piano', m: 60, on: function (P) { P.noteOn('st', 60, 0.7, P.state.inst, [0]); }, off: function (P) { P.noteOff('st'); } },
+    { tab: 'drums', name: 'Drums', pitch: false, on: function (P) { P.drum(P.PADS[0].id, 0.7, 'acoustic'); } },
+    { tab: 'guitar', name: 'Guitar', m: function (P) { return P.gtrMidi(2); }, hold: 1.2, fmax: 1000, on: function (P) { P.pluck(2, 0.7, 'st'); }, off: function (P) { P.gtrRelease('st'); } },
+    { tab: 'flute', name: 'Flute', m: null, on: function (P, w) { w.__pbPtr('pointerdown', w.document.getElementById('flute'), 0.3, 0.5, 3); }, off: function (P, w) { w.__pbPtr('pointerup', w.document.getElementById('flute'), 0.3, 0.5, 3); } },
+    { tab: 'tabla2', name: 'Tabla (dual)', pitch: false, on: function (P) { P.tabla('Na', 0.7); } },
+    { tab: 'tabla1', name: 'Tabla (single)', pitch: false, on: function (P) { P.tabla('Tin', 0.7); } },
+    { tab: 'epad', name: 'Electric drum pad', pitch: false, on: function (P) { P.ehit(Object.keys(P.EKITS)[0], 0, 0.7); } },
+    { tab: 'harmonica', name: 'Harmonica', m: function (P) { return P.hmNote(3, false); }, on: function (P) { P.vStart('harmonica', 'st', P.hmNote(3, false), 0.9, {}); }, off: function (P) { P.vStop('st'); } },
+    { tab: 'violin', name: 'Violin', m: 69, on: function (P) { P.vStart('violin', 'st', 69, 0.6, { vib: false }); }, off: function (P) { P.vStop('st'); } },
+    { tab: 'cello', name: 'Cello', m: 50, on: function (P) { P.vStart('cello', 'st', 50, 0.6, { vib: false }); }, off: function (P) { P.vStop('st'); } },
+    { tab: 'horn', name: 'French horn', m: 53, on: function (P) { P.vStart('horn', 'st', 53, 0.7, {}); }, off: function (P) { P.vStop('st'); } },
+    { tab: 'trumpet', name: 'Trumpet', m: 70, on: function (P) { P.vStart('trumpet', 'st', 70, 0.7, {}); }, off: function (P) { P.vStop('st'); } },
+    { tab: 'viola', name: 'Viola', m: 62, on: function (P) { P.vStart('viola', 'st', 62, 0.6, { vib: false }); }, off: function (P) { P.vStop('st'); } },
+    { tab: 'organ', name: 'Pipe organ', m: 60, on: function (P) { P.vStart('organ', 'st', 60, 0.8, { stops: P.org.stops.slice(), up: 0 }); }, off: function (P) { P.vStop('st'); } },
+    { tab: 'sax', name: 'Saxophone', m: 63, on: function (P) { P.vStart('sax', 'st', 63, 0.7, { vib: false }); }, off: function (P) { P.vStop('st'); } },
+    { tab: 'xylo', name: 'Xylophone', m: 72, on: function (P) { P.vStart('xylo', 'st', 72, 0.7, {}); } },
+    { tab: 'synth', name: 'Synth', m: 60, on: function (P) { var k = Object.keys(P.SYN)[0], q = P.SYN[k]; P.vStart('synth', 'st', 60, 0.8, { p: k, cut: q.cut, att: q.att, rel: q.rel, vib: 0 }); }, off: function (P) { P.vStop('st'); } },
+    { tab: 'ebass', name: 'Electric bass', m: 40, hold: 1.2, fmax: 1000, on: function (P) { P.vStart('ebass', 'st', 40, 0.8, { mode: 'finger' }); }, off: function (P) { P.vStop('st'); } },
+    { tab: 'rhythm', name: 'Rhythm guitar', pitch: false, hold: 1.2, on: function (P) { P.rhStrum('st', 1, 0.75, false, 0); }, off: function (P) { P.vStop('st'); } }
+  ];
+
+  // Runs inside the app's frame before its own script: the hooks the app offers its tests, and (offline only) an
+  // OfflineAudioContext in place of the real one, with repeatable random numbers and a render helper
+  var OFFLINE_INIT = [
+    'window.__PB_TEST__ = true; window.__pbSeconds = 3; window.__pbSeed = 1;',
+    '(function () { var Off = window.OfflineAudioContext || window.webkitOfflineAudioContext, s = 1;',
+    '  Math.random = function () { s = (s + 0x6D2B79F5) | 0; var t = Math.imul(s ^ (s >>> 15), 1 | s); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };',
+    '  function Fake() { s = window.__pbSeed | 0; var c = new Off(2, Math.ceil(window.__pbSeconds * ' + SR + '), ' + SR + '); c.resume = function () { return Promise.resolve(); }; window.__pbCtx = c; return c; }',
+    '  window.AudioContext = Fake; window.webkitAudioContext = Fake;',
+    '  var raf = window.requestAnimationFrame.bind(window); window.__pbQ = null;',
+    '  window.requestAnimationFrame = function (f) { if (!window.__pbQ) return raf(f); window.__pbQ.push(f); return -window.__pbQ.length; };',
+    '  window.__pbFrame = function () { var q = window.__pbQ || []; window.__pbQ = []; q.forEach(function (f) { try { f(performance.now()); } catch (e) {} }); };',
+    '  window.__pbRender = function (steps) { var c = window.__pbCtx, q = 128 / ' + SR + ', groups = {}; window.__pbQ = [];',
+    '    steps.forEach(function (st) { var k = Math.round(st[0] / q); (groups[k] = groups[k] || []).push(st[1]); });',
+    '    Object.keys(groups).map(Number).sort(function (a, b) { return a - b; }).forEach(function (k) {',
+    '      if (k === 0) { groups[k].forEach(function (f) { f(); }); window.__pbFrame(); return; }',
+    '      c.suspend(k * q).then(function () { groups[k].forEach(function (f) { try { f(); } catch (e) {} }); window.__pbFrame(); return Off.prototype.resume.call(c); }); });',
+    '    return c.startRendering().then(function (b) { window.__pbQ = null; return b; }); };',
+    '})();'
+  ].join('\n');
+  var PTR_INIT = 'window.__pbPtr = function (type, el, fx, fy, id) { var r = el.getBoundingClientRect(); el.dispatchEvent(new PointerEvent(type, { pointerId: id || 1, clientX: r.left + r.width * fx, clientY: r.top + r.height * fy, bubbles: true, cancelable: true, pointerType: "touch" })); };';
+
+  // The app in a hidden frame. The app remembers the last instrument and the keys you chose; those are put back
+  // afterwards so the self-test leaves your settings as they were.
+  var KEEP = ['pb-tab', 'pb-tonal'];
+  function saveSettings() { var o = {}; try { KEEP.forEach(function (k) { o[k] = localStorage.getItem(k); }); } catch (e) {} return o; }
+  function restoreSettings(o) { try { KEEP.forEach(function (k) { if (o[k] === null || o[k] === undefined) localStorage.removeItem(k); else localStorage.setItem(k, o[k]); }); } catch (e) {} }
+  var appHtml = null;
+  function loadApp(init) {
+    return (appHtml ? Promise.resolve(appHtml) : fetch('index.html', { cache: 'no-cache' }).then(function (r) { return r.text(); }).then(function (t) { return (appHtml = t); }))
+      .then(function (html) {
+        return new Promise(function (resolve, reject) {
+          var f = document.createElement('iframe');
+          f.className = 'app'; f.setAttribute('aria-hidden', 'true'); f.tabIndex = -1;
+          f.srcdoc = html.replace(/<head>/i, '<head><script>' + init + '<\/script>');
+          f.onload = function () { if (f.contentWindow.PocketBandTest) resolve(f); else reject(new Error('the app did not start')); };
+          document.body.appendChild(f);
+        });
+      });
+  }
+
+  // Pitch (YIN with parabolic interpolation), level and clipping of a rendered buffer
+  function mono(buf) { var n = buf.length, out = new Float32Array(n); for (var c = 0; c < buf.numberOfChannels; c++) { var d = buf.getChannelData(c); for (var i = 0; i < n; i++) out[i] += d[i] / buf.numberOfChannels; } return out; }
+  function pitch(x, sr, s, e, fmin, fmax) {
+    var tmin = Math.max(2, Math.floor(sr / fmax)), tmax = Math.ceil(sr / fmin), W = Math.min(4096, e - s - tmax - 1);
+    if (W < 512) return 0;
+    var cm = new Float64Array(tmax + 2), run = 0, tau, best = -1;
+    cm[0] = 1;
+    for (tau = 1; tau <= tmax + 1; tau++) { var d = 0; for (var i = 0; i < W; i++) { var v = x[s + i] - x[s + i + tau]; d += v * v; } run += d; cm[tau] = run > 0 ? d * tau / run : 1; }
+    for (tau = tmin; tau <= tmax; tau++) if (cm[tau] < 0.12) { while (tau + 1 <= tmax && cm[tau + 1] < cm[tau]) tau++; best = tau; break; }
+    if (best < 0) { var mv = Infinity; for (tau = tmin; tau <= tmax; tau++) if (cm[tau] < mv) { mv = cm[tau]; best = tau; } }
+    var T = best, a = cm[best - 1], b = cm[best], c = cm[best + 1], den = a - 2 * b + c;
+    if (den > 0) T = best + 0.5 * (a - c) / den;
+    return sr / T;
+  }
+  var db = function (v) { return v > 0 ? 20 * Math.log10(v) : -200; };
+
+  /* ---------- 1. Automatic ---------- */
+  var autoResults = [];
+  $('runAuto').onclick = function () {
+    var btn = this, tb = $('autoTable').tBodies[0], kept = saveSettings();
+    btn.disabled = true; tb.innerHTML = ''; $('autoTable').hidden = false; autoResults = [];
+    $('autoStatus').textContent = 'Starting…';
+    loadApp(OFFLINE_INIT + '\n' + PTR_INIT).then(function (frame) {
+      var w = frame.contentWindow, P = w.PocketBandTest, i = 0, PRE = 0.3;
+      function next() {
+        if (i >= RECIPES.length) return Promise.resolve();
+        var r = RECIPES[i++];
+        $('autoStatus').textContent = 'Checking ' + r.name + ' (' + i + ' of ' + RECIPES.length + ')…';
+        P.open(r.tab); P.reset();
+        w.__pbSeconds = PRE + 2.2; w.__pbSeed = 1;
+        P.init(); P.setVolume(1);
+        var want = typeof r.m === 'function' ? r.m(P) : r.m;
+        var steps = [[PRE, function () { r.on(P, w); }]];
+        if (r.off) steps.push([PRE + (r.hold || 0.9), function () { r.off(P, w); }]);
+        return w.__pbRender(steps).then(function (buf) {
+          var x = mono(buf), sr = buf.sampleRate, a = Math.round(PRE * sr), peak = 0, clip = 0, sum = 0, n = 0;
+          for (var c = 0; c < buf.numberOfChannels; c++) { var d = buf.getChannelData(c); for (var k = a; k < d.length; k++) { var v = Math.abs(d[k]); if (v > peak) peak = v; if (v >= 0.999) clip++; } }
+          var e0 = a + Math.round((r.pitch === false ? 0 : 0.25) * sr), e1 = a + Math.round((r.pitch === false ? 0.25 : 0.6) * sr); // a hit is measured from its start
+          for (var k2 = e0; k2 < e1; k2++) { sum += x[k2] * x[k2]; n++; }
+          var res = { name: r.name, peak: db(peak), rms: db(Math.sqrt(sum / n)), clip: clip, problems: [] };
+          if (r.pitch !== false) {
+            var f = pitch(x, sr, e0, e1, 30, r.fmax || 2500), m = 69 + 12 * Math.log2(f / 440);
+            res.note = noteName(m);
+            var target = want === null || want === undefined ? Math.round(m) : want;
+            var cents = 100 * (m - target); cents = ((cents + 600) % 1200 + 1200) % 1200 - 600; // an octave is still in tune
+            res.cents = cents;
+            if (!(Math.abs(cents) <= 5)) res.problems.push('out of tune by ' + cents.toFixed(1) + ' cents');
+            if (want !== null && want !== undefined && ((Math.round(m) - want) % 12 + 12) % 12 !== 0) res.problems.push('played ' + noteName(m) + ', expected ' + noteName(want));
+          }
+          if (res.peak > -0.9) res.problems.push('peak above -1 dBFS');
+          if (clip) res.problems.push(clip + ' clipped samples');
+          if (res.rms < -45) res.problems.push('too quiet');
+          res.pass = !res.problems.length;
+          autoResults.push(res);
+          var tr = document.createElement('tr');
+          tr.innerHTML = '<td>' + r.name + '</td><td class="' + (res.pass ? 'pass">Pass' : 'fail">Fail') + '</td><td>' + (res.note || '–') + '</td><td>' +
+            (res.cents === undefined ? '–' : (res.cents >= 0 ? '+' : '') + res.cents.toFixed(1) + ' cents') + '</td><td>' + res.peak.toFixed(1) + ' dBFS</td><td>' +
+            res.rms.toFixed(1) + ' dBFS</td><td>' + res.clip + '</td>';
+          if (!res.pass) { var t2 = document.createElement('tr'); t2.innerHTML = '<td></td><td class="det" colspan="6">' + res.problems.join('; ') + '</td>'; tb.appendChild(tr); tb.appendChild(t2); }
+          else tb.appendChild(tr);
+          return next();
+        });
+      }
+      return next().then(function () {
+        var bad = autoResults.filter(function (r) { return !r.pass; }).length;
+        $('autoStatus').innerHTML = bad ? '<span class="fail">' + bad + ' of ' + autoResults.length + ' instruments failed.</span>' : '<span class="pass">All ' + autoResults.length + ' instruments passed.</span>';
+      }).then(function () { frame.remove(); }, function (e) { frame.remove(); throw e; });
+    }).catch(function (e) {
+      $('autoStatus').innerHTML = '<span class="fail">The check could not run: ' + (e && e.message || e) + '</span>';
+    }).then(function () { restoreSettings(kept); btn.disabled = false; });
+  };
+
+  /* ---------- 2. Guided sound check ---------- */
+  var answers = {}, live = null, liveP = null, liveKept = null, ac = null;
+  var SOUNDS = [{ tab: 'tone', name: 'Calibration tone (A, 440 Hz)' }].concat(RECIPES);
+  SOUNDS.forEach(function (s) {
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<td>' + s.name + '</td><td><button data-play="' + s.tab + '">Play</button></td>' +
+      '<td><div class="row"><button class="yes" data-ans="yes" data-tab="' + s.tab + '" aria-pressed="false">Yes</button><button class="no" data-ans="no" data-tab="' + s.tab + '" aria-pressed="false">No</button></div></td>';
+    $('guided').tBodies[0].appendChild(tr);
+  });
+  function tone() { // 1.5 s at -12 dBFS with smooth fades
+    ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+    ac.resume();
+    var o = ac.createOscillator(), g = ac.createGain(), t = ac.currentTime + 0.05;
+    o.frequency.value = 440; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.25, t + 0.05);
+    g.gain.setValueAtTime(0.25, t + 1.45); g.gain.linearRampToValueAtTime(0, t + 1.5);
+    o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + 1.55);
+  }
+  function liveApp() {
+    if (liveP) return liveP;
+    liveKept = saveSettings();
+    liveP = loadApp('window.__PB_TEST__ = true;\n' + PTR_INIT).then(function (f) { live = f; return f; });
+    return liveP;
+  }
+  $('guided').addEventListener('click', function (e) {
+    var p = e.target.closest('[data-play]'), a = e.target.closest('[data-ans]');
+    if (p) {
+      var tab = p.dataset.play;
+      if (tab === 'tone') { tone(); return; }
+      var r = RECIPES.filter(function (x) { return x.tab === tab; })[0];
+      $('guidedStatus').textContent = '';
+      liveApp().then(function (f) {
+        var w = f.contentWindow, P = w.PocketBandTest;
+        P.open(r.tab); P.init();
+        var c = P.ctx(); if (c && c.resume) c.resume();
+        r.on(P, w);
+        if (r.off) setTimeout(function () { r.off(P, w); }, (r.hold || 0.9) * 1000);
+        restoreSettings(liveKept);
+      }).catch(function (err) { $('guidedStatus').textContent = 'Could not play: ' + (err && err.message || err); });
+    }
+    if (a) {
+      answers[a.dataset.tab] = a.dataset.ans;
+      a.parentNode.querySelectorAll('[data-ans]').forEach(function (b) { b.setAttribute('aria-pressed', b === a); });
+      var n = Object.keys(answers).length, no = Object.keys(answers).filter(function (k) { return answers[k] === 'no'; }).length;
+      $('guidedStatus').textContent = n + ' of ' + SOUNDS.length + ' answered' + (no ? ', ' + no + ' not clear' : '');
+    }
+  });
+
+  /* ---------- 3. Checklist ---------- */
+  var CHECKS = [
+    ['Multi-touch', [
+      ['Piano: a five-finger chord plays all five notes', 'and every note stops when you lift'],
+      ['Drums: two pads hit together both sound', ''],
+      ['Lift every finger at once: nothing keeps sounding', 'try it on violin, horn and organ']
+    ]],
+    ['Strumming', [
+      ['Guitar: swipe down then up, quickly, over and over', 'every swipe is a strum; down sounds fuller, up lighter and brighter'],
+      ['Rhythm guitar: the ▼ Down and ▲ Up pads strum', 'and the pick animation shows the direction'],
+      ['Rhythm guitar: auto-strum keeps time at the set tempo', ''],
+      ['Palm mute makes strums short and dark', '']
+    ]],
+    ['Bowing', [
+      ['Violin: bow across the strings in the Bow area', 'each string sounds as the bow reaches it'],
+      ['Bow between two strings plays both (a double stop)', ''],
+      ['Hold a note on the left while bowing on the right', 'the note changes with your finger']
+    ]],
+    ['Key and scale', [
+      ['Change the key and scale on any instrument', 'the header shows the notes, e.g. "D Major: D E F♯ G A B C♯"'],
+      ['The buttons or marks change to the new notes and sound in that key', ''],
+      ['Piano: Scale lock on, off-scale keys play the nearest scale note', '']
+    ]],
+    ['Sound quality', [
+      ['Trumpet, horn and sax start cleanly, with no crackle or buzz', ''],
+      ['Loud playing does not distort', 'try ten fingers on the organ'],
+      ['Nothing is much louder or quieter than the rest', '']
+    ]]
+  ];
+  var manual = $('manual'), boxes = [];
+  CHECKS.forEach(function (g) {
+    var h = document.createElement('p'); h.className = 'cat'; h.textContent = g[0]; manual.appendChild(h);
+    var ul = document.createElement('ul'); ul.className = 'check';
+    g[1].forEach(function (c, i) {
+      var li = document.createElement('li'), id = 'c' + boxes.length;
+      li.innerHTML = '<label for="' + id + '"><input type="checkbox" id="' + id + '"><span>' + c[0] + (c[1] ? '<small>' + c[1] + '</small>' : '') + '</span></label>';
+      ul.appendChild(li); boxes.push({ el: li.querySelector('input'), text: g[0] + ': ' + c[0] });
+    });
+    manual.appendChild(ul);
+  });
+
+  function report() {
+    var L = ['Pocket Band self-test, ' + new Date().toLocaleString() + ($('ver').textContent ? ' (' + $('ver').textContent + ')' : ''), navigator.userAgent, ''];
+    L.push('1. Automatic check');
+    if (!autoResults.length) L.push('  not run');
+    autoResults.forEach(function (r) {
+      L.push('  ' + (r.pass ? 'PASS' : 'FAIL') + '  ' + r.name + ': ' + (r.note ? r.note + ' ' + (r.cents >= 0 ? '+' : '') + r.cents.toFixed(1) + ' cents, ' : '') +
+        'peak ' + r.peak.toFixed(1) + ' dBFS, RMS ' + r.rms.toFixed(1) + ' dBFS, ' + r.clip + ' clipped' + (r.pass ? '' : ' (' + r.problems.join('; ') + ')'));
+    });
+    L.push('', '2. Sound check');
+    SOUNDS.forEach(function (s) { L.push('  ' + (answers[s.tab] === 'yes' ? 'YES ' : answers[s.tab] === 'no' ? 'NO  ' : '--  ') + s.name); });
+    L.push('', '3. Checklist');
+    boxes.forEach(function (b) { L.push('  [' + (b.el.checked ? 'x' : ' ') + '] ' + b.text); });
+    if ($('notes').value.trim()) L.push('', 'Notes:', $('notes').value.trim());
+    return L.join('\n');
+  }
+  $('copy').onclick = function () {
+    var text = report(), done = function (ok) { $('copyStatus').textContent = ok ? 'Copied.' : 'Select the text below and copy it.'; };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function () { done(true); }, fallback);
+    else fallback();
+    function fallback() {
+      var t = document.createElement('textarea'); t.value = text; t.setAttribute('readonly', ''); t.style.minHeight = '200px';
+      $('copy').parentNode.after(t); t.select();
+      var ok = false; try { ok = document.execCommand('copy'); } catch (e) {}
+      done(ok);
+    }
+  };
+  window.__selftest = { report: report, results: function () { return autoResults; } };
+
+  // The app's version, from the same file the service worker caches
+  fetch('sw.js', { cache: 'no-cache' }).then(function (r) { return r.text(); }).then(function (t) { var m = t.match(/pocket-band-v(\d+)/); if (m) $('ver').textContent = 'App v' + m[1] + '.'; }).catch(function () {});
+})();
+</script>
+</body>
+</html>

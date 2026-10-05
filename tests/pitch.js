@@ -116,7 +116,13 @@ function expected(tab, key, scale) {
     case 'harmonica': {
       const root = 55 + R.pc(key - 55);                           // harps run from G3 to F#4
       const out = [];
-      for (let i = 0; i < 5; i++) out.push(root + R.seventh(scale, R.HARP_BLOW[i]), root + R.seventh(scale, R.HARP_DRAW[i]));
+      // Richter layout for seven-note scales; chromatic: neighbouring semitones; pentatonic and blues climb the
+      // scale about a step and a half per hole
+      const s = R.SCALES[scale];
+      const note = (i, draw) => scale === 'chromatic' ? root + 2 * i + (draw ? 1 : 0)
+        : s.length < 7 ? (() => { const k = Math.round(i * 1.5) + (draw ? 1 : 0); return root + 12 * Math.floor(k / s.length) + s[k % s.length]; })()
+        : root + R.seventh(scale, draw ? R.HARP_DRAW[i] : R.HARP_BLOW[i]);
+      for (let i = 0; i < 5; i++) out.push(note(i, false), note(i, true));
       return out;
     }
     case 'violin': case 'cello': case 'viola': {

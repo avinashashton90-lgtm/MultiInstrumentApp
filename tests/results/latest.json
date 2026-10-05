@@ -1,0 +1,1580 @@
+{
+ "when": "2026-10-05 07:15 UTC",
+ "version": "6",
+ "quick": false,
+ "results": [
+  {
+   "check": "load",
+   "tab": "-",
+   "pass": true,
+   "detail": "opens on the gallery, 19 cards, no console errors, no failed requests, (web font not reachable here; the system font is used)",
+   "metrics": {},
+   "title": "Load, console, gallery and Home"
+  },
+  {
+   "check": "load",
+   "tab": "piano",
+   "pass": true,
+   "detail": "swiped to, opened from the gallery, Home returned",
+   "metrics": {},
+   "title": "Load, console, gallery and Home"
+  },
+  {
+   "check": "load",
+   "tab": "drums",
+   "pass": true,
+   "detail": "swiped to, opened from the gallery, Home returned",
+   "metrics": {},
+   "title": "Load, console, gallery and Home"
+  },
+  {
+   "check": "load",
+   "tab": "guitar",
+   "pass": true,
+   "detail": "swiped to, opened from the gallery, Home returned",
+   "metrics": {},
+   "title": "Load, console, gallery and Home"
+  },
+  {
+   "check": "load",
+   "tab": "flute",
+   "pass": true,
+   "detail": "swiped to, opened from the gallery, Home returned",
+   "metrics": {},
+   "title": "Load, console, gallery and Home"
+  },
+  {
+   "check": "load",
+   "tab": "tabla2",
+   "pass": true,
+   "detail": "swiped to, opened from the gallery, Home returned",
+   "metrics": {},
+   "title": "Load, console, gallery and Home"
+  },
+  {
+   "check": "load",
+   "tab": "tabla1",
+   "pass": true,
+   "detail": "swiped to, opened from the gallery, Home returned",
+   "metrics": {},
+   "title": "Load, console, gallery and Home"
+  },
+  {
+   "check": "load",
+   "tab": "epad",
+   "pass": true,
+   "detail": "swiped to, opened from the gallery, Home returned",
+   "metrics": {},
+   "title": "Load, console, gallery and Home"
+  },
+  {
+   "check": "load",
+   "tab": "harmonica",
+   "pass": true,
+   "detail": "swiped to, opened from the gallery, Home returned",
+   "metrics": {},
+   "title": "Load, console, gallery and Home"
+  },
+  {
+   "check": "load",
+   "tab": "violin",
+   "pass": true,
+   "detail": "swiped to, opened from the gallery, Home returned",
+   "metrics": {},
+   "title": "Load, console, gallery and Home"
+  },
+  {
+   "check": "load",
+   "tab": "cello",
+   "pass": true,
+   "detail": "swiped to, opened from the gallery, Home returned",
+   "metrics": {},
+   "title": "Load, console, gallery and Home"
+  },
+  {
+   "check": "load",
+   "tab": "horn",
+   "pass": true,
+   "detail": "swiped to, opened from the gallery, Home returned",
+   "metrics": {},
+   "title": "Load, console, gallery and Home"
+  },
+  {
+   "check": "load",
+   "tab": "trumpet",
+   "pass": true,
+   "detail": "swiped to, opened from the gallery, Home returned",
+   "metrics": {},
+   "title": "Load, console, gallery and Home"
+  },
+  {
+   "check": "load",
+   "tab": "viola",
+   "pass": true,
+   "detail": "swiped to, opened from the gallery, Home returned",
+   "metrics": {},
+   "title": "Load, console, gallery and Home"
+  },
+  {
+   "check": "load",
+   "tab": "organ",
+   "pass": true,
+   "detail": "swiped to, opened from the gallery, Home returned",
+   "metrics": {},
+   "title": "Load, console, gallery and Home"
+  },
+  {
+   "check": "load",
+   "tab": "sax",
+   "pass": true,
+   "detail": "swiped to, opened from the gallery, Home returned",
+   "metrics": {},
+   "title": "Load, console, gallery and Home"
+  },
+  {
+   "check": "load",
+   "tab": "xylo",
+   "pass": true,
+   "detail": "swiped to, opened from the gallery, Home returned",
+   "metrics": {},
+   "title": "Load, console, gallery and Home"
+  },
+  {
+   "check": "load",
+   "tab": "synth",
+   "pass": true,
+   "detail": "swiped to, opened from the gallery, Home returned",
+   "metrics": {},
+   "title": "Load, console, gallery and Home"
+  },
+  {
+   "check": "load",
+   "tab": "ebass",
+   "pass": true,
+   "detail": "swiped to, opened from the gallery, Home returned",
+   "metrics": {},
+   "title": "Load, console, gallery and Home"
+  },
+  {
+   "check": "load",
+   "tab": "rhythm",
+   "pass": true,
+   "detail": "swiped to, opened from the gallery, Home returned",
+   "metrics": {},
+   "title": "Load, console, gallery and Home"
+  },
+  {
+   "check": "load",
+   "tab": "selftest",
+   "pass": true,
+   "detail": "Self-test page: automatic check 19/19 passed, sound check plays, report copies as text",
+   "metrics": {},
+   "title": "Load, console, gallery and Home"
+  },
+  {
+   "check": "pitch",
+   "tab": "piano",
+   "pass": true,
+   "detail": "120 key/scale cases, 1560 notes, worst 2.4 cents, every case distinct (5 played twice after a glitch)",
+   "metrics": {
+    "cases": 120,
+    "failed": 0,
+    "notes": 1560,
+    "worstCents": 2.38,
+    "clashes": 0,
+    "retried": 5
+   },
+   "title": "Pitch: 12 keys x every scale through the real controls"
+  },
+  {
+   "check": "pitch",
+   "tab": "guitar",
+   "pass": true,
+   "detail": "120 key/scale cases, 630 notes, worst 1.1 cents, every case distinct",
+   "metrics": {
+    "cases": 120,
+    "failed": 0,
+    "notes": 630,
+    "worstCents": 1.08,
+    "clashes": 0,
+    "retried": 0
+   },
+   "title": "Pitch: 12 keys x every scale through the real controls"
+  },
+  {
+   "check": "pitch",
+   "tab": "flute",
+   "pass": true,
+   "detail": "120 key/scale cases, 960 notes, worst 3.7 cents, every case distinct",
+   "metrics": {
+    "cases": 120,
+    "failed": 0,
+    "notes": 960,
+    "worstCents": 3.69,
+    "clashes": 0,
+    "retried": 0
+   },
+   "title": "Pitch: 12 keys x every scale through the real controls"
+  },
+  {
+   "check": "pitch",
+   "tab": "harmonica",
+   "pass": true,
+   "detail": "120 key/scale cases, 1440 notes, worst 1.8 cents, every case distinct",
+   "metrics": {
+    "cases": 120,
+    "failed": 0,
+    "notes": 1440,
+    "worstCents": 1.8,
+    "clashes": 0,
+    "retried": 0
+   },
+   "title": "Pitch: 12 keys x every scale through the real controls"
+  },
+  {
+   "check": "pitch",
+   "tab": "violin",
+   "pass": true,
+   "detail": "120 key/scale cases, 980 notes, worst 0.9 cents, every case distinct",
+   "metrics": {
+    "cases": 120,
+    "failed": 0,
+    "notes": 980,
+    "worstCents": 0.95,
+    "clashes": 0,
+    "retried": 0
+   },
+   "title": "Pitch: 12 keys x every scale through the real controls"
+  },
+  {
+   "check": "pitch",
+   "tab": "cello",
+   "pass": true,
+   "detail": "120 key/scale cases, 980 notes, worst 3.6 cents, every case distinct",
+   "metrics": {
+    "cases": 120,
+    "failed": 0,
+    "notes": 980,
+    "worstCents": 3.59,
+    "clashes": 0,
+    "retried": 0
+   },
+   "title": "Pitch: 12 keys x every scale through the real controls"
+  },
+  {
+   "check": "pitch",
+   "tab": "horn",
+   "pass": true,
+   "detail": "120 key/scale cases, 960 notes, worst 1.3 cents, every case distinct",
+   "metrics": {
+    "cases": 120,
+    "failed": 0,
+    "notes": 960,
+    "worstCents": 1.31,
+    "clashes": 0,
+    "retried": 0
+   },
+   "title": "Pitch: 12 keys x every scale through the real controls"
+  },
+  {
+   "check": "pitch",
+   "tab": "trumpet",
+   "pass": true,
+   "detail": "120 key/scale cases, 960 notes, worst 3.1 cents, every case distinct",
+   "metrics": {
+    "cases": 120,
+    "failed": 0,
+    "notes": 960,
+    "worstCents": 3.08,
+    "clashes": 0,
+    "retried": 0
+   },
+   "title": "Pitch: 12 keys x every scale through the real controls"
+  },
+  {
+   "check": "pitch",
+   "tab": "viola",
+   "pass": true,
+   "detail": "120 key/scale cases, 980 notes, worst 3.9 cents, every case distinct",
+   "metrics": {
+    "cases": 120,
+    "failed": 0,
+    "notes": 980,
+    "worstCents": 3.91,
+    "clashes": 0,
+    "retried": 0
+   },
+   "title": "Pitch: 12 keys x every scale through the real controls"
+  },
+  {
+   "check": "pitch",
+   "tab": "organ",
+   "pass": true,
+   "detail": "120 key/scale cases, 1560 notes, worst 1.1 cents, every case distinct",
+   "metrics": {
+    "cases": 120,
+    "failed": 0,
+    "notes": 1560,
+    "worstCents": 1.15,
+    "clashes": 0,
+    "retried": 0
+   },
+   "title": "Pitch: 12 keys x every scale through the real controls"
+  },
+  {
+   "check": "pitch",
+   "tab": "sax",
+   "pass": true,
+   "detail": "120 key/scale cases, 960 notes, worst 2.7 cents, every case distinct (1 played twice after a glitch)",
+   "metrics": {
+    "cases": 120,
+    "failed": 0,
+    "notes": 960,
+    "worstCents": 2.73,
+    "clashes": 0,
+    "retried": 1
+   },
+   "title": "Pitch: 12 keys x every scale through the real controls"
+  },
+  {
+   "check": "pitch",
+   "tab": "xylo",
+   "pass": true,
+   "detail": "120 key/scale cases, 960 notes, worst 1.1 cents, every case distinct",
+   "metrics": {
+    "cases": 120,
+    "failed": 0,
+    "notes": 960,
+    "worstCents": 1.1,
+    "clashes": 0,
+    "retried": 0
+   },
+   "title": "Pitch: 12 keys x every scale through the real controls"
+  },
+  {
+   "check": "pitch",
+   "tab": "synth",
+   "pass": true,
+   "detail": "120 key/scale cases, 1560 notes, worst 3.2 cents, every case distinct",
+   "metrics": {
+    "cases": 120,
+    "failed": 0,
+    "notes": 1560,
+    "worstCents": 3.18,
+    "clashes": 0,
+    "retried": 0
+   },
+   "title": "Pitch: 12 keys x every scale through the real controls"
+  },
+  {
+   "check": "pitch",
+   "tab": "ebass",
+   "pass": true,
+   "detail": "120 key/scale cases, 910 notes, worst 0.7 cents, every case distinct",
+   "metrics": {
+    "cases": 120,
+    "failed": 0,
+    "notes": 910,
+    "worstCents": 0.71,
+    "clashes": 0,
+    "retried": 0
+   },
+   "title": "Pitch: 12 keys x every scale through the real controls"
+  },
+  {
+   "check": "pitch",
+   "tab": "rhythm",
+   "pass": true,
+   "detail": "120 key/scale cases, every strum played the key's chord, every case distinct",
+   "metrics": {
+    "cases": 120,
+    "failed": 0,
+    "notes": 120,
+    "worstCents": 0,
+    "clashes": 0,
+    "retried": 0
+   },
+   "title": "Pitch: 12 keys x every scale through the real controls"
+  },
+  {
+   "check": "loudness",
+   "tab": "guitar",
+   "pass": true,
+   "detail": "peak -1.1 dBFS, RMS -18.5 dBFS, 0 clipped",
+   "metrics": {
+    "peak": -1.1,
+    "rms": -18.46,
+    "clip": 0,
+    "notes": [
+     -17.8,
+     -17.9,
+     -20.1
+    ]
+   },
+   "title": "Loudness and clipping"
+  },
+  {
+   "check": "loudness",
+   "tab": "piano",
+   "pass": true,
+   "detail": "peak -1.1 dBFS, RMS -11.1 dBFS, 0 clipped",
+   "metrics": {
+    "peak": -1.1,
+    "rms": -11.05,
+    "clip": 0,
+    "notes": [
+     -10.3,
+     -13.2,
+     -10.3
+    ]
+   },
+   "title": "Loudness and clipping"
+  },
+  {
+   "check": "loudness",
+   "tab": "drums",
+   "pass": true,
+   "detail": "peak -1.3 dBFS, RMS -15.0 dBFS, 0 clipped",
+   "metrics": {
+    "peak": -1.35,
+    "rms": -15.03,
+    "clip": 0,
+    "notes": [
+     -15,
+     -13.4,
+     -17.7
+    ]
+   },
+   "title": "Loudness and clipping"
+  },
+  {
+   "check": "loudness",
+   "tab": "tabla2",
+   "pass": true,
+   "detail": "peak -1.3 dBFS, RMS -13.9 dBFS, 0 clipped",
+   "metrics": {
+    "peak": -1.29,
+    "rms": -13.89,
+    "clip": 0,
+    "notes": [
+     -12.3,
+     -16.5,
+     -13.9
+    ]
+   },
+   "title": "Loudness and clipping"
+  },
+  {
+   "check": "loudness",
+   "tab": "tabla1",
+   "pass": true,
+   "detail": "peak -1.8 dBFS, RMS -15.1 dBFS, 0 clipped",
+   "metrics": {
+    "peak": -1.85,
+    "rms": -15.05,
+    "clip": 0,
+    "notes": [
+     -12.7,
+     -14,
+     -66.9
+    ]
+   },
+   "title": "Loudness and clipping"
+  },
+  {
+   "check": "loudness",
+   "tab": "flute",
+   "pass": true,
+   "detail": "peak -2.9 dBFS, RMS -7.0 dBFS, 0 clipped",
+   "metrics": {
+    "peak": -2.93,
+    "rms": -6.96,
+    "clip": 0,
+    "notes": [
+     -6.9,
+     -7.2,
+     -6.9
+    ]
+   },
+   "title": "Loudness and clipping"
+  },
+  {
+   "check": "loudness",
+   "tab": "epad",
+   "pass": true,
+   "detail": "peak -1.0 dBFS, RMS -13.6 dBFS, 0 clipped",
+   "metrics": {
+    "peak": -1.05,
+    "rms": -13.56,
+    "clip": 0,
+    "notes": [
+     -13.3,
+     -12.9,
+     -14.7
+    ]
+   },
+   "title": "Loudness and clipping"
+  },
+  {
+   "check": "loudness",
+   "tab": "violin",
+   "pass": true,
+   "detail": "peak -12.5 dBFS, RMS -27.8 dBFS, 0 clipped",
+   "metrics": {
+    "peak": -12.51,
+    "rms": -27.76,
+    "clip": 0,
+    "notes": [
+     -28.2,
+     -27.2,
+     -27.9
+    ]
+   },
+   "title": "Loudness and clipping"
+  },
+  {
+   "check": "loudness",
+   "tab": "harmonica",
+   "pass": true,
+   "detail": "peak -2.9 dBFS, RMS -13.7 dBFS, 0 clipped",
+   "metrics": {
+    "peak": -2.87,
+    "rms": -13.7,
+    "clip": 0,
+    "notes": [
+     -16.2,
+     -14,
+     -11.9
+    ]
+   },
+   "title": "Loudness and clipping"
+  },
+  {
+   "check": "loudness",
+   "tab": "cello",
+   "pass": true,
+   "detail": "peak -12.7 dBFS, RMS -23.9 dBFS, 0 clipped",
+   "metrics": {
+    "peak": -12.74,
+    "rms": -23.89,
+    "clip": 0,
+    "notes": [
+     -23.6,
+     -24.9,
+     -23.3
+    ]
+   },
+   "title": "Loudness and clipping"
+  },
+  {
+   "check": "loudness",
+   "tab": "horn",
+   "pass": true,
+   "detail": "peak -8.5 dBFS, RMS -16.4 dBFS, 0 clipped",
+   "metrics": {
+    "peak": -8.48,
+    "rms": -16.45,
+    "clip": 0,
+    "notes": [
+     -17.6,
+     -14.4,
+     -18.4
+    ]
+   },
+   "title": "Loudness and clipping"
+  },
+  {
+   "check": "loudness",
+   "tab": "trumpet",
+   "pass": true,
+   "detail": "peak -7.9 dBFS, RMS -17.2 dBFS, 0 clipped",
+   "metrics": {
+    "peak": -7.89,
+    "rms": -17.18,
+    "clip": 0,
+    "notes": [
+     -17.6,
+     -17.3,
+     -16.7
+    ]
+   },
+   "title": "Loudness and clipping"
+  },
+  {
+   "check": "loudness",
+   "tab": "viola",
+   "pass": true,
+   "detail": "peak -13.5 dBFS, RMS -25.4 dBFS, 0 clipped",
+   "metrics": {
+    "peak": -13.51,
+    "rms": -25.42,
+    "clip": 0,
+    "notes": [
+     -26.8,
+     -23.8,
+     -26.3
+    ]
+   },
+   "title": "Loudness and clipping"
+  },
+  {
+   "check": "loudness",
+   "tab": "sax",
+   "pass": true,
+   "detail": "peak -9.3 dBFS, RMS -18.0 dBFS, 0 clipped",
+   "metrics": {
+    "peak": -9.35,
+    "rms": -17.97,
+    "clip": 0,
+    "notes": [
+     -17.7,
+     -21.6,
+     -16.2
+    ]
+   },
+   "title": "Loudness and clipping"
+  },
+  {
+   "check": "loudness",
+   "tab": "organ",
+   "pass": true,
+   "detail": "peak -7.9 dBFS, RMS -15.7 dBFS, 0 clipped",
+   "metrics": {
+    "peak": -7.87,
+    "rms": -15.72,
+    "clip": 0,
+    "notes": [
+     -16.1,
+     -16.4,
+     -14.9
+    ]
+   },
+   "title": "Loudness and clipping"
+  },
+  {
+   "check": "loudness",
+   "tab": "xylo",
+   "pass": true,
+   "detail": "peak -1.5 dBFS, RMS -11.0 dBFS, 0 clipped",
+   "metrics": {
+    "peak": -1.53,
+    "rms": -11.04,
+    "clip": 0,
+    "notes": [
+     -11.2,
+     -10.6,
+     -11.3
+    ]
+   },
+   "title": "Loudness and clipping"
+  },
+  {
+   "check": "loudness",
+   "tab": "synth",
+   "pass": true,
+   "detail": "peak -2.2 dBFS, RMS -12.1 dBFS, 0 clipped",
+   "metrics": {
+    "peak": -2.2,
+    "rms": -12.13,
+    "clip": 0,
+    "notes": [
+     -12.6,
+     -11.4,
+     -12.6
+    ]
+   },
+   "title": "Loudness and clipping"
+  },
+  {
+   "check": "loudness",
+   "tab": "ebass",
+   "pass": true,
+   "detail": "peak -2.6 dBFS, RMS -18.6 dBFS, 0 clipped",
+   "metrics": {
+    "peak": -2.59,
+    "rms": -18.6,
+    "clip": 0,
+    "notes": [
+     -17.7,
+     -19,
+     -19.3
+    ]
+   },
+   "title": "Loudness and clipping"
+  },
+  {
+   "check": "loudness",
+   "tab": "rhythm",
+   "pass": true,
+   "detail": "peak -1.3 dBFS, RMS -17.3 dBFS, 0 clipped",
+   "metrics": {
+    "peak": -1.28,
+    "rms": -17.25,
+    "clip": 0,
+    "notes": [
+     -17.3,
+     -16.9,
+     -17.6
+    ]
+   },
+   "title": "Loudness and clipping"
+  },
+  {
+   "check": "stuck",
+   "tab": "guitar",
+   "pass": true,
+   "detail": "silent within 1 s after lift (silence), cancel (silence), background (silence), no fingers (silence)",
+   "metrics": {
+    "lift": -200,
+    "cancel": -200,
+    "background": -200,
+    "no fingers": -200
+   },
+   "title": "Stuck notes: lift, cancel, tab switch, no fingers"
+  },
+  {
+   "check": "stuck",
+   "tab": "flute",
+   "pass": true,
+   "detail": "silent within 1 s after lift (silence), cancel (silence), background (silence), no fingers (silence)",
+   "metrics": {
+    "lift": -200,
+    "cancel": -200,
+    "background": -200,
+    "no fingers": -200
+   },
+   "title": "Stuck notes: lift, cancel, tab switch, no fingers"
+  },
+  {
+   "check": "stuck",
+   "tab": "piano",
+   "pass": true,
+   "detail": "silent within 1 s after lift (silence), cancel (silence), background (silence), no fingers (silence)",
+   "metrics": {
+    "lift": -200,
+    "cancel": -200,
+    "background": -200,
+    "no fingers": -200
+   },
+   "title": "Stuck notes: lift, cancel, tab switch, no fingers"
+  },
+  {
+   "check": "stuck",
+   "tab": "violin",
+   "pass": true,
+   "detail": "silent within 1 s after lift (silence), cancel (silence), background (silence), no fingers (silence)",
+   "metrics": {
+    "lift": -200,
+    "cancel": -200,
+    "background": -200,
+    "no fingers": -200
+   },
+   "title": "Stuck notes: lift, cancel, tab switch, no fingers"
+  },
+  {
+   "check": "stuck",
+   "tab": "cello",
+   "pass": true,
+   "detail": "silent within 1 s after lift (silence), cancel (silence), background (silence), no fingers (silence)",
+   "metrics": {
+    "lift": -200,
+    "cancel": -200,
+    "background": -200,
+    "no fingers": -200
+   },
+   "title": "Stuck notes: lift, cancel, tab switch, no fingers"
+  },
+  {
+   "check": "stuck",
+   "tab": "harmonica",
+   "pass": true,
+   "detail": "silent within 1 s after lift (silence), cancel (silence), background (silence), no fingers (silence)",
+   "metrics": {
+    "lift": -200,
+    "cancel": -200,
+    "background": -200,
+    "no fingers": -200
+   },
+   "title": "Stuck notes: lift, cancel, tab switch, no fingers"
+  },
+  {
+   "check": "stuck",
+   "tab": "horn",
+   "pass": true,
+   "detail": "silent within 1 s after lift (silence), cancel (silence), background (silence), no fingers (silence)",
+   "metrics": {
+    "lift": -200,
+    "cancel": -200,
+    "background": -200,
+    "no fingers": -200
+   },
+   "title": "Stuck notes: lift, cancel, tab switch, no fingers"
+  },
+  {
+   "check": "stuck",
+   "tab": "trumpet",
+   "pass": true,
+   "detail": "silent within 1 s after lift (silence), cancel (silence), background (silence), no fingers (silence)",
+   "metrics": {
+    "lift": -200,
+    "cancel": -200,
+    "background": -200,
+    "no fingers": -200
+   },
+   "title": "Stuck notes: lift, cancel, tab switch, no fingers"
+  },
+  {
+   "check": "stuck",
+   "tab": "viola",
+   "pass": true,
+   "detail": "silent within 1 s after lift (silence), cancel (silence), background (silence), no fingers (silence)",
+   "metrics": {
+    "lift": -200,
+    "cancel": -200,
+    "background": -200,
+    "no fingers": -200
+   },
+   "title": "Stuck notes: lift, cancel, tab switch, no fingers"
+  },
+  {
+   "check": "stuck",
+   "tab": "sax",
+   "pass": true,
+   "detail": "silent within 1 s after lift (silence), cancel (silence), background (silence), no fingers (silence)",
+   "metrics": {
+    "lift": -200,
+    "cancel": -200,
+    "background": -200,
+    "no fingers": -200
+   },
+   "title": "Stuck notes: lift, cancel, tab switch, no fingers"
+  },
+  {
+   "check": "stuck",
+   "tab": "organ",
+   "pass": true,
+   "detail": "silent within 1 s after lift (silence), cancel (silence), background (silence), no fingers (silence)",
+   "metrics": {
+    "lift": -200,
+    "cancel": -200,
+    "background": -200,
+    "no fingers": -200
+   },
+   "title": "Stuck notes: lift, cancel, tab switch, no fingers"
+  },
+  {
+   "check": "stuck",
+   "tab": "xylo",
+   "pass": true,
+   "detail": "silent within 1 s after lift (silence), cancel (silence), background (silence), no fingers (silence)",
+   "metrics": {
+    "lift": -200,
+    "cancel": -200,
+    "background": -200,
+    "no fingers": -200
+   },
+   "title": "Stuck notes: lift, cancel, tab switch, no fingers"
+  },
+  {
+   "check": "stuck",
+   "tab": "synth",
+   "pass": true,
+   "detail": "silent within 1 s after lift (silence), cancel (silence), background (silence), no fingers (silence)",
+   "metrics": {
+    "lift": -200,
+    "cancel": -200,
+    "background": -200,
+    "no fingers": -200
+   },
+   "title": "Stuck notes: lift, cancel, tab switch, no fingers"
+  },
+  {
+   "check": "stuck",
+   "tab": "rhythm",
+   "pass": true,
+   "detail": "silent within 1 s after lift (silence), cancel (silence), background (silence), no fingers (silence)",
+   "metrics": {
+    "lift": -200,
+    "cancel": -200,
+    "background": -200,
+    "no fingers": -200
+   },
+   "title": "Stuck notes: lift, cancel, tab switch, no fingers"
+  },
+  {
+   "check": "stuck",
+   "tab": "ebass",
+   "pass": true,
+   "detail": "silent within 1 s after lift (silence), cancel (silence), background (silence), no fingers (silence)",
+   "metrics": {
+    "lift": -200,
+    "cancel": -200,
+    "background": -200,
+    "no fingers": -200
+   },
+   "title": "Stuck notes: lift, cancel, tab switch, no fingers"
+  },
+  {
+   "check": "polyphony",
+   "tab": "guitar",
+   "pass": true,
+   "detail": "5 fingers: 5 voices, 40 fingers: at most 6 of 14, peak -1.0 dBFS, 0 clipped, after lifting: 0 voices",
+   "metrics": {
+    "five": 5,
+    "forty": 6,
+    "limit": 14,
+    "left": 0
+   },
+   "title": "Note limit and multi-touch (5 and 40 fingers)"
+  },
+  {
+   "check": "polyphony",
+   "tab": "drums",
+   "pass": true,
+   "detail": "5 fingers: 3 voices, 40 fingers: at most 14 of 14, peak -1.0 dBFS, 0 clipped, after lifting: 0 voices",
+   "metrics": {
+    "five": 3,
+    "forty": 14,
+    "limit": 14,
+    "left": 0
+   },
+   "title": "Note limit and multi-touch (5 and 40 fingers)"
+  },
+  {
+   "check": "polyphony",
+   "tab": "piano",
+   "pass": true,
+   "detail": "5 fingers: 5 voices, 40 fingers: at most 14 of 14, peak -1.0 dBFS, 0 clipped, after lifting: 0 voices",
+   "metrics": {
+    "five": 5,
+    "forty": 14,
+    "limit": 14,
+    "left": 0
+   },
+   "title": "Note limit and multi-touch (5 and 40 fingers)"
+  },
+  {
+   "check": "polyphony",
+   "tab": "flute",
+   "pass": true,
+   "detail": "5 fingers: 1 voices, 40 fingers: at most 1 of 14, peak -1.2 dBFS, 0 clipped, after lifting: 0 voices",
+   "metrics": {
+    "five": 1,
+    "forty": 1,
+    "limit": 14,
+    "left": 0
+   },
+   "title": "Note limit and multi-touch (5 and 40 fingers)"
+  },
+  {
+   "check": "polyphony",
+   "tab": "tabla1",
+   "pass": true,
+   "detail": "5 fingers: 1 voices, 40 fingers: at most 1 of 14, peak -1.0 dBFS, 0 clipped, after lifting: 0 voices",
+   "metrics": {
+    "five": 1,
+    "forty": 1,
+    "limit": 14,
+    "left": 0
+   },
+   "title": "Note limit and multi-touch (5 and 40 fingers)"
+  },
+  {
+   "check": "polyphony",
+   "tab": "tabla2",
+   "pass": true,
+   "detail": "5 fingers: 2 voices, 40 fingers: at most 2 of 14, peak -1.0 dBFS, 0 clipped, after lifting: 0 voices",
+   "metrics": {
+    "five": 2,
+    "forty": 2,
+    "limit": 14,
+    "left": 0
+   },
+   "title": "Note limit and multi-touch (5 and 40 fingers)"
+  },
+  {
+   "check": "polyphony",
+   "tab": "epad",
+   "pass": true,
+   "detail": "5 fingers: 2 voices, 40 fingers: at most 14 of 14, peak -1.0 dBFS, 0 clipped, after lifting: 0 voices",
+   "metrics": {
+    "five": 2,
+    "forty": 14,
+    "limit": 14,
+    "left": 0
+   },
+   "title": "Note limit and multi-touch (5 and 40 fingers)"
+  },
+  {
+   "check": "polyphony",
+   "tab": "harmonica",
+   "pass": true,
+   "detail": "5 fingers: 5 voices, 40 fingers: at most 14 of 14, peak -1.0 dBFS, 0 clipped, after lifting: 0 voices",
+   "metrics": {
+    "five": 5,
+    "forty": 14,
+    "limit": 14,
+    "left": 0
+   },
+   "title": "Note limit and multi-touch (5 and 40 fingers)"
+  },
+  {
+   "check": "polyphony",
+   "tab": "violin",
+   "pass": true,
+   "detail": "5 fingers: 5 voices, 40 fingers: at most 5 of 14, peak -7.8 dBFS, 0 clipped, after lifting: 0 voices",
+   "metrics": {
+    "five": 5,
+    "forty": 5,
+    "limit": 14,
+    "left": 0
+   },
+   "title": "Note limit and multi-touch (5 and 40 fingers)"
+  },
+  {
+   "check": "polyphony",
+   "tab": "cello",
+   "pass": true,
+   "detail": "5 fingers: 5 voices, 40 fingers: at most 5 of 14, peak -12.4 dBFS, 0 clipped, after lifting: 0 voices",
+   "metrics": {
+    "five": 5,
+    "forty": 5,
+    "limit": 14,
+    "left": 0
+   },
+   "title": "Note limit and multi-touch (5 and 40 fingers)"
+  },
+  {
+   "check": "polyphony",
+   "tab": "horn",
+   "pass": true,
+   "detail": "5 fingers: 1 voices, 40 fingers: at most 1 of 14, peak -6.1 dBFS, 0 clipped, after lifting: 0 voices",
+   "metrics": {
+    "five": 1,
+    "forty": 1,
+    "limit": 14,
+    "left": 0
+   },
+   "title": "Note limit and multi-touch (5 and 40 fingers)"
+  },
+  {
+   "check": "polyphony",
+   "tab": "trumpet",
+   "pass": true,
+   "detail": "5 fingers: 1 voices, 40 fingers: at most 1 of 14, peak -4.5 dBFS, 0 clipped, after lifting: 0 voices",
+   "metrics": {
+    "five": 1,
+    "forty": 1,
+    "limit": 14,
+    "left": 0
+   },
+   "title": "Note limit and multi-touch (5 and 40 fingers)"
+  },
+  {
+   "check": "polyphony",
+   "tab": "viola",
+   "pass": true,
+   "detail": "5 fingers: 5 voices, 40 fingers: at most 5 of 14, peak -14.6 dBFS, 0 clipped, after lifting: 0 voices",
+   "metrics": {
+    "five": 5,
+    "forty": 5,
+    "limit": 14,
+    "left": 0
+   },
+   "title": "Note limit and multi-touch (5 and 40 fingers)"
+  },
+  {
+   "check": "polyphony",
+   "tab": "organ",
+   "pass": true,
+   "detail": "5 fingers: 5 voices, 40 fingers: at most 14 of 14, peak -1.0 dBFS, 0 clipped, after lifting: 0 voices",
+   "metrics": {
+    "five": 5,
+    "forty": 14,
+    "limit": 14,
+    "left": 0
+   },
+   "title": "Note limit and multi-touch (5 and 40 fingers)"
+  },
+  {
+   "check": "polyphony",
+   "tab": "sax",
+   "pass": true,
+   "detail": "5 fingers: 1 voices, 40 fingers: at most 1 of 14, peak -7.1 dBFS, 0 clipped, after lifting: 0 voices",
+   "metrics": {
+    "five": 1,
+    "forty": 1,
+    "limit": 14,
+    "left": 0
+   },
+   "title": "Note limit and multi-touch (5 and 40 fingers)"
+  },
+  {
+   "check": "polyphony",
+   "tab": "xylo",
+   "pass": true,
+   "detail": "5 fingers: 5 voices, 40 fingers: at most 14 of 14, peak -1.0 dBFS, 0 clipped, after lifting: 0 voices",
+   "metrics": {
+    "five": 5,
+    "forty": 14,
+    "limit": 14,
+    "left": 0
+   },
+   "title": "Note limit and multi-touch (5 and 40 fingers)"
+  },
+  {
+   "check": "polyphony",
+   "tab": "synth",
+   "pass": true,
+   "detail": "5 fingers: 5 voices, 40 fingers: at most 14 of 14, peak -1.0 dBFS, 0 clipped, after lifting: 0 voices",
+   "metrics": {
+    "five": 5,
+    "forty": 14,
+    "limit": 14,
+    "left": 0
+   },
+   "title": "Note limit and multi-touch (5 and 40 fingers)"
+  },
+  {
+   "check": "polyphony",
+   "tab": "ebass",
+   "pass": true,
+   "detail": "5 fingers: 4 voices, 40 fingers: at most 4 of 14, peak -1.0 dBFS, 0 clipped, after lifting: 0 voices",
+   "metrics": {
+    "five": 4,
+    "forty": 4,
+    "limit": 14,
+    "left": 0
+   },
+   "title": "Note limit and multi-touch (5 and 40 fingers)"
+  },
+  {
+   "check": "polyphony",
+   "tab": "rhythm",
+   "pass": true,
+   "detail": "5 fingers: 1 voices, 40 fingers: at most 1 of 14, peak -1.0 dBFS, 0 clipped, after lifting: 0 voices",
+   "metrics": {
+    "five": 1,
+    "forty": 1,
+    "limit": 14,
+    "left": 0
+   },
+   "title": "Note limit and multi-touch (5 and 40 fingers)"
+  },
+  {
+   "check": "strum",
+   "tab": "guitar",
+   "pass": true,
+   "detail": "chord notes 4, 8 strums at 4/s ▼▲▼▲▼▲▼▲, each rose 14+ dB, down -11.7 dB, up 3.5 dB softer with the low strings 26 dB weaker, low strings first on every down, high strings first on every up, pads ▼▲ strum both ways",
+   "metrics": {},
+   "title": "Strumming at 4 strums a second"
+  },
+  {
+   "check": "strum",
+   "tab": "rhythm",
+   "pass": true,
+   "detail": "chord notes 3, 8 strums at 4/s ▼▲▼▲▼▲▼▲, each rose 13+ dB, down -17.8 dB, up 3.9 dB softer with the low strings 31 dB weaker, low strings first on every down, high strings first on every up, pads ▼▲ strum both ways",
+   "metrics": {},
+   "title": "Strumming at 4 strums a second"
+  },
+  {
+   "check": "bowing",
+   "tab": "viola",
+   "pass": true,
+   "detail": "bow across the strings: C G D A, double stop G+D both sound (0, -9.1 dB), finger on C + bow plays C",
+   "metrics": {},
+   "title": "Bowing across strings and double stops"
+  },
+  {
+   "check": "bowing",
+   "tab": "cello",
+   "pass": true,
+   "detail": "bow across the strings: C G D A, double stop G+D both sound (0, -3.7 dB), finger on C + bow plays C",
+   "metrics": {},
+   "title": "Bowing across strings and double stops"
+  },
+  {
+   "check": "bowing",
+   "tab": "violin",
+   "pass": true,
+   "detail": "bow across the strings: G D A E, double stop D+A both sound (0, -3.3 dB), finger on G + bow plays G",
+   "metrics": {},
+   "title": "Bowing across strings and double stops"
+  },
+  {
+   "check": "brass",
+   "tab": "sax",
+   "pass": true,
+   "detail": "centroid soft/medium/full 749 / 1047 / 1510 Hz, largest jump 1.1 x neighbours, worst 8 kHz burst 3.9 dB, peak -5.5 dBFS, 0 clipped",
+   "metrics": {
+    "centroid": [
+     749,
+     1047,
+     1510
+    ],
+    "jump": 1.1,
+    "burst": 3.9,
+    "peak": -5.46,
+    "clip": 0
+   },
+   "title": "Brass and reeds: brightness with breath, no crackle"
+  },
+  {
+   "check": "brass",
+   "tab": "trumpet",
+   "pass": true,
+   "detail": "centroid soft/medium/full 1134 / 1601 / 2235 Hz, largest jump 1.1 x neighbours, worst 8 kHz burst 3.3 dB, peak -2.9 dBFS, 0 clipped",
+   "metrics": {
+    "centroid": [
+     1134,
+     1601,
+     2235
+    ],
+    "jump": 1.11,
+    "burst": 3.3,
+    "peak": -2.93,
+    "clip": 0
+   },
+   "title": "Brass and reeds: brightness with breath, no crackle"
+  },
+  {
+   "check": "brass",
+   "tab": "horn",
+   "pass": true,
+   "detail": "centroid soft/medium/full 398 / 509 / 881 Hz, largest jump 1.3 x neighbours, worst 8 kHz burst 4.9 dB, peak -5.3 dBFS, 0 clipped",
+   "metrics": {
+    "centroid": [
+     398,
+     509,
+     881
+    ],
+    "jump": 1.28,
+    "burst": 4.9,
+    "peak": -5.34,
+    "clip": 0
+   },
+   "title": "Brass and reeds: brightness with breath, no crackle"
+  },
+  {
+   "check": "record",
+   "tab": "harmonica",
+   "pass": true,
+   "detail": "recorded 3 notes and played back the same (C E G) at the same times",
+   "metrics": {},
+   "title": "Record and playback"
+  },
+  {
+   "check": "record",
+   "tab": "piano",
+   "pass": true,
+   "detail": "recorded 3 notes and played back the same (C D E) at the same times",
+   "metrics": {},
+   "title": "Record and playback"
+  },
+  {
+   "check": "record",
+   "tab": "violin",
+   "pass": true,
+   "detail": "recorded 3 notes and played back the same (E G B) at the same times",
+   "metrics": {},
+   "title": "Record and playback"
+  },
+  {
+   "check": "record",
+   "tab": "trumpet",
+   "pass": true,
+   "detail": "recorded 3 notes and played back the same (B♭ D F) at the same times",
+   "metrics": {},
+   "title": "Record and playback"
+  },
+  {
+   "check": "record",
+   "tab": "horn",
+   "pass": true,
+   "detail": "recorded 3 notes and played back the same (F A C) at the same times",
+   "metrics": {},
+   "title": "Record and playback"
+  },
+  {
+   "check": "record",
+   "tab": "cello",
+   "pass": true,
+   "detail": "recorded 3 notes and played back the same (A C E) at the same times",
+   "metrics": {},
+   "title": "Record and playback"
+  },
+  {
+   "check": "record",
+   "tab": "organ",
+   "pass": true,
+   "detail": "recorded 3 notes and played back the same (C D E) at the same times",
+   "metrics": {},
+   "title": "Record and playback"
+  },
+  {
+   "check": "record",
+   "tab": "sax",
+   "pass": true,
+   "detail": "recorded 3 notes and played back the same (E♭ G B♭) at the same times",
+   "metrics": {},
+   "title": "Record and playback"
+  },
+  {
+   "check": "record",
+   "tab": "viola",
+   "pass": true,
+   "detail": "recorded 3 notes and played back the same (A C E) at the same times",
+   "metrics": {},
+   "title": "Record and playback"
+  },
+  {
+   "check": "record",
+   "tab": "xylo",
+   "pass": true,
+   "detail": "recorded 3 notes and played back the same (C E G) at the same times",
+   "metrics": {},
+   "title": "Record and playback"
+  },
+  {
+   "check": "record",
+   "tab": "synth",
+   "pass": true,
+   "detail": "recorded 3 notes and played back the same (A B C) at the same times",
+   "metrics": {},
+   "title": "Record and playback"
+  },
+  {
+   "check": "record",
+   "tab": "ebass",
+   "pass": true,
+   "detail": "recorded 3 notes and played back the same (G B E) at the same times",
+   "metrics": {},
+   "title": "Record and playback"
+  },
+  {
+   "check": "record",
+   "tab": "rhythm",
+   "pass": true,
+   "detail": "recorded 3 strums and played back the same (match 0.94 match 0.95 match 0.94) at the same times",
+   "metrics": {},
+   "title": "Record and playback"
+  },
+  {
+   "check": "offline",
+   "tab": "-",
+   "pass": true,
+   "detail": "cache pocket-band-v6 holds 6 files, Settings shows v6, manifest OK (fullscreen, 3 icons), offline: opens, piano plays (-1 dBFS peak), Self-test page loads offline",
+   "metrics": {},
+   "title": "Offline, manifest and service worker version"
+  },
+  {
+   "check": "perf",
+   "tab": "piano",
+   "pass": true,
+   "detail": "3.5 ms per note, 60 frames/s with 10 fingers (10 voices)",
+   "metrics": {
+    "perNote": 3.52,
+    "fps": 60.1
+   },
+   "title": "Performance: CPU per note and frame rate"
+  },
+  {
+   "check": "perf",
+   "tab": "drums",
+   "pass": true,
+   "detail": "3.1 ms per note, 61 frames/s with 8 fingers (0 voices)",
+   "metrics": {
+    "perNote": 3.08,
+    "fps": 60.6
+   },
+   "title": "Performance: CPU per note and frame rate"
+  },
+  {
+   "check": "perf",
+   "tab": "guitar",
+   "pass": true,
+   "detail": "5.7 ms per note, 61 frames/s with 6 fingers (6 voices)",
+   "metrics": {
+    "perNote": 5.69,
+    "fps": 60.6
+   },
+   "title": "Performance: CPU per note and frame rate"
+  },
+  {
+   "check": "perf",
+   "tab": "flute",
+   "pass": true,
+   "detail": "5.0 ms per note, 61 frames/s with 8 fingers (1 voices)",
+   "metrics": {
+    "perNote": 4.97,
+    "fps": 60.6
+   },
+   "title": "Performance: CPU per note and frame rate"
+  },
+  {
+   "check": "perf",
+   "tab": "tabla2",
+   "pass": true,
+   "detail": "5.7 ms per note, 61 frames/s with 4 fingers (0 voices)",
+   "metrics": {
+    "perNote": 5.69,
+    "fps": 60.6
+   },
+   "title": "Performance: CPU per note and frame rate"
+  },
+  {
+   "check": "perf",
+   "tab": "tabla1",
+   "pass": true,
+   "detail": "4.3 ms per note, 61 frames/s with 4 fingers (0 voices)",
+   "metrics": {
+    "perNote": 4.27,
+    "fps": 60.6
+   },
+   "title": "Performance: CPU per note and frame rate"
+  },
+  {
+   "check": "perf",
+   "tab": "epad",
+   "pass": true,
+   "detail": "5.2 ms per note, 61 frames/s with 10 fingers (0 voices)",
+   "metrics": {
+    "perNote": 5.24,
+    "fps": 60.7
+   },
+   "title": "Performance: CPU per note and frame rate"
+  },
+  {
+   "check": "perf",
+   "tab": "harmonica",
+   "pass": true,
+   "detail": "3.8 ms per note, 61 frames/s with 10 fingers (10 voices)",
+   "metrics": {
+    "perNote": 3.8,
+    "fps": 60.6
+   },
+   "title": "Performance: CPU per note and frame rate"
+  },
+  {
+   "check": "perf",
+   "tab": "violin",
+   "pass": true,
+   "detail": "7.4 ms per note, 61 frames/s with 8 fingers (8 voices)",
+   "metrics": {
+    "perNote": 7.4,
+    "fps": 60.6
+   },
+   "title": "Performance: CPU per note and frame rate"
+  },
+  {
+   "check": "perf",
+   "tab": "cello",
+   "pass": true,
+   "detail": "7.5 ms per note, 61 frames/s with 8 fingers (8 voices)",
+   "metrics": {
+    "perNote": 7.52,
+    "fps": 60.6
+   },
+   "title": "Performance: CPU per note and frame rate"
+  },
+  {
+   "check": "perf",
+   "tab": "horn",
+   "pass": true,
+   "detail": "4.7 ms per note, 61 frames/s with 8 fingers (1 voices)",
+   "metrics": {
+    "perNote": 4.67,
+    "fps": 60.6
+   },
+   "title": "Performance: CPU per note and frame rate"
+  },
+  {
+   "check": "perf",
+   "tab": "trumpet",
+   "pass": true,
+   "detail": "5.7 ms per note, 61 frames/s with 8 fingers (1 voices)",
+   "metrics": {
+    "perNote": 5.67,
+    "fps": 60.6
+   },
+   "title": "Performance: CPU per note and frame rate"
+  },
+  {
+   "check": "perf",
+   "tab": "viola",
+   "pass": true,
+   "detail": "7.6 ms per note, 61 frames/s with 8 fingers (8 voices)",
+   "metrics": {
+    "perNote": 7.64,
+    "fps": 60.6
+   },
+   "title": "Performance: CPU per note and frame rate"
+  },
+  {
+   "check": "perf",
+   "tab": "organ",
+   "pass": true,
+   "detail": "4.0 ms per note, 61 frames/s with 10 fingers (10 voices)",
+   "metrics": {
+    "perNote": 3.96,
+    "fps": 60.7
+   },
+   "title": "Performance: CPU per note and frame rate"
+  },
+  {
+   "check": "perf",
+   "tab": "sax",
+   "pass": true,
+   "detail": "4.9 ms per note, 61 frames/s with 8 fingers (1 voices)",
+   "metrics": {
+    "perNote": 4.86,
+    "fps": 60.6
+   },
+   "title": "Performance: CPU per note and frame rate"
+  },
+  {
+   "check": "perf",
+   "tab": "xylo",
+   "pass": true,
+   "detail": "4.0 ms per note, 61 frames/s with 8 fingers (0 voices)",
+   "metrics": {
+    "perNote": 3.97,
+    "fps": 60.6
+   },
+   "title": "Performance: CPU per note and frame rate"
+  },
+  {
+   "check": "perf",
+   "tab": "synth",
+   "pass": true,
+   "detail": "3.8 ms per note, 61 frames/s with 10 fingers (10 voices)",
+   "metrics": {
+    "perNote": 3.83,
+    "fps": 60.6
+   },
+   "title": "Performance: CPU per note and frame rate"
+  },
+  {
+   "check": "perf",
+   "tab": "ebass",
+   "pass": true,
+   "detail": "7.4 ms per note, 61 frames/s with 6 fingers (1 voices)",
+   "metrics": {
+    "perNote": 7.35,
+    "fps": 60.7
+   },
+   "title": "Performance: CPU per note and frame rate"
+  },
+  {
+   "check": "perf",
+   "tab": "rhythm",
+   "pass": true,
+   "detail": "7.8 ms per note, 61 frames/s with 1 fingers (1 voices)",
+   "metrics": {
+    "perNote": 7.8,
+    "fps": 60.6
+   },
+   "title": "Performance: CPU per note and frame rate"
+  }
+ ]
+}

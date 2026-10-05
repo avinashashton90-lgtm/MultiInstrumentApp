@@ -25,7 +25,7 @@
     "attack": 0.065
    },
    "cello": {
-    "centroid": 669.4212845850882,
+    "centroid": 669.4226031243174,
     "above2k": 0.015177381519130404,
     "attack": 0.125
    }
@@ -79,29 +79,29 @@
  {
   "name": "horn: attack, breath-opened low-pass, vibrato, hand-stop",
   "ok": true,
-  "detail": "attack (to 90%) 135 ms; brightness (centroid) soft 419 Hz → full breath 560 Hz; vibrato ±6.7 cents; hand-stop -3.9 dB quieter and brighter (619 Hz vs 486 Hz)",
+  "detail": "attack (to 90%) 85 ms; brightness (centroid) soft 302 Hz → full breath 815 Hz; vibrato ±7.0 cents; hand-stop -11.4 dB quieter and brighter (790 Hz vs 412 Hz)",
   "data": {
    "soft": {
-    "centroid": 418.9536985419172,
-    "rms": -18.48036266774339,
-    "attack": 0.13
+    "centroid": 302.26474626419486,
+    "rms": -15.741374999951718,
+    "attack": 0.085
    },
    "loud": {
-    "centroid": 559.7178877197475,
-    "rms": -13.7025466526224,
-    "attack": 0.145
+    "centroid": 814.9506533072112,
+    "rms": -12.257509845114502,
+    "attack": 0.1
    },
    "mid": {
-    "centroid": 485.8319266426429,
-    "rms": -15.578546695750672,
-    "attack": 0.135
+    "centroid": 412.2089294232489,
+    "rms": -13.915714765931043,
+    "attack": 0.085
    },
    "stopped": {
-    "centroid": 619.489657846731,
-    "rms": -19.508940634635646,
-    "attack": 0.125
+    "centroid": 789.5903693360267,
+    "rms": -25.30792263738853,
+    "attack": 0.035
    },
-   "vibrato": 6.7001904728707435
+   "vibrato": 6.9636468214055
   }
  },
  {
@@ -122,12 +122,12 @@
  {
   "name": "trumpet: holding valves lowers the note (2: one semitone, 1+3: five)",
   "ok": true,
-  "detail": "open 523.25 Hz (-0.00 c from C5), valve 2 493.88 Hz (-0.00 c from B4), valves 1+3 391.99 Hz (-0.00 c from G4)"
+  "detail": "open 523.68 Hz (+1.43 c from C5), valve 2 493.88 Hz (-0.02 c from B4), valves 1+3 391.76 Hz (-1.03 c from G4)"
  },
  {
   "name": "trumpet: breath height, mute and growl",
   "ok": true,
-  "detail": "G4: brightness (centroid) soft 1626 Hz → full breath 2463 Hz; mute -3.9 dB, centroid 2225 → 2140 Hz; growl: level flutter 4.2 → 8.5 dB"
+  "detail": "G4: brightness (centroid) soft 1337 Hz → full breath 2809 Hz; mute -4.4 dB, centroid 2414 → 1949 Hz; growl: level flutter 1.9 → 7.0 dB"
  },
  {
   "name": "organ: no decay while held, chiff, stops, two manuals, cathedral reverb",
@@ -143,10 +143,10 @@
     -43.97552128541605
    ],
    "all": [
-    -29.200039541417574,
-    -27.538874353197848,
-    -31.49603716684323,
-    -29.091471389037533
+    -29.200039529178117,
+    -27.538874293581124,
+    -31.496037181382526,
+    -29.09147142444246
    ],
    "great": 844.0977409150526,
    "swell": 595.0154734423982,
@@ -156,7 +156,7 @@
  {
   "name": "saxophone: soft attack, breath noise, vibrato, growl",
   "ok": true,
-  "detail": "E♭4: attack (to 90%) 50 ms; breath noise between the harmonics 46 dB below the fundamental (oscillators alone: below -90 dB); vibrato ±15.5 cents; growl: level flutter 6.4 → 11.2 dB"
+  "detail": "E♭4: attack (to 90%) 45 ms; breath noise between the harmonics 57 dB below the fundamental (oscillators alone: below -90 dB); vibrato ±16.0 cents; growl: level flutter 1.8 → 6.8 dB"
  },
  {
   "name": "xylophone: short inharmonic decay, glissando swipe",
@@ -166,7 +166,7 @@
  {
   "name": "synth: presets and knobs (filter, attack, release)",
   "ok": true,
-  "detail": "attack to full level: lead 20 ms, pad 740 ms; after 1.5 s held: pluck -29 dB, lead -2.3 dB; centroid lead 1193, pad 722, supersaw 2929 Hz; filter knob 30% → 90%: 539 → 3344 Hz; release knob 100 ms → 2 s: tail falls 40 dB in 0.07 s → 1.06 s"
+  "detail": "attack to full level: lead 20 ms, pad 740 ms; after 1.5 s held: pluck -29 dB, lead -2.1 dB; centroid lead 1193, pad 722, supersaw 2929 Hz; filter knob 30% → 90%: 539 → 3342 Hz; release knob 100 ms → 2 s: tail falls 40 dB in 0.07 s → 1.05 s"
  },
  {
   "name": "electric bass: open strings, finger / pick / slap, fretted slide",
@@ -176,12 +176,12 @@
  {
   "name": "rhythm guitar: auto-strum timing, palm mute, muted strum",
   "ok": true,
-  "detail": "120 BPM, on the beat: 5 strums, 502 / 500 / 500 / 500 ms apart; time to fall 30 dB: open 1.22 s, palm-muted 0.26 s (centroid 3015 → 1018 Hz), muted strum 0.05 s"
+  "detail": "120 BPM, on the beat: 5 strums, 504 / 500 / 500 / 500 ms apart; time to fall 30 dB: open 1.18 s, palm-muted 0.24 s (centroid 3549 → 1080 Hz), muted strum 0.05 s"
  },
  {
   "name": "release: every newer instrument fades out cleanly when the finger lifts",
   "ok": true,
-  "detail": "time from lifting the finger to 50 dB down, and the largest burst of energy above 7 kHz during the fade compared with the held note: trumpet 60 ms (-0.6 dB); sax 70 ms (+5.3 dB); viola 140 ms (+2.6 dB); organ 90 ms (+5.4 dB); synth 150 ms (+1.1 dB); xylo 130 ms (-10.6 dB); ebass 80 ms (+1.5 dB); rhythm 170 ms (-0.4 dB)"
+  "detail": "time from lifting the finger to 50 dB down, and the largest burst of energy above 7 kHz during the fade compared with the held note: trumpet 120 ms (+0.1 dB); sax 130 ms (+8.0 dB); viola 140 ms (+2.6 dB); organ 90 ms (+5.5 dB); synth 140 ms (+2.0 dB); xylo 130 ms (-10.6 dB); ebass 80 ms (+1.5 dB); rhythm 170 ms (-1.0 dB)"
  },
  {
   "name": "note limit: the newer instruments share the limit",
