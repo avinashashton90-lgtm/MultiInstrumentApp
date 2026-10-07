@@ -259,7 +259,9 @@ iframe.app { position: fixed; left: -10000px; top: 0; width: 900px; height: 420p
           list.forEach(function (t) { S.open(t, 'train', 'wait'); missing += S.state().plan.missing; events += S.state().plan.ev.length; S.close(); });
           res.songs = list.length; res.fit = missing ? missing + ' of ' + events + ' without a place' : 'all ' + events;
           if (list.length < 8) res.problems.push('only ' + list.length + ' songs');
-          if (missing) res.problems.push(missing + ' notes or hits have nowhere to play');
+          // a song plays its written notes (whole octaves only), so a diatonic harmonica lacks a minor tune's
+          // raised notes: those play themselves; anywhere else a note with nowhere to play is a fault
+          if (missing && r.tab !== 'harmonica') res.problems.push(missing + ' notes or hits have nowhere to play');
           var tr = lib.filter(function (t) { return t.id === SONG_SAMPLE[type]; })[0];
           res.sample = tr.title;
           S.open(tr, 'auto'); S.halt();

@@ -1,6 +1,6 @@
 // Offline support: serve from the network when possible, fall back to the cached copy.
 // The version must match APP_VERSION in index.html (the test suite checks this).
-var CACHE = 'pocket-band-v7';
+var CACHE = 'pocket-band-v8';
 var FILES = ['./', './index.html', './selftest.html', './manifest.json', './icon-192.png', './icon-512.png', './tracks/melodies.json', './tracks/chords.json', './tracks/bass.json', './tracks/drums.json', './tracks/tabla.json'];
 
 self.addEventListener('install', function (e) {

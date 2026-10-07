@@ -999,7 +999,7 @@ body:not(.song) .sgover { display: none; }
   var AC = window.AudioContext || window.webkitAudioContext;
   var ctx, bus, master, limiter, makeup, wet, lfoDepth, noiseBuf, drive, conv, gch, eOut, hall;
   // App version: matches the service worker's cache name (sw.js), shown in Settings so a phone can be checked
-  var APP_VERSION = 7;
+  var APP_VERSION = 8;
   var MAKEUP = 1.26; // +2 dB after the limiter (Chrome's compressor adds its own make-up on top: see TESTING.md)
   var $ = function (id) { return document.getElementById(id); };
 
@@ -5271,9 +5271,9 @@ body:not(.song) .sgover { display: none; }
         gs.fillStyle = p.fill; gs.strokeStyle = p.edge; gs.lineWidth = 1.5;
         gs.beginPath(); if (gs.roundRect) gs.roundRect(sp.x - w / 2, yB - h, w, h, 6); else gs.rect(sp.x - w / 2, yB - h, w, h);
         gs.fill(); gs.stroke();
-        if (h > 16 && w > 14) {
+        if (h > 16 && w > 14) { // the name in the Labels system: Both stacks the sargam over the note name
           gs.fillStyle = p.ink; gs.font = '700 ' + (w > 40 ? 14 : 11) + 'px system-ui, sans-serif'; gs.textAlign = 'center';
-          gs.fillText(String(e.lab).split('\n')[0].split(' · ')[0], sp.x, yB - 6, w - 2);
+          String(e.lab).split(/\n| · /).forEach(function (line, j) { if (h > 16 + 14 * j) gs.fillText(line, sp.x, yB - 6 - 14 * j, w - 2); });
         }
         sg.bars.push({ i: e.i, x: sp.x, w: w, y: yB, left: S.left });
       });

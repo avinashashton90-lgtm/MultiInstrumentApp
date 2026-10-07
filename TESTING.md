@@ -45,7 +45,7 @@ there adds it to the whole suite.
 | 9 | Record | Record, three notes, stop, Play, on every instrument with a Record button. | Playback has the same notes (within 10 cents, or the same chord) at the same times. |
 | 10 | Offline | First visit with the service worker, then the network is cut. | The cache is `pocket-band-v` + the app version shown in Settings and holds every file; the manifest is valid with real 192 and 512 px icons; offline, the app opens, the piano plays and the Self-test page loads. |
 | 11 | Performance | Main-thread time while ten notes are tapped; frame rate with ten fingers down. | Under 8 ms per note and at least 50 frames/s (headless Chromium on a desktop, so with room for a phone). |
-| 12 | Songs | Tracks: every file in `tracks/` is validated. Fit: every song that suits an instrument is opened on it. Auto-play: a sample song (Twinkle Twinkle as a melody, chord song or bass line; the rock groove; Keherwa) is rendered offline through the instrument's own sound and measured. Timing: a song auto-plays live on the piano and xylophone. Train: Train me (Wait) is opened from the real Songs sheet and played to the end by touching whatever glows. Stop: a song is stopped four ways. Storage: the same with storage blocked. | Tracks: every bar adds up, no overlapping notes, lengths, tempos, keys, chords, pads and bols valid, under 2 MB, cached by the service worker, all in TRACKS.md. Fit: at least 8 songs per instrument, every note, strum or hit has its key, hole, spot, chord button, pad or drum zone, and it is the right one (worked out from the track by the test, not the app). Auto-play: every melody and bass note within 5 cents of the track's note moved to the instrument's key; every strum sounds all its chord's notes; every hit is heard at its moment. Timing: notes start within 20 ms of their time. Train: for every event the right target glows with the right name (note, sargam, chord and strum arrow, pad, bol), touching it plays that note (measured) and the song moves on; three stars and a saved best score at the end. Stop: below -60 dBFS within 1 s and no voices left after Stop, closing the song, Home and switching instruments. |
+| 12 | Songs | Tracks: every file in `tracks/` is validated. Fit: every song that suits an instrument is opened on it. Transpose: every track in all 12 keys through the real Key menu, then the Transpose, Reset, Scale, Keep original and Remap controls. Auto-play: a sample song (Twinkle Twinkle as a melody, chord song or bass line; the rock groove; Keherwa) is rendered offline through the instrument's own sound, in its own key and transposed +2, and measured. Timing: a song auto-plays live on the piano and xylophone. Train: Train me is opened from the real Songs sheet (Wait, the default), the first-time hint is closed, and the song is played to the end by touching whatever glows, pressing a wrong key first on three notes. Align: Rhythm at five screen sizes (568x320 to 1280x720) on every melodic instrument. Stop: a song is stopped four ways. Storage: the same with storage blocked. | Tracks: every bar adds up, no overlapping notes, every pitched track has a tonic (pitch class) and a known mode and its tune ends on the tonic, drum grooves and taals are marked unpitched, lengths, tempos, chords, pads and bols valid, under 2 MB, cached by the service worker, all in TRACKS.md. Fit: at least 8 songs per instrument; Key, Scale and the "Song key: C Major" label show the song's own tonic and mode; every note is the written one moved by one whole number of octaves (on the piano not at all: native-key playback is the stored track exactly, beats and lengths included); every note, strum or hit has its place (the harmonica's missing chromatic notes are listed and play themselves). Transpose: the interval sequence equals the original's in every key, every note moves by the same semitones plus whole octaves, the mode label stays, "Transposed +n" is shown, + stops at +6, Reset returns; a new Scale offers Keep original (on, notes unchanged) and Remap (each note on the same step of the new mode). Auto-play: every melody and bass note within 5 cents of the track's note plus the transpose, one octave move for the whole song; every strum sounds all its chord's notes; every hit is heard at its moment. Timing: notes start within 20 ms of their time. Train: for every event the right target glows with the right name; a wrong key shakes and the song stays put; touching the right one plays that note (measured) and the song moves on; three stars and a saved best score at the end. Align: every falling bar is centred on its key, hole or spot (within 1 px) and no wider, and is really painted there in its key's colour (read back from the strip's pixels); the hit-line sits on the instrument; the keys stay in order while they glow; what glows is on screen (the zoomed keyboard scrolls to it); the Wait badge sits on its key. Stop: below -60 dBFS within 1 s and no voices left after Stop, closing the song, Home and switching instruments. The report has a Songs section grouping these by part. |
 
 ### How the harness listens
 
@@ -73,7 +73,7 @@ Settings › Self-test opens `selftest.html`:
    silently in an `OfflineAudioContext`, and shows tuning (within 5 cents), peak (at or below -1 dBFS), RMS and
    clipped samples. Your last instrument and key settings are put back afterwards.
 2. **Songs check.** On each instrument: how many songs suit it, whether every note, chord or hit of every one has
-   a place to play, and the first six seconds of a sample song rendered silently through the instrument's own
+   a place to play (on the harmonica a minor tune's raised notes play themselves), and the first six seconds of a sample song rendered silently through the instrument's own
    sound: every note within 5 cents, every strum sounding, every hit at its time.
 3. **Sound check.** A calibration tone (A 440 Hz at -12 dBFS), then a note from each instrument, each with
    "Can you hear this clearly?" Yes / No.
@@ -89,6 +89,22 @@ Settings › Self-test opens `selftest.html`:
   already scheduled a moment ahead (a crash) couldn't be cut. They now do, and Stop, Home and switching cut them.
 - **Measuring.** A strum is judged by whether every note of its chord is clearly there, not by which note is
   loudest: a bright steel string's overtones (the fifth above each note) can outweigh a chord tone.
+
+## Round D: song key and mode, and Train me
+
+- **Wrong keys and modes in the tracks.** Four melodies were stored as "chromatic" because the build picked the
+  smallest scale that held every note: Greensleeves, Für Elise and the Mountain King (A natural minor with raised
+  notes) and the Yaman exercise (which was written as Major although Yaman has a sharp Ma). Every track now stores
+  its `tonic` (a pitch class) and `mode` as written, the build checks that the mode is known and the tune ends on its
+  tonic, and TRACKS.md lists the notes each tune borrows from outside its mode.
+- **Songs moved to the instrument's key.** Picking a song used to shift it to whatever key the instrument was in,
+  and fold stray notes into another octave one by one. Now the instrument takes the song's key and mode, the notes
+  are the written ones moved by whole octaves only, Transpose (or the Key menu) moves every note by the same
+  semitones, and a new Scale keeps the notes unless Remap is chosen. Scale lock rests while a song is open, so a
+  wrong key in Train me sounds wrong instead of snapping onto the right one.
+- **A glowing black key jumped out of place.** The glow made a black key `position: relative`, which dropped it out
+  of its place on the keyboard (onto the end of the row). It only showed when a black key was the next note; the new
+  align check found it.
 
 ## Round C: what was found and changed
 
