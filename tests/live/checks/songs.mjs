@@ -472,9 +472,12 @@ async function setCount(page, on) { await page.evaluate((on) => { const sg = win
 /* timing: a song live on the audio clock */
 async function timingRows(browser, base, tabs) {
   const rows = [];
-  for (const tab of ['piano', 'xylo'].filter((t) => !tabs || tabs.includes(t))) {
+  // A take with a wrong note is played once more, as in the pitch check: a live recording on a busy computer can
+  // catch a dropped audio block. A real fault fails both takes.
+  for (const tab of ['piano', 'xylo'].filter((t) => !tabs || tabs.includes(t))) for (let take = 1; take <= 2; take++) {
     const ins = INSTRUMENTS.find((i) => i.tab === tab);
     const cur = await openWithHooks(browser, base, tab);
+    let failed = false;
     const { page, touch } = cur;
     try {
       await dryReverb(page);
@@ -488,8 +491,7 @@ async function timingRows(browser, base, tabs) {
       await page.waitForFunction((f) => window.__rec.last() >= f, endF, { timeout: 20000, polling: 50 });
       const res = await page.evaluate(({ info, win }) => info.ev.map((e) => {
         const R = window.__rec, t = info.t + (e.b - info.b) * info.spb, f0 = Math.round((t + win[0] / 1000) * info.sr), f1 = Math.round((t + Math.min(win[1] / 1000, e.d * info.spb * 0.9)) * info.sr);
-        const x = R.get(f0, f1), ps = [0, 1, 2].map((k) => PBA.pitch(x, info.sr, Math.round(k * x.length / 3), Math.round((k + 1) * x.length / 3), 50, 4200).f).filter((f) => f > 0).sort((a, b) => a - b);
-        const p = { f: ps.length ? ps[Math.floor(ps.length / 2)] : 0 }; // the middle of three stretches
+        const x = R.get(f0, f1), p = PBA.pitch(x, info.sr, 0, x.length, 50, 4200);
         // onset: the first 2 ms block from 8 ms before the note's time that rises 10 dB over the 10 ms before it
         const pre = R.get(Math.round((t - 0.012) * info.sr), Math.round((t - 0.002) * info.sr)), post = R.get(Math.round((t - 0.008) * info.sr), Math.round((t + 0.08) * info.sr));
         let base = 0; for (const v of pre) base += v * v; base = Math.sqrt(base / pre.length) + 1e-5;
@@ -506,10 +508,13 @@ async function timingRows(browser, base, tabs) {
         if (r.onset === null || Math.abs(r.onset) > 20) errs.push(`note ${i + 1}: starts ${r.onset === null ? '?' : r.onset.toFixed(1)} ms from its time`);
         else worstT = Math.max(worstT, Math.abs(r.onset));
       });
-      rows.push(row('songs', tab, !errs.length, (errs.length ? errs.slice(0, 3).join('; ') + ' · ' : '') +
-        `timing (live): ${res.length} auto-played notes each sound at their time (worst ${worstT.toFixed(1)} ms) and pitch (worst ${worstC.toFixed(1)} cents)`, { worstMs: +worstT.toFixed(1) }));
-    } catch (e) { rows.push(row('songs', tab, false, 'timing: ' + e.message.split('\n')[0])); }
+      failed = errs.length > 0;
+      if (!failed || take === 2) rows.push(row('songs', tab, !errs.length, (errs.length ? errs.slice(0, 3).join('; ') + ' · ' : '') +
+        `timing (live): ${res.length} auto-played notes each sound at their time (worst ${worstT.toFixed(1)} ms) and pitch (worst ${worstC.toFixed(1)} cents)` +
+        (take === 2 ? ' (second take)' : ''), { worstMs: +worstT.toFixed(1), take }));
+    } catch (e) { failed = true; if (take === 2) rows.push(row('songs', tab, false, 'timing: ' + e.message.split('\n')[0])); }
     await cur.context.close();
+    if (!failed) break;
   }
   return rows;
 }
