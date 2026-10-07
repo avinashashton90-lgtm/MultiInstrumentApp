@@ -23,6 +23,7 @@ const CHECKS = [
   ['bowing', 'Bowing across strings and double stops'],
   ['brass', 'Brass and reeds: brightness with breath, no crackle'],
   ['record', 'Record and playback'],
+  ['songs', 'Songs: tracks, fitting, auto-play, Train me, stopping'],
   ['offline', 'Offline, manifest and service worker version'],
   ['perf', 'Performance: CPU per note and frame rate']
 ];
