@@ -47,3 +47,63 @@ or `bols` (tabla strokes a beat), and `sargam` (Sa Re Ga labels for Indian melod
 | Little Waltz | Pocket Band (original) | G | 3/4 | 120 | 0:24 | ★ | Kids, Classical | Original, written for Pocket Band |  |
 | Rainy Day Blues | Pocket Band (original) | A blues | 4/4 | 92 | 0:21 | ★★ | Folk | Original, written for Pocket Band |  |
 | Morning Walk in Bhoopali | Pocket Band (original) | C penta | 4/4 | 88 | 0:22 | ★ | Indian, Kids | Original, written for Pocket Band |  |
+
+## Chord songs (guitar and rhythm guitar)
+
+| Track | By | Key | Time | Tempo | Length | Level | Tags | Source | Check |
+|---|---|---|---|---|---|---|---|---|---|
+| Twinkle Twinkle Little Star | Traditional | C | 4/4 | 100 | 0:29 | ★ | Kids, Folk | Public domain: traditional (French air, 1761) |  |
+| Ode to Joy | Ludwig van Beethoven (1824) | C | 4/4 | 108 | 0:36 | ★ | Classical | Public domain: Beethoven died 1827 |  |
+| Amazing Grace | Traditional (tune "New Britain") | G | 3/4 | 84 | 0:34 | ★ | Hymn, Folk | Public domain: traditional (American hymn tune, 1829) |  |
+| Auld Lang Syne | Traditional (Scottish) | C | 4/4 | 88 | 0:25 | ★ | Folk | Public domain: traditional |  |
+| When the Saints Go Marching In | Traditional (American spiritual) | C | 4/4 | 120 | 0:32 | ★★ | Hymn, Folk | Public domain: traditional | Needs ear check |
+| Happy Birthday | Mildred and Patty Hill (1893) | C | 3/4 | 100 | 0:16 | ★ | Kids | Public domain (melody 1893, "Good Morning to All"; US court ruling 2016) |  |
+| Canon in D (simplified) | Johann Pachelbel (c. 1690) | D | 4/4 | 72 | 0:47 | ★★ | Classical | Public domain: Pachelbel died 1706 | Needs ear check |
+| Minuet in G | Christian Petzold (c. 1725, long credited to J. S. Bach) | G | 3/4 | 112 | 0:26 | ★★ | Classical | Public domain: Petzold died 1733 |  |
+| Rainy Day Blues | Pocket Band (original) | A blues | 4/4 | 92 | 0:21 | ★★ | Folk | Original, written for Pocket Band |  |
+| Raghupati Raghav Raja Ram | Traditional bhajan (tune popularised by V. D. Paluskar, d. 1931) | C | 4/4 | 92 | 0:42 | ★ | Indian, Folk | Public domain: traditional (devotional song) | Needs ear check |
+
+## Bass lines (electric bass)
+
+| Track | By | Key | Time | Tempo | Length | Level | Tags | Source | Check |
+|---|---|---|---|---|---|---|---|---|---|
+| Twinkle Twinkle Little Star | Traditional | C | 4/4 | 100 | 0:29 | ★ | Kids, Folk | Public domain: traditional (French air, 1761) |  |
+| Ode to Joy | Ludwig van Beethoven (1824) | C | 4/4 | 108 | 0:36 | ★ | Classical | Public domain: Beethoven died 1827 |  |
+| Amazing Grace | Traditional (tune "New Britain") | G | 3/4 | 84 | 0:34 | ★ | Hymn, Folk | Public domain: traditional (American hymn tune, 1829) |  |
+| When the Saints Go Marching In | Traditional (American spiritual) | C | 4/4 | 120 | 0:32 | ★★ | Hymn, Folk | Public domain: traditional | Needs ear check |
+| Canon in D (simplified) | Johann Pachelbel (c. 1690) | D | 4/4 | 72 | 0:47 | ★ | Classical | Public domain: Pachelbel died 1706 | Needs ear check |
+| Rainy Day Blues | Pocket Band (original) | A minor | 4/4 | 92 | 0:21 | ★★ | Folk | Original, written for Pocket Band |  |
+| Jingle Bells (chorus) | James Lord Pierpont (1857) | C | 4/4 | 116 | 0:33 | ★ | Kids, Folk | Public domain: Pierpont died 1893 |  |
+| Auld Lang Syne | Traditional (Scottish) | C | 4/4 | 88 | 0:25 | ★ | Folk | Public domain: traditional |  |
+| Minuet in G | Christian Petzold (c. 1725, long credited to J. S. Bach) | G | 3/4 | 112 | 0:26 | ★★ | Classical | Public domain: Petzold died 1733 |  |
+| Sunny Steps | Pocket Band (original) | C | 4/4 | 100 | 0:19 | ★★ | Kids | Original, written for Pocket Band |  |
+
+## Drum grooves (drums and electric drum pad)
+
+| Track | By | Key | Time | Tempo | Length | Level | Tags | Source | Check |
+|---|---|---|---|---|---|---|---|---|---|
+| Rock beat | Pocket Band (original) | – | 4/4 | 100 | 0:10 | ★ | Kids | Original, written for Pocket Band |  |
+| Disco | Pocket Band (original) | – | 4/4 | 116 | 0:08 | ★ | Kids | Original, written for Pocket Band |  |
+| Hip hop | Pocket Band (original) | – | 4/4 | 90 | 0:11 | ★★ | Kids | Original, written for Pocket Band |  |
+| Bossa nova | Pocket Band (original) | – | 4/4 | 120 | 0:08 | ★★★ | Folk | Original, written for Pocket Band |  |
+| Reggae one drop | Pocket Band (original) | – | 4/4 | 76 | 0:13 | ★★ | Folk | Original, written for Pocket Band |  |
+| House | Pocket Band (original) | – | 4/4 | 122 | 0:08 | ★ | Kids | Original, written for Pocket Band |  |
+| Shuffle | Pocket Band (original) | – | 4/4 | 96 | 0:10 | ★★ | Folk | Original, written for Pocket Band |  |
+| Funk | Pocket Band (original) | – | 4/4 | 100 | 0:10 | ★★★ | Kids | Original, written for Pocket Band |  |
+| Slow ballad | Pocket Band (original) | – | 4/4 | 70 | 0:14 | ★ | Kids | Original, written for Pocket Band |  |
+| March | Pocket Band (original) | – | 4/4 | 112 | 0:09 | ★★ | Kids, Folk | Original, written for Pocket Band |  |
+
+## Taals (tabla, dual and single)
+
+| Track | By | Key | Time | Tempo | Length | Level | Tags | Source | Check |
+|---|---|---|---|---|---|---|---|---|---|
+| Teental (16 matras) | Traditional (theka) | – | 16/4 | 100 | 0:19 | ★ | Indian | Public domain: traditional theka |  |
+| Keherwa (8 matras) | Traditional (theka) | – | 8/4 | 110 | 0:09 | ★ | Indian | Public domain: traditional theka |  |
+| Dadra (6 matras) | Traditional (theka) | – | 6/4 | 120 | 0:06 | ★ | Indian | Public domain: traditional theka |  |
+| Rupak (7 matras) | Traditional (theka) | – | 7/4 | 100 | 0:08 | ★★ | Indian | Public domain: traditional theka |  |
+| Jhaptal (10 matras) | Traditional (theka) | – | 10/4 | 100 | 0:12 | ★★ | Indian | Public domain: traditional theka |  |
+| Ektaal (12 matras) | Traditional (theka) | – | 12/4 | 84 | 0:17 | ★★★ | Indian | Public domain: traditional theka |  |
+| Dhamar (14 matras) | Traditional (theka) | – | 14/4 | 90 | 0:19 | ★★★ | Indian | Public domain: traditional theka |  |
+| Tilwada (16 matras) | Traditional (theka) | – | 16/4 | 72 | 0:27 | ★★★ | Indian | Public domain: traditional theka |  |
+| Chautal (12 matras) | Traditional (theka) | – | 12/4 | 90 | 0:16 | ★★★ | Indian | Public domain: traditional theka |  |
+| Deepchandi (14 matras) | Traditional (theka) | – | 14/4 | 100 | 0:17 | ★★ | Indian | Public domain: traditional theka |  |

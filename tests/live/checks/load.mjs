@@ -51,12 +51,17 @@ export default async function load({ browser, base, tabs }) {
       await sp.click('#runAuto');
       await sp.waitForFunction(() => !document.getElementById('runAuto').disabled, null, { timeout: 180000 });
       const res = await sp.evaluate(() => window.__selftest.results().map((r) => ({ name: r.name, pass: r.pass, problems: r.problems })));
+      await sp.click('#runSongs');
+      await sp.waitForFunction(() => !document.getElementById('runSongs').disabled, null, { timeout: 300000 });
+      const songs = await sp.evaluate(() => window.__selftest.songs().map((r) => ({ name: r.name, pass: r.pass, problems: r.problems })));
+      const sbad = songs.filter((r) => !r.pass);
       await sp.click('[data-play="piano"]'); await sleep(800);
       const played = await sp.evaluate(() => document.getElementById('guidedStatus').textContent);
       const text = await sp.evaluate(() => window.__selftest.report());
       const bad = res.filter((r) => !r.pass), errs = own(st.log.errors);
-      rows.push(row('load', 'selftest', res.length === INSTRUMENTS.length && !bad.length && !played && !errs.length && /1\. Automatic check/.test(text),
+      rows.push(row('load', 'selftest', res.length === INSTRUMENTS.length && !bad.length && songs.length === INSTRUMENTS.length && !sbad.length && !played && !errs.length && /1\. Automatic check/.test(text) && /2\. Songs check/.test(text),
         [`Self-test page: automatic check ${res.length - bad.length}/${res.length} passed`, bad.map((r) => r.name + ': ' + r.problems.join('; ')).join(' / '),
+          `songs check ${songs.length - sbad.length}/${songs.length} passed`, sbad.map((r) => r.name + ': ' + r.problems.join('; ')).join(' / '),
           played ? 'sound check: ' + played : 'sound check plays', errs.length ? 'console errors: ' + errs[0] : '', 'report copies as text'].filter(Boolean).join(', ')));
     } catch (e) {
       rows.push(row('load', 'selftest', false, 'Self-test page: ' + (e.message || String(e)).split('\n')[0]));

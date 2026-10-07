@@ -45,13 +45,16 @@ there adds it to the whole suite.
 | 9 | Record | Record, three notes, stop, Play, on every instrument with a Record button. | Playback has the same notes (within 10 cents, or the same chord) at the same times. |
 | 10 | Offline | First visit with the service worker, then the network is cut. | The cache is `pocket-band-v` + the app version shown in Settings and holds every file; the manifest is valid with real 192 and 512 px icons; offline, the app opens, the piano plays and the Self-test page loads. |
 | 11 | Performance | Main-thread time while ten notes are tapped; frame rate with ten fingers down. | Under 8 ms per note and at least 50 frames/s (headless Chromium on a desktop, so with room for a phone). |
+| 12 | Songs | Tracks: every file in `tracks/` is validated. Fit: every song that suits an instrument is opened on it. Auto-play: a sample song (Twinkle Twinkle as a melody, chord song or bass line; the rock groove; Keherwa) is rendered offline through the instrument's own sound and measured. Timing: a song auto-plays live on the piano and xylophone. Train: Train me (Wait) is opened from the real Songs sheet and played to the end by touching whatever glows. Stop: a song is stopped four ways. Storage: the same with storage blocked. | Tracks: every bar adds up, no overlapping notes, lengths, tempos, keys, chords, pads and bols valid, under 2 MB, cached by the service worker, all in TRACKS.md. Fit: at least 8 songs per instrument, every note, strum or hit has its key, hole, spot, chord button, pad or drum zone, and it is the right one (worked out from the track by the test, not the app). Auto-play: every melody and bass note within 5 cents of the track's note moved to the instrument's key; every strum sounds all its chord's notes; every hit is heard at its moment. Timing: notes start within 20 ms of their time. Train: for every event the right target glows with the right name (note, sargam, chord and strum arrow, pad, bol), touching it plays that note (measured) and the song moves on; three stars and a saved best score at the end. Stop: below -60 dBFS within 1 s and no voices left after Stop, closing the song, Home and switching instruments. |
 
 ### How the harness listens
 
 - `index.html` exposes `window.__testTap`, an `AnalyserNode` on the master output after the limiter and ceiling
   (what reaches the speakers). The harness attaches an AudioWorklet recorder to it before the app starts, so every
   sample of a run is kept, and notes pointer down and up on the audio clock so each note can be found in the take.
-  Nothing else in the app is touched: no test hooks are needed for the live suite.
+  Nothing else in the app is touched: the live checks need no test hooks, except Songs, which turns on
+  `window.PocketBandTest` (only when `window.__PB_TEST__` is set before the app loads) to find the glowing target
+  to touch and to render a song offline.
 - Touches go through the DevTools protocol (`Input.dispatchTouchEvent`), so the page gets trusted touch and
   pointer events with `pointerType: "touch"`, multi-touch included. Chromium handles at most 16 touch points in one
   event (more crashes the page), so the 40-finger test uses 15 real touches plus 25 pointer events sent to the
@@ -69,10 +72,23 @@ Settings › Self-test opens `selftest.html`:
 1. **Automatic check.** Plays one note on each of the 19 instruments through the app's own sound engines, rendered
    silently in an `OfflineAudioContext`, and shows tuning (within 5 cents), peak (at or below -1 dBFS), RMS and
    clipped samples. Your last instrument and key settings are put back afterwards.
-2. **Sound check.** A calibration tone (A 440 Hz at -12 dBFS), then a note from each instrument, each with
+2. **Songs check.** On each instrument: how many songs suit it, whether every note, chord or hit of every one has
+   a place to play, and the first six seconds of a sample song rendered silently through the instrument's own
+   sound: every note within 5 cents, every strum sounding, every hit at its time.
+3. **Sound check.** A calibration tone (A 440 Hz at -12 dBFS), then a note from each instrument, each with
    "Can you hear this clearly?" Yes / No.
-3. **Checklist.** Multi-touch, strumming, bowing, key and scale, and sound quality items to tick, a notes box, and
-   "Copy results as text", which copies all three parts.
+4. **Checklist.** Multi-touch, strumming, bowing, key and scale, songs, and sound quality items to tick, a notes
+   box, and "Copy results as text", which copies all four parts.
+
+## Songs: what was found and changed
+
+- **A repeated note on a bowed string beat against itself.** Auto-play ends each note with a short fade, so a
+  repeat of the same note overlapped the last one's tail; the cello's detuned voices then beat, and the pitch
+  read 5 cents flat. A repeated note now stops the last one quickly as it starts, like a new bow stroke.
+- **Drum hits could ring on after Stop.** The drum and drum-pad sounds didn't hand back their voice, so a hit
+  already scheduled a moment ahead (a crash) couldn't be cut. They now do, and Stop, Home and switching cut them.
+- **Measuring.** A strum is judged by whether every note of its chord is clearly there, not by which note is
+  loudest: a bright steel string's overtones (the fifth above each note) can outweigh a chord tone.
 
 ## Round C: what was found and changed
 

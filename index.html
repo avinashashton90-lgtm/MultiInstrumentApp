@@ -930,7 +930,7 @@ body:not(.song) .sgover { display: none; }
   var AC = window.AudioContext || window.webkitAudioContext;
   var ctx, bus, master, limiter, makeup, wet, lfoDepth, noiseBuf, drive, conv, gch, eOut, hall;
   // App version: matches the service worker's cache name (sw.js), shown in Settings so a phone can be checked
-  var APP_VERSION = 6;
+  var APP_VERSION = 7;
   var MAKEUP = 1.26; // +2 dB after the limiter (Chrome's compressor adds its own make-up on top: see TESTING.md)
   var $ = function (id) { return document.getElementById(id); };
 
@@ -1501,6 +1501,7 @@ body:not(.song) .sgover { display: none; }
     doneWhenEnded(v, last);
     if (name === 'hatO') openHat = v;
     track(v);
+    return v;
   }
 
   function buildPads() {
@@ -2465,6 +2466,7 @@ body:not(.song) .sgover { display: none; }
       el.classList.add('on'); clearTimeout(el._t);
       el._t = setTimeout(function () { el.classList.remove('on'); }, 100);
     }, Math.max(0, (t - ctx.currentTime) * 1000));
+    return v;
   }
 
   function epadHit(i, vel) {
@@ -4643,17 +4645,25 @@ body:not(.song) .sgover { display: none; }
   // Picking a track fits it to the instrument: it moves into the instrument's key (and, when the scale shown can't
   // hold every note, the song's own scale), then into the octave where most of it can be played; rows of notes start
   // lower or the keyboard changes octave so the whole song is on screen. Closing the song puts all of that back.
-  var SONG_FILES = ['melodies'];
+  var SONG_FILES = ['melodies', 'chords', 'bass', 'drums', 'tabla'];
   var SONG_TYPE = { guitar: 'chords', rhythm: 'chords', ebass: 'bass', drums: 'drums', epad: 'drums', tabla1: 'tabla', tabla2: 'tabla' };
   // Where a fitted song should sit on each instrument (MIDI), and the instruments whose row of notes can start lower
   var SONG_RANGE = { piano: [48, 84], organ: [48, 84], synth: [36, 84], flute: [60, 96], harmonica: [55, 96], horn: [41, 77],
     trumpet: [54, 84], sax: [49, 81], xylo: [60, 96], violin: [55, 93], viola: [48, 83], cello: [36, 71], ebass: [28, 55] };
   var SONG_ROWS = { flute: 1, horn: 1, trumpet: 1, sax: 1, xylo: 1 };
   var SONG_TAGS = ['Kids', 'Classical', 'Folk', 'Indian', 'Hymn'];
+  // Tabla bols as strokes on the two drums (the dayan's Na, Tin, Tun, Te, Ti; the bayan's Ge, Ke). On the single
+  // tabla the bayan's part plays itself.
+  var TABLA_MAP = { Dha: ['Na', 'Ge'], Dhin: ['Tin', 'Ge'], Dhi: ['Tin', 'Ge'], Din: ['Tin', 'Ge'], Tin: ['Tin'], Tu: ['Tun'], Na: ['Na'], Ta: ['Na'],
+    Ti: ['Te'], Ra: ['Ti'], Ki: ['Ke'], Ka: ['Ke'], Kat: ['Ke'], Ge: ['Ge'], Ga: ['Ge'], Di: ['Tin'], Ne: ['Na'] };
+  // Drum-pad names for a groove's pads, in each kit (the first that the kit has)
+  var EP_NAMES = { kick: ['Kick'], snare: ['Snare'], hatC: ['Closed hat'], hatO: ['Open hat'], clap: ['Clap'], crash: ['Crash'],
+    tomL: ['Tom low', 'Tom'], tomH: ['Tom high', 'Tom'] };
+  var ARROW = { D: ' ↓', U: ' ↑' };
   var LOOKAHEAD = 0.12, PERFECT = 0.08, GOOD = 0.18; // seconds
   var songLib = null, songLibP = null;
   var sg = { tr: null, plan: null, tab: '', mode: 'auto', level: 'wait', on: false, paused: false, tempo: 100, speed: 100, loop: false,
-             count: true, metro: false, sec: -1, timer: 0, raf: 0, voices: [], last: {}, timers: [], restore: null, best: {}, fx: [], glow: [] };
+             count: true, metro: false, sec: -1, timer: 0, raf: 0, voices: [], lastV: {}, timers: [], restore: null, best: {}, fx: [], glow: [] };
   try { sg.best = JSON.parse(localStorage.getItem('pb-songs') || '{}') || {}; } catch (e) { sg.best = {}; }
 
   function songType(tab) { return SONG_TYPE[tab] || 'melody'; }
@@ -4680,6 +4690,23 @@ body:not(.song) .sgover { display: none; }
   function bpb(tr) { return tr.time[0] * 4 / tr.time[1]; }
   function songSecs(tr) { return tr.bars * bpb(tr) * 60 / tr.tempo; }
   function songSuits(tr, tab) { return tr.type === songType(tab); }
+  function epadIndex(name) {
+    var pads = EKITS[ep.kit].pads, want = EP_NAMES[name] || [];
+    for (var k = 0; k < want.length; k++) for (var i = 0; i < pads.length; i++) if (pads[i][0] === want[k]) return i;
+    return -1;
+  }
+  function chordList(tab) { return tab === 'rhythm' ? rh.chords : gtr.chords; }
+  function chordIndex(tab, name) { var l = chordList(tab); for (var i = 0; i < l.length; i++) if (l[i].name === name) return i; return -1; }
+  function tablaDrum(tab, stroke) { var d = BOLS[stroke].d; return tab === 'tabla1' ? (d ? tb.drums.d1 : null) : d ? tb.drums.d2 : tb.drums.b2; }
+  // Where an event is played: a note's key, hole or spot; a chord's button; a pad or a zone of a drum
+  function evTarget(tab, e) {
+    if (e.k === 'note') return songTarget(tab, e.m);
+    if (e.k === 'chord') { e.ci = chordIndex(tab, e.c.name); var w = $(tab === 'rhythm' ? 'rchords' : 'chords'); return e.ci >= 0 ? { el: w.querySelector('[data-chord="' + e.ci + '"]'), pad: $(tab === 'rhythm' ? 'rpads' : 'gpads').querySelector('[data-dir="' + e.dir + '"]') } : null; }
+    if (tab === 'drums') return padEls[e.hit] ? { el: padEls[e.hit] } : null;
+    if (tab === 'epad') { e.hit = epadIndex(e.pad); return e.hit >= 0 ? { el: ep.els[e.hit] } : null; }
+    var dr = tablaDrum(tab, e.hit);
+    return dr && dr.els[e.hit] ? { el: dr.els[e.hit], dr: dr } : null;
+  }
   function bestKey(tr, tab, level) { return tr.id + '|' + tab + '|' + level; }
 
   /* Fitting a track to the instrument */
@@ -4790,10 +4817,62 @@ body:not(.song) .sgover { display: none; }
       if (plan.missing) plan.warn = plan.missing + (plan.missing > 1 ? ' notes don’t' : ' note doesn’t') + ' fit the ' + nm + '; the song plays them for you';
       else if (plan.moved) plan.warn = 'This song doesn’t quite fit the ' + nm + ': ' + plan.moved + (plan.moved > 1 ? ' notes move' : ' note moves') + ' an octave';
     }
-    if (tr.chords) plan.back = songChords(tr, plan.shift);
+    else if (type === 'chords') fitChords(tr, tab, plan);
+    else fitHits(tr, tab, plan);
+    if (tr.chords && type !== 'chords') plan.back = songChords(tr, plan.shift);
+    plan.tune = songTune(tr, plan);
     plan.ev.sort(function (a, b) { return a.b - b.b || a.i - b.i; });
     plan.len = tr.bars * bpb(tr);
     return plan;
+  }
+  // Chord songs: every strum is an event on the chord's button, in the instrument's key
+  function fitChords(tr, tab, plan) {
+    var st = TONAL[tab], shift = ((st.key - keyPc(tr.key)) % 12 + 12) % 12;
+    if (shift > 6) shift -= 12;
+    plan.shift = shift;
+    var per = bpb(tr), syms = [];
+    tr.chords.forEach(function (bar, bi) {
+      var list = bar.split(/\s+/).filter(function (x) { return x && x !== '-'; });
+      list.forEach(function (sym, k) { syms.push({ b: bi * per + k * per / list.length, c: parseChord(sym, shift) }); });
+    });
+    function all(scale) { return syms.every(function (x) { for (var d = 0; d < 7; d++) if (T.chord(st.key, scale, d).name === x.c.name) return true; return false; }); }
+    if (!all(st.scale) && all(tr.scale)) { plan.scale = tr.scale; st.scale = tr.scale; }
+    rebuildTonal(tab);
+    tr.strum.forEach(function (s, i) {
+      var c = null, next = tr.strum[i + 1];
+      syms.forEach(function (x) { if (x.b <= s[0] + 1e-6) c = x.c; });
+      if (!c) return;
+      var e = { i: i, b: s[0], d: (next ? next[0] : tr.bars * per) - s[0], k: 'chord', c: c, dir: s[1] === 'U' ? -1 : 1, v: 0.75, lab: c.name + ARROW[s[1]] };
+      e.tg = evTarget(tab, e);
+      if (!e.tg) plan.missing++;
+      plan.ev.push(e);
+    });
+    if (plan.missing) plan.warn = 'Some chords aren’t on the buttons in this key; the song strums them for you';
+  }
+  // Grooves and taals: every hit is an event on its pad or drum zone
+  function fitHits(tr, tab, plan) {
+    var n = 0, per = bpb(tr);
+    tr.hits.forEach(function (h) {
+      var strokes = tr.type === 'tabla' ? TABLA_MAP[h[1]] || [] : [h[1]];
+      strokes.forEach(function (sk) {
+        var e = { i: n++, b: h[0], d: 0.25, k: 'hit', hit: sk, pad: sk, bol: h[1], v: h[2] / 127, lab: tr.type === 'tabla' ? h[1] : padName(sk) };
+        if (tr.type === 'tabla' && tr.tali && Math.abs(h[0] % per) < 1e-6) e.lab += ' ' + tr.tali[0];
+        e.tg = evTarget(tab, e);
+        if (tr.type === 'tabla' && !e.tg && tab === 'tabla1') e.auto = true; // the bayan's strokes on the single tabla
+        else if (!e.tg) plan.missing++;
+        plan.ev.push(e);
+      });
+    });
+    if (plan.missing) plan.warn = plan.missing + ' hits have no pad in this kit; the song plays them for you';
+  }
+  function padName(id) { for (var i = 0; i < PADS.length; i++) if (PADS[i].id === id) return PADS[i].name; return id; }
+  // The tune that comes along with a chord song or a bass line, near the middle of the keyboard
+  function songTune(tr, plan) {
+    var notes = tr.type === 'chords' ? tr.notes : tr.type === 'bass' ? tr.tune : null;
+    if (!notes || !notes.length) return [];
+    var sh = ((plan.shift % 12) + 12) % 12, ms = notes.map(function (n) { return n[2] + sh; }), mid = (Math.min.apply(null, ms) + Math.max.apply(null, ms)) / 2;
+    var o = 12 * Math.round((72 - mid) / 12);
+    return notes.map(function (n, i) { return { b: n[0], d: n[1], m: ms[i] + o, v: n[3] / 127 }; });
   }
   function songLabel(tr, i, m, key) {
     if (state.labels === 'sargam' || (tr.sargam && state.labels !== 'off')) return tr.sargam ? tr.sargam[i] : T.label(m, key, 'sargam');
@@ -4865,12 +4944,56 @@ body:not(.song) .sgover { display: none; }
       SCHED = t;
       var v; try { v = songSound(plan.tab, e.m, e.v); } finally { SCHED = 0; }
       // the same note again: the last one stops quickly as this starts (a new bow or breath), so the two never beat
-      var prev = sg.last[e.m];
+      var prev = sg.lastV[e.m];
       if (prev && prev.end > t - 0.4) releaseAt(prev.v, Math.max(prev.end, ctx.currentTime), 0.03);
-      if (v) { sg.voices.push(v); releaseAt(v, t + dur); sg.last[e.m] = { v: v, end: t + dur }; }
+      if (v) { sg.voices.push(v); releaseAt(v, t + dur); sg.lastV[e.m] = { v: v, end: t + dur }; }
       songAt(t, function () { songPress(e.tg, true); });
       songAt(t + dur, function () { songPress(e.tg, false); });
+    } else if (e.k === 'chord') songStrum(e, t);
+    else songHitFire(e, t);
+  }
+  // A strum on the chord's button: the guitar's own strings (or the rhythm guitar's), scheduled at t
+  function songStrum(e, t) {
+    var tab = sg.plan.tab, ci = e.ci, id = 'sg' + e.i + '_' + Math.round(t * 1000);
+    if (!(ci >= 0)) { songBackFire({ d: e.d, notes: e.c.iv.map(function (iv) { return 60 + (e.c.root + iv) % 12 + (iv >= 12 ? 12 : 0); }) }, t); return; } // not on the buttons
+    if (tab === 'rhythm') {
+      rh.chord = ci;
+      rhStrum(id, e.dir, e.dir > 0 ? 0.75 : 0.6, false, Math.max(0, t - ctx.currentTime));
+      if (vmap[id]) sg.voices.push(vmap[id].v);
+    } else {
+      gtr.chord = ci;
+      SCHED = t;
+      try { gtrStrum(id, e.dir, 0.75); } finally { SCHED = 0; }
+      delete gtr.held[id]; // the strings ring on until the next strum damps them
+      gtr.strVoice.forEach(function (v) { if (v && sg.voices.indexOf(v) < 0) sg.voices.push(v); });
     }
+    songAt(t, function () { songChordShow(tab, ci); songPress(e.tg, true); });
+    songAt(t + 0.12, function () { songPress(e.tg, false); });
+  }
+  function songChordShow(tab, ci) {
+    if (tab === 'rhythm') { rh.chord = ci; rhLabel(); } else { gtr.chord = ci; labelStrings(); }
+    $(tab === 'rhythm' ? 'rchords' : 'chords').querySelectorAll('[data-chord]').forEach(function (x) { x.setAttribute('aria-pressed', +x.dataset.chord === ci); });
+  }
+  // A drum hit or tabla stroke at t
+  function songHitFire(e, t) {
+    var tab = sg.plan.tab, v = null, vel = 0.35 + 0.65 * e.v;
+    SCHED = t;
+    try {
+      if (tab === 'drums') v = drum(e.hit, vel);
+      else if (tab === 'epad') { if (e.hit >= 0) v = ehit(e.hit, vel, t); }
+      else v = tablaStroke(e.hit, vel * 0.9);
+    } finally { SCHED = 0; }
+    if (v) sg.voices.push(v);
+    if (tab === 'epad') return; // the pad lights itself at its time
+    songAt(t, function () {
+      if (e.tg && e.tg.dr) flashZone(e.tg.dr, e.hit, e.bol);
+      else if (e.tg) { var el = e.tg.el; el.classList.add('on'); clearTimeout(el._t); el._t = setTimeout(function () { el.classList.remove('on'); }, 110); }
+    });
+  }
+  function songTuneFire(n, t) {
+    var dur = Math.max(0.08, n.d * spb() * 0.92);
+    SCHED = t;
+    try { var v = makeVoice('epiano', n.m, 0.22 + 0.2 * n.v); sg.voices.push(v); releaseAt(v, t + dur); } finally { SCHED = 0; }
   }
   function songBackFire(c, t) {
     var dur = Math.max(0.1, c.d * spb() * 0.98);
@@ -4883,6 +5006,7 @@ body:not(.song) .sgover { display: none; }
   function songPress(tg, on) {
     if (!tg) return;
     if (tg.el) tg.el.classList.toggle('on', on);
+    if (tg.pad) tg.pad.classList.toggle('on', on);
     if (tg.box && tgRow(tg)) tgRow(tg).classList.toggle('on', on);
     if (tg.box) songDot(on ? tg : null, 'press');
   }
@@ -4904,10 +5028,10 @@ body:not(.song) .sgover { display: none; }
     sgDotEl.className = 'sgdot show ' + cls;
   }
   function songGlow(list, label) {
-    sg.glow.forEach(function (tg) { if (tg.el) tg.el.classList.remove('sgnext'); });
+    sg.glow.forEach(function (tg) { if (tg.el) tg.el.classList.remove('sgnext'); if (tg.pad) tg.pad.classList.remove('sgnext'); });
     sg.glow = (list || []).filter(Boolean);
     var R = overRect(), first = null;
-    sg.glow.forEach(function (tg) { if (tg.el) tg.el.classList.add('sgnext'); first = first || tg; });
+    sg.glow.forEach(function (tg) { if (tg.el) tg.el.classList.add('sgnext'); if (tg.pad) tg.pad.classList.add('sgnext'); first = first || tg; });
     var boxTg = sg.glow.filter(function (tg) { return tg.box; })[0];
     if (boxTg) songDot(boxTg, 'next'); else if (sgDotEl.className.indexOf('next') >= 0) songDot(null);
     if (first && label) {
@@ -4938,7 +5062,7 @@ body:not(.song) .sgover { display: none; }
     var timed = sg.on && !sg.paused && sg.mode === 'train' && sg.level !== 'wait' && ctx;
     if (timed) {
       var now = heardNow(), lead = Math.max(1.4, 3 * spb()), next = null, css = getComputedStyle(document.body);
-      var ink = css.getPropertyValue('--key-on') || '#f2b134';
+      var ink = css.getPropertyValue('--key-on') || '#f2b134', ringed = [];
       sg.plan.ev.forEach(function (e) {
         if (!e.tg || e.b < sg.from || e.b >= sg.to) return;
         var t = timeAt(e.b), dt = t - now;
@@ -4946,6 +5070,13 @@ body:not(.song) .sgover { display: none; }
         if (sg.level !== 'rhythm' || dt > lead || dt < -0.25 || e.res) return;
         var c = tgCentre(e.tg, R);
         if (!c) return;
+        if (e.k !== 'note') { // pads, drum zones and chord buttons: one closing ring each, for the next hit on it
+          if (ringed.indexOf(e.tg.el) >= 0 || dt > 2 * spb()) return;
+          ringed.push(e.tg.el);
+          var r0 = Math.min(c.w, c.h) * 0.42;
+          g.strokeStyle = ink; g.lineWidth = 3; g.beginPath(); g.arc(c.x, c.y, r0 * (0.35 + 0.65 * Math.max(0, dt) / (2 * spb())) + 6, 0, Math.PI * 2); g.stroke();
+          return;
+        }
         var y = c.y - (dt / lead) * c.y, hgt = Math.max(10, Math.min(c.y * 0.6, e.d * spb() / lead * c.y));
         g.globalAlpha = 0.85; g.fillStyle = ink;
         var w = Math.max(14, Math.min(c.w * 0.7, 46));
@@ -5005,6 +5136,7 @@ body:not(.song) .sgover { display: none; }
   function songCursor(b) {
     sg.ei = 0; while (sg.ei < sg.plan.ev.length && sg.plan.ev[sg.ei].b < b - 1e-6) sg.ei++;
     sg.bi = 0; while (sg.bi < sg.plan.back.length && sg.plan.back[sg.bi].b < b - 1e-6) sg.bi++;
+    sg.ti = 0; while (sg.ti < sg.plan.tune.length && sg.plan.tune[sg.ti].b < b - 1e-6) sg.ti++;
     sg.click = Math.ceil(b - 1e-6);
   }
   function songTick() {
@@ -5016,6 +5148,8 @@ body:not(.song) .sgover { display: none; }
       sg.ei++;
     }
     while (backing && sg.bi < back.length && back[sg.bi].b < sg.to - 1e-6 && (t = timeAt(back[sg.bi].b)) <= ahead) { songBackFire(back[sg.bi], t); sg.bi++; }
+    var tune = sg.plan.tune;
+    while (sg.ti < tune.length && tune[sg.ti].b < sg.to - 1e-6 && (t = timeAt(tune[sg.ti].b)) <= ahead) { songTuneFire(tune[sg.ti], t); sg.ti++; }
     while (sg.metro && sg.click < sg.to - 1e-6 && (t = timeAt(sg.click)) <= ahead) { songClick(t, sg.click % bpb(sg.tr) === 0); sg.click++; }
     if (!auto) { // notes that went by unplayed
       var late = heardNow() - GOOD;
@@ -5040,7 +5174,7 @@ body:not(.song) .sgover { display: none; }
     clearInterval(sg.timer); sg.timer = 0;
     sg.timers.forEach(clearTimeout); sg.timers = [];
     if (ctx) sg.voices.forEach(function (v) { releaseVoice(v, Math.min(v.rel || 0.1, 0.12)); });
-    sg.voices = []; sg.last = {};
+    sg.voices = []; sg.lastV = {};
     sg.on = false; sg.paused = false;
     if (sg.plan) sg.plan.ev.forEach(function (e) { songPress(e.tg, false); });
     songGlow(null); songDot(null); sg.glowKey = '';
@@ -5062,7 +5196,7 @@ body:not(.song) .sgover { display: none; }
         sg.pauseBeat = Math.max(sg.from, beatAt(ctx.currentTime));
         clearInterval(sg.timer); sg.timer = 0;
         sg.timers.forEach(clearTimeout); sg.timers = [];
-        sg.voices.forEach(function (v) { releaseVoice(v, Math.min(v.rel || 0.1, 0.12)); }); sg.voices = []; sg.last = {};
+        sg.voices.forEach(function (v) { releaseVoice(v, Math.min(v.rel || 0.1, 0.12)); }); sg.voices = []; sg.lastV = {};
         sg.plan.ev.forEach(function (e) { songPress(e.tg, false); });
       }
     }
@@ -5202,6 +5336,17 @@ body:not(.song) .sgover { display: none; }
   // Plucked sounds are rendered once per note: do it before the song needs them
   function songPrewarm() {
     if (!ctx || !sg.plan) return;
+    if (sg.tab === 'guitar' || sg.tab === 'rhythm') { // every string of every chord in the song
+      var ns = [], was = sg.tab === 'rhythm' ? rh.chord : gtr.chord, kind = sg.tab === 'rhythm' ? 'acoustic' : gtr.sound;
+      sg.plan.ev.forEach(function (e) {
+        if (!(e.ci >= 0)) return;
+        if (sg.tab === 'rhythm') { rh.chord = e.ci; rhNotes().forEach(function (m) { if (m >= 0 && ns.indexOf(m) < 0) ns.push(m); }); }
+        else { gtr.chord = e.ci; for (var i = 0; i < gtr.n; i++) { var m = gtrMidi(i); if (m >= 0 && ns.indexOf(m) < 0) ns.push(m); if (m >= 0 && gType().course && i < 4 && ns.indexOf(m + 12) < 0) ns.push(m + 12); } }
+      });
+      if (sg.tab === 'rhythm') rh.chord = was; else gtr.chord = was;
+      (function next() { if (ns.length && sg.plan) { ksBuffer(ns.shift(), kind); setTimeout(next, 0); } })();
+      return;
+    }
     var type = sg.tab === 'ebass' ? 'bass' + eb.mode : BOWCFG[sg.tab] && bw.pizz ? BOWCFG[sg.tab].pizz : null;
     if (!type) return;
     var list = []; sg.plan.ev.forEach(function (e) { if (list.indexOf(e.m) < 0) list.push(e.m); });
@@ -5238,7 +5383,7 @@ body:not(.song) .sgover { display: none; }
     if (!sg.plan || sg.fitting || sg.tab !== tab) return;
     var on = sg.glow.length;
     songGlow(null);
-    sg.plan.ev.forEach(function (e) { if (e.k === 'note') e.tg = songTarget(tab, e.m); });
+    sg.plan.ev.forEach(function (e) { if (!e.auto) e.tg = evTarget(tab, e); });
     if (on && sg.wEv) { sg.wGroup = sg.plan.ev.filter(function (e) { return Math.abs(e.b - sg.wEv.b) < 1e-6 && e.tg; }); songGlow(sg.wGroup.map(function (e) { return e.tg; }), sg.wEv.lab); }
     sg.glowKey = '';
   }

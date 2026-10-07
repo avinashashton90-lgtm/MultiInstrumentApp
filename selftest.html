@@ -53,7 +53,7 @@ iframe.app { position: fixed; left: -10000px; top: 0; width: 900px; height: 420p
     <h1>Self-test</h1>
     <a class="btn" href="index.html">Back to the app</a>
   </header>
-  <p class="lead">Three parts: an automatic check of every instrument's tuning and loudness, a sound check you listen to, and a checklist for the things only a person can judge. <span id="ver"></span></p>
+  <p class="lead">Four parts: an automatic check of every instrument's tuning and loudness, a check of the songs on every instrument, a sound check you listen to, and a checklist for the things only a person can judge. <span id="ver"></span></p>
 
   <section aria-labelledby="h-auto">
     <h2 id="h-auto">1. Automatic check</h2>
@@ -65,15 +65,25 @@ iframe.app { position: fixed; left: -10000px; top: 0; width: 900px; height: 420p
     </table></div>
   </section>
 
+  <section aria-labelledby="h-songs">
+    <h2 id="h-songs">2. Songs check</h2>
+    <p class="lead">For each instrument: every song that suits it fits (each note, chord or hit has a key, hole, button, pad or drum zone to play it on), and the start of a sample song, played silently through the instrument's own sound, is in tune (within 5 cents) and on time.</p>
+    <div class="row"><button class="primary" id="runSongs">Run songs check</button></div>
+    <div class="status" id="songsStatus" aria-live="polite"></div>
+    <div class="tablewrap"><table id="songsTable" hidden>
+      <thead><tr><th>Instrument</th><th>Result</th><th>Songs</th><th>Fit</th><th>Sample</th><th>Measured</th></tr></thead><tbody></tbody>
+    </table></div>
+  </section>
+
   <section aria-labelledby="h-guided">
-    <h2 id="h-guided">2. Sound check</h2>
+    <h2 id="h-guided">3. Sound check</h2>
     <p class="lead">Turn the volume up to a normal level. Play the calibration tone first, then each instrument, and answer each one.</p>
     <div class="tablewrap"><table id="guided"><thead><tr><th>Sound</th><th></th><th>Can you hear this clearly?</th></tr></thead><tbody></tbody></table></div>
     <div class="status" id="guidedStatus" aria-live="polite"></div>
   </section>
 
   <section aria-labelledby="h-manual">
-    <h2 id="h-manual">3. Checklist</h2>
+    <h2 id="h-manual">4. Checklist</h2>
     <p class="lead">Try each of these in the app and tick what works. Then copy the results and send them on.</p>
     <div id="manual"></div>
     <p class="cat"><label for="notes">Notes</label></p>
@@ -226,7 +236,77 @@ iframe.app { position: fixed; left: -10000px; top: 0; width: 900px; height: 420p
     }).then(function () { restoreSettings(kept); btn.disabled = false; });
   };
 
-  /* ---------- 2. Guided sound check ---------- */
+  /* ---------- 2. Songs ---------- */
+  // The sample song for each kind of instrument, and what a melody, chord, bass, groove or taal is called
+  var SONG_SAMPLE = { melody: 'twinkle', chords: 'ch-twinkle', bass: 'bs-twinkle', drums: 'dr-rock', tabla: 'tl-keherwa' };
+  var songResults = [];
+  $('runSongs').onclick = function () {
+    var btn = this, tb = $('songsTable').tBodies[0], kept = saveSettings();
+    btn.disabled = true; tb.innerHTML = ''; $('songsTable').hidden = false; songResults = [];
+    $('songsStatus').textContent = 'Starting…';
+    loadApp(OFFLINE_INIT + '\n' + PTR_INIT).then(function (frame) {
+      var w = frame.contentWindow, P = w.PocketBandTest, S = P.songs, i = 0, PRE = 0.3, SECS = 6;
+      return S.load().then(function (lib) {
+        function next() {
+          if (i >= RECIPES.length) return Promise.resolve();
+          var r = RECIPES[i++], type = S.type(r.tab);
+          $('songsStatus').textContent = 'Checking songs on ' + r.name + ' (' + i + ' of ' + RECIPES.length + ')…';
+          P.open(r.tab); P.reset();
+          w.__pbSeconds = PRE + SECS + 1.5; w.__pbSeed = 1;
+          S.state().count = false;
+          P.init(); P.setVolume(1);
+          var res = { name: r.name, problems: [] }, list = lib.filter(function (t) { return S.suits(t, r.tab); }), missing = 0, events = 0;
+          list.forEach(function (t) { S.open(t, 'train', 'wait'); missing += S.state().plan.missing; events += S.state().plan.ev.length; S.close(); });
+          res.songs = list.length; res.fit = missing ? missing + ' of ' + events + ' without a place' : 'all ' + events;
+          if (list.length < 8) res.problems.push('only ' + list.length + ' songs');
+          if (missing) res.problems.push(missing + ' notes or hits have nowhere to play');
+          var tr = lib.filter(function (t) { return t.id === SONG_SAMPLE[type]; })[0];
+          res.sample = tr.title;
+          S.open(tr, 'auto'); S.halt();
+          var sg = S.state(), spb = S.spb(), ev = sg.plan.ev.filter(function (e) { return e.b * spb < SECS; });
+          sg.plan.tune = [];
+          var steps = ev.map(function (e) { return [PRE + e.b * spb, function () { S.fire(e, PRE + e.b * spb); }]; });
+          return w.__pbRender(steps).then(function (buf) {
+            var x = mono(buf), sr = buf.sampleRate, worst = 0, bad = 0, seen = {};
+            var rms = function (a, b) { var s2 = 0; a = Math.max(0, Math.round(a)); b = Math.round(b); for (var k = a; k < b; k++) s2 += x[k] * x[k]; return Math.sqrt(s2 / Math.max(1, b - a)); };
+            ev.forEach(function (e) {
+              var t = PRE + e.b * spb;
+              if (e.k === 'note') {
+                var xy = r.tab === 'xylo', a = Math.round((t + (xy ? 0.01 : Math.min(0.25, e.d * spb * 0.25))) * sr), b = Math.round((t + (xy ? 0.12 : Math.max(0.2, Math.min(0.6, e.d * spb * 0.85)))) * sr), fs = []; // a bar rings briefly
+                for (var q = 0; q < 3; q++) { var f = pitch(x, sr, Math.round(a + q * (b - a) / 3), Math.round(a + (q + 1) * (b - a) / 3) + 1500, type === 'bass' ? 28 : 45, 2600); if (f > 0) fs.push(f); }
+                fs.sort(function (p, q2) { return p - q2; });
+                var c = fs.length ? 100 * (69 + 12 * Math.log2(fs[Math.floor(fs.length / 2)] / 440) - e.m) : 999;
+                worst = Math.max(worst, Math.abs(c));
+                if (!(Math.abs(c) <= 5)) bad++;
+              } else if (!seen[t.toFixed(4)]) { // a hit: the sound jumps at its moment; a strum (whose strings follow one another) sounds
+                seen[t.toFixed(4)] = 1;
+                if (e.k === 'chord') { if (!(db(rms((t + 0.01) * sr, (t + 0.1) * sr)) > -40)) bad++; }
+                else if (!(db(rms((t + 0.001) * sr, (t + 0.03) * sr)) - db(rms((t - 0.012) * sr, (t - 0.001) * sr)) > 1.5)) bad++;
+              }
+            });
+            var n = ev.filter(function (e) { return e.k === 'note'; }).length;
+            res.measured = n ? n + ' notes, worst ' + worst.toFixed(1) + ' cents' : Object.keys(seen).length + ' ' + (type === 'chords' ? 'strums sounding' : 'hits on time');
+            if (bad) res.problems.push(bad + (n ? ' notes out of tune' : ' strums or hits not heard at their time'));
+            res.pass = !res.problems.length;
+            songResults.push(res);
+            var row = document.createElement('tr');
+            row.innerHTML = '<td>' + r.name + '</td><td class="' + (res.pass ? 'pass">Pass' : 'fail">Fail') + '</td><td>' + res.songs + '</td><td>' + res.fit + '</td><td>' + res.sample + '</td><td>' + res.measured + '</td>';
+            tb.appendChild(row);
+            if (!res.pass) { var r2 = document.createElement('tr'); r2.innerHTML = '<td></td><td class="det" colspan="5">' + res.problems.join('; ') + '</td>'; tb.appendChild(r2); }
+            return next();
+          });
+        }
+        return next();
+      }).then(function () {
+        var bad = songResults.filter(function (r) { return !r.pass; }).length;
+        $('songsStatus').innerHTML = bad ? '<span class="fail">Songs failed on ' + bad + ' of ' + songResults.length + ' instruments.</span>' : '<span class="pass">Songs passed on all ' + songResults.length + ' instruments.</span>';
+      }).then(function () { frame.remove(); }, function (e) { frame.remove(); throw e; });
+    }).catch(function (e) {
+      $('songsStatus').innerHTML = '<span class="fail">The songs check could not run: ' + (e && e.message || e) + '</span>';
+    }).then(function () { restoreSettings(kept); btn.disabled = false; });
+  };
+
+  /* ---------- 3. Guided sound check ---------- */
   var answers = {}, live = null, liveP = null, liveKept = null, ac = null;
   var SOUNDS = [{ tab: 'tone', name: 'Calibration tone (A, 440 Hz)' }].concat(RECIPES);
   SOUNDS.forEach(function (s) {
@@ -273,7 +353,7 @@ iframe.app { position: fixed; left: -10000px; top: 0; width: 900px; height: 420p
     }
   });
 
-  /* ---------- 3. Checklist ---------- */
+  /* ---------- 4. Checklist ---------- */
   var CHECKS = [
     ['Multi-touch', [
       ['Piano: a five-finger chord plays all five notes', 'and every note stops when you lift'],
@@ -295,6 +375,15 @@ iframe.app { position: fixed; left: -10000px; top: 0; width: 900px; height: 420p
       ['Change the key and scale on any instrument', 'the header shows the notes, e.g. "D Major: D E F♯ G A B C♯"'],
       ['The buttons or marks change to the new notes and sound in that key', ''],
       ['Piano: Scale lock on, off-scale keys play the nearest scale note', '']
+    ]],
+    ['Songs', [
+      ['Every instrument has a Songs button; the list shows each song\'s stars, length, tags and Free', 'search and the tag chips narrow the list'],
+      ['Auto-play: the song plays and the instrument visibly plays along', 'keys go down, holes and pads light, the chord buttons and strings move'],
+      ['Tempo, Loop, Count-in and the metronome do what they say', ''],
+      ['Train me, Wait: the next note glows with its name and waits for you', 'a wrong note gives a small shake and nothing is lost'],
+      ['Train me, Rhythm: notes fall toward their keys; Perfect, Good and Miss show', ''],
+      ['A song ends with stars, and the best score is there next time', ''],
+      ['Leaving the instrument or going Home stops the song at once', '']
     ]],
     ['Sound quality', [
       ['Trumpet, horn and sax start cleanly, with no crackle or buzz', ''],
@@ -322,9 +411,12 @@ iframe.app { position: fixed; left: -10000px; top: 0; width: 900px; height: 420p
       L.push('  ' + (r.pass ? 'PASS' : 'FAIL') + '  ' + r.name + ': ' + (r.note ? r.note + ' ' + (r.cents >= 0 ? '+' : '') + r.cents.toFixed(1) + ' cents, ' : '') +
         'peak ' + r.peak.toFixed(1) + ' dBFS, RMS ' + r.rms.toFixed(1) + ' dBFS, ' + r.clip + ' clipped' + (r.pass ? '' : ' (' + r.problems.join('; ') + ')'));
     });
-    L.push('', '2. Sound check');
+    L.push('', '2. Songs check');
+    if (!songResults.length) L.push('  not run');
+    songResults.forEach(function (r) { L.push('  ' + (r.pass ? 'PASS' : 'FAIL') + '  ' + r.name + ': ' + r.songs + ' songs, fit ' + r.fit + ', "' + r.sample + '" ' + r.measured + (r.pass ? '' : ' (' + r.problems.join('; ') + ')')); });
+    L.push('', '3. Sound check');
     SOUNDS.forEach(function (s) { L.push('  ' + (answers[s.tab] === 'yes' ? 'YES ' : answers[s.tab] === 'no' ? 'NO  ' : '--  ') + s.name); });
-    L.push('', '3. Checklist');
+    L.push('', '4. Checklist');
     boxes.forEach(function (b) { L.push('  [' + (b.el.checked ? 'x' : ' ') + '] ' + b.text); });
     if ($('notes').value.trim()) L.push('', 'Notes:', $('notes').value.trim());
     return L.join('\n');
@@ -340,7 +432,7 @@ iframe.app { position: fixed; left: -10000px; top: 0; width: 900px; height: 420p
       done(ok);
     }
   };
-  window.__selftest = { report: report, results: function () { return autoResults; } };
+  window.__selftest = { report: report, results: function () { return autoResults; }, songs: function () { return songResults; } };
 
   // The app's version, from the same file the service worker caches
   fetch('sw.js', { cache: 'no-cache' }).then(function (r) { return r.text(); }).then(function (t) { var m = t.match(/pocket-band-v(\d+)/); if (m) $('ver').textContent = 'App v' + m[1] + '.'; }).catch(function () {});
