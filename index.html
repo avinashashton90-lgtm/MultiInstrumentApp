@@ -503,6 +503,62 @@ body[data-screen="home"] .rotate { display: none !important; }
 @media (max-height: 420px) { .hhead h1 { font-size: 1.1rem; } .hfoot { display: none; } }
 @media (prefers-reduced-motion: reduce) { .card, .card .art { transition: none; } .card.pop .art { animation: none; } }
 
+/* Songs: the header button, the song bar, the sheet that lists tracks, and the Train me overlay */
+.songsb { display: inline-flex; align-items: center; gap: 5px; border-color: var(--accent); color: var(--accent); font-weight: 700; }
+.songsb svg { width: 17px; height: 17px; }
+body.song .songsb { background: var(--accent); color: #fff; }
+.songbar {
+  display: flex; align-items: center; gap: 6px; padding: 4px 10px; flex: 0 0 auto; overflow-x: auto; touch-action: pan-x;
+  background: color-mix(in srgb, var(--accent) 14%, var(--bar)); border-top: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+}
+.songbar[hidden] { display: none; }
+.songbar::-webkit-scrollbar { display: none; }
+.songbar button, .songbar select { min-height: 32px; padding: 2px 9px; }
+.sgname { font-size: .85rem; max-width: 22ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 0 0 auto; }
+.sgplay { min-width: 92px; font-weight: 700; }
+.sgscore, .sgresult { font-size: .8rem; font-weight: 700; white-space: nowrap; flex: 0 0 auto; }
+.sgresult { color: var(--black-on); }
+.sgwarn { font-size: .75rem; color: var(--rec); white-space: nowrap; flex: 0 0 auto; }
+.sgpos { white-space: nowrap; }
+.sgover { position: absolute; inset: 0; pointer-events: none; z-index: 6; overflow: hidden; }
+.sgover canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+body:not(.song) .sgover { display: none; }
+.sgnext { box-shadow: inset 0 0 0 4px var(--key-on), 0 0 14px 3px var(--key-on) !important; animation: sgpulse .9s ease-in-out infinite alternate; position: relative; z-index: 3; }
+.bkey.sgnext, .mkey.sharp.sgnext { z-index: 4; }
+.tabla .z.sgnext { stroke: var(--key-on); stroke-width: 6; box-shadow: none !important; }
+@keyframes sgpulse { from { filter: brightness(1); } to { filter: brightness(1.18); } }
+.sgtag { position: absolute; left: 0; top: 0; translate: -50% -100%; display: none; padding: 3px 9px; border-radius: 9px; background: var(--accent); color: #fff; font-weight: 700; font-size: .9rem; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,.25); }
+.sgtag.show { display: block; }
+.sgdot { position: absolute; left: 0; top: 0; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%; display: none; }
+.sgdot.show { display: block; }
+.sgdot.next { border: 4px solid var(--key-on); box-shadow: 0 0 14px 4px var(--key-on); animation: sgpulse .9s ease-in-out infinite alternate; }
+.sgdot.press { background: var(--key-on); box-shadow: 0 0 10px 3px var(--key-on); }
+@media (prefers-reduced-motion: reduce) { .sgnext, .sgdot.next { animation: none; } }
+
+.sheet { position: fixed; inset: 0; z-index: 30; display: flex; align-items: flex-end; justify-content: center; background: rgba(10, 16, 16, .45); }
+.sheet[hidden] { display: none; }
+.sheet-in {
+  width: min(780px, 100%); max-height: 92%; display: flex; flex-direction: column; background: var(--bg); color: var(--ink);
+  border-radius: 16px 16px 0 0; box-shadow: 0 -6px 24px rgba(0,0,0,.3); padding: 10px 14px 0;
+  padding-left: max(14px, env(safe-area-inset-left)); padding-right: max(14px, env(safe-area-inset-right));
+}
+.sheet-head { display: flex; align-items: center; gap: 10px; }
+.sheet-head h2 { margin: 0; font-size: 1.05rem; flex: 1 1 auto; }
+.sheet-tools { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 8px 0; }
+.sheet-tools input { flex: 1 1 160px; min-height: 36px; font: inherit; font-size: .9rem; padding: 4px 10px; border-radius: 10px; border: 2px solid var(--edge); background: var(--key); color: var(--ink); user-select: text; -webkit-user-select: text; touch-action: manipulation; }
+.sheet-tools .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.free { font-size: .7rem; font-weight: 700; color: #fff; background: #1f7a4d; border-radius: 6px; padding: 1px 6px; vertical-align: 1px; }
+.sglist { list-style: none; margin: 0; padding: 0 0 12px; overflow-y: auto; touch-action: pan-y; overscroll-behavior: contain; flex: 1 1 auto; min-height: 0; }
+.sgitem { display: flex; align-items: center; gap: 10px; padding: 8px 2px; border-bottom: 1px solid var(--edge); }
+.sgmain { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
+.sgt { font-size: .95rem; }
+.sgby, .sgmeta { font-size: .76rem; color: var(--muted); }
+.sglvl { color: var(--black-on); letter-spacing: 1px; } .sglvl i { font-style: normal; opacity: .3; }
+.sgbest { color: var(--accent); font-weight: 700; }
+.sgbtns { display: flex; gap: 6px; flex: 0 0 auto; }
+.sgtrain { border-color: var(--accent); color: var(--accent); font-weight: 700; }
+.sgempty { padding: 18px 4px; color: var(--muted); }
+
 .rotate {
   position: fixed; inset: 0; z-index: 20; background: var(--bg); display: none;
   flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 24px; text-align: center;
@@ -533,6 +589,7 @@ body[data-screen="home"] .rotate { display: none !important; }
 <div class="bar" id="bar">
   <button id="home" class="homeb" aria-label="Home: choose an instrument"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg></button>
   <span class="ihead"><span class="iname" id="iname">Piano</span><span class="tonal only-keyed" id="tonal" aria-live="polite"></span></span>
+  <button id="songs" class="songsb" aria-haspopup="dialog" aria-expanded="false" aria-controls="songSheet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg>Songs</button>
 
   <select id="key" class="only-keyed" aria-label="Key"></select>
   <select id="scale" class="only-keyed" aria-label="Scale"></select>
@@ -641,7 +698,32 @@ body[data-screen="home"] .rotate { display: none !important; }
   <button id="full">Full screen</button>
 </div>
 
+<div class="songbar" id="songBar" hidden>
+  <b class="sgname" id="sgName"></b>
+  <select id="sgMode" aria-label="Song mode">
+    <option value="auto">Auto-play</option>
+    <option value="wait">Train: Wait</option>
+    <option value="rhythm">Train: Rhythm</option>
+    <option value="along">Train: Play along</option>
+  </select>
+  <button id="sgPlay" class="sgplay">▶ Play</button>
+  <button id="sgStop" aria-label="Stop">■</button>
+  <span class="lbl" id="sgTempoName">Tempo</span>
+  <input type="range" id="sgTempo" class="fine" min="50" max="120" step="5" value="100" aria-label="Song tempo, percent">
+  <b class="kval" id="sgTempoLbl">100%</b>
+  <button id="sgLoop" aria-pressed="false">Loop</button>
+  <select id="sgSec" aria-label="Repeat a section"></select>
+  <button id="sgCount" aria-pressed="true">Count-in</button>
+  <button id="sgMetro" aria-pressed="false">Metronome</button>
+  <span class="sgpos lbl" id="sgPos"></span>
+  <span class="sgscore" id="sgScore" aria-live="polite"></span>
+  <span class="sgresult" id="sgResult" aria-live="polite"></span>
+  <span class="sgwarn" id="sgWarn" hidden></span>
+  <button id="sgX" aria-label="Close the song">✕</button>
+</div>
+
 <div class="stage">
+  <div class="sgover" id="sgOver" aria-hidden="true"><canvas id="sgLane"></canvas><div class="sgdot" id="sgDot"></div><div class="sgtag" id="sgTag"></div></div>
   <div class="view only-piano"><div class="piano" id="piano"></div></div>
 
   <div class="view only-drums"><div class="pads" id="pads"></div></div>
@@ -832,12 +914,23 @@ body[data-screen="home"] .rotate { display: none !important; }
   <button id="anyway">Play anyway</button>
 </div>
 
+<div class="sheet" id="songSheet" role="dialog" aria-modal="true" aria-labelledby="sgTitle" hidden>
+  <div class="sheet-in">
+    <div class="sheet-head"><h2 id="sgTitle">Songs</h2><span class="free">Free</span><button id="sgClose" aria-label="Close songs">✕</button></div>
+    <div class="sheet-tools">
+      <input id="sgSearch" type="search" placeholder="Search songs" aria-label="Search songs" autocomplete="off">
+      <div class="chips" id="sgTags" role="group" aria-label="Show songs tagged"></div>
+    </div>
+    <ul class="sglist" id="sgList"></ul>
+  </div>
+</div>
+
 <script>
 (function () {
   var AC = window.AudioContext || window.webkitAudioContext;
   var ctx, bus, master, limiter, makeup, wet, lfoDepth, noiseBuf, drive, conv, gch, eOut, hall;
   // App version: matches the service worker's cache name (sw.js), shown in Settings so a phone can be checked
-  var APP_VERSION = 6;
+  var APP_VERSION = 7;
   var MAKEUP = 1.26; // +2 dB after the limiter (Chrome's compressor adds its own make-up on top: see TESTING.md)
   var $ = function (id) { return document.getElementById(id); };
 
@@ -994,6 +1087,9 @@ body[data-screen="home"] .rotate { display: none !important; }
     rhythm: 0.78
   }/*END LEVEL*/;
 
+  // Songs (see "Songs" below): rows that start lower while a song is open, and the last note each voice was heard on
+  var songLow = {}, heardV = {};
+
   var state = {
     tab: 'piano', inst: 'piano', octave: 3, range: 3, chord: 'off', labels: 'names',
     velocity: true, pedal: false, vol: 1, rev: 0.25, vib: 0, screen: 'home'
@@ -1081,6 +1177,11 @@ body[data-screen="home"] .rotate { display: none !important; }
     hall.connect(hallOut); hallOut.connect(master);
   }
 
+  // Start time for a new sound: now, or a moment ahead on the audio clock when the song player schedules a note
+  // (it sets SCHED around the call, so timing comes from the audio clock, not from when a timer happened to fire)
+  var SCHED = 0;
+  function tNow() { return Math.max(ctx.currentTime, SCHED); }
+
   // Move an AudioParam smoothly from wherever it is now, even mid-ramp
   function glideTo(param, value, tc) {
     var now = ctx.currentTime;
@@ -1107,7 +1208,7 @@ body[data-screen="home"] .rotate { display: none !important; }
   var mtof = T.mtof;
 
   function makeVoice(inst, midi, vel) {
-    var f = mtof(midi), t = ctx.currentTime;
+    var f = mtof(midi), t = tNow();
     var g = ctx.createGain(), flt = ctx.createBiquadFilter();
     flt.type = 'lowpass';
     var oscs = [];
@@ -1195,6 +1296,7 @@ body[data-screen="home"] .rotate { display: none !important; }
     init();
     noteOff(id, true);
     if (recording && !fromPlayback) rec.push({ t: performance.now() - recStart, type: 'on', key: id, midi: midi, vel: vel, inst: inst, iv: iv });
+    if (!fromPlayback) songHeard('note', midi);
     var voices = [];
     iv.forEach(function (i) { voices.push({ midi: midi + i, v: makeVoice(inst, midi + i, vel) }); light(midi + i, 1); });
     active[id] = { base: midi, voices: voices };
@@ -1270,6 +1372,7 @@ body[data-screen="home"] .rotate { display: none !important; }
   function setOctave(n) {
     state.octave = Math.max(1, Math.min(8 - state.range, n));
     buildPiano();
+    songRetarget('piano');
   }
 
   // Chord intervals for a key press: fixed shapes, or the scale's own chord on that note
@@ -1329,7 +1432,7 @@ body[data-screen="home"] .rotate { display: none !important; }
   // Drum hits are short one-shots (all under 1.6 s) so they always end on their own.
   function drum(name, vel) {
     init();
-    var t = ctx.currentTime, e = drumKit === 'electro';
+    var t = tNow(), e = drumKit === 'electro';
     var g = ctx.createGain(); g.gain.value = vel * LEVEL.drums[drumKit][name]; g.connect(bus);
     var v = { g: g, oscs: [], rel: 0.05, done: false }, longest = 0, last = null;
 
@@ -1362,7 +1465,7 @@ body[data-screen="home"] .rotate { display: none !important; }
       });
     }
 
-    if (name === 'hatC' && openHat) { releaseVoice(openHat, 0.03); openHat = null; }
+    if (name === 'hatC' && openHat) { if (t > ctx.currentTime + 0.002) dampAt(openHat, t, 0.03); else releaseVoice(openHat, 0.03); openHat = null; }
     switch (name) {
       // Phone speakers can't play the low thump, so kicks and toms also carry upper harmonics and a beater click
       case 'kick':
@@ -1398,6 +1501,7 @@ body[data-screen="home"] .rotate { display: none !important; }
     doneWhenEnded(v, last);
     if (name === 'hatO') openHat = v;
     track(v);
+    return v;
   }
 
   function buildPads() {
@@ -1420,6 +1524,7 @@ body[data-screen="home"] .rotate { display: none !important; }
 
   function hitPad(id, vel) {
     drum(id, vel);
+    songHeard('hit', id);
     var el = padEls[id];
     el.classList.add('on');
     clearTimeout(el._t);
@@ -1595,11 +1700,11 @@ body[data-screen="home"] .rotate { display: none !important; }
   function pluck(i, vel, owner, delay) {
     init();
     var t = gType(), m = gtrMidi(i), el = gtr.strEls[i];
-    var at = Math.max(0, delay || 0) + Math.random() * 0.005;
-    if (el) setTimeout(function () { gtrFlash(el); }, at * 1000);
+    var at = Math.max(0, delay || 0) + Math.random() * 0.005, when = tNow() + at;
+    if (el) setTimeout(function () { gtrFlash(el); }, (when - ctx.currentTime) * 1000);
     if (m < 0) return;
-    releaseVoice(gtr.strVoice[i], 0.04); // a string can only ring once
-    var when = ctx.currentTime + at, g = ctx.createGain(), srcs = [];
+    if (when > ctx.currentTime + 0.002) dampAt(gtr.strVoice[i], when, 0.04); else releaseVoice(gtr.strVoice[i], 0.04); // a string can only ring once
+    var g = ctx.createGain(), srcs = [];
     g.gain.setValueAtTime(0, when);
     g.gain.linearRampToValueAtTime(t.gain * vel * LEVEL.guitar[gtr.sound], when + 0.004); // fade-in, no click
     g.connect(gch.in);
@@ -1706,13 +1811,14 @@ body[data-screen="home"] .rotate { display: none !important; }
   function upWeight(i, n) { var fromTop = n - 1 - i; return fromTop < 4 ? 1 : fromTop === 4 ? 0.3 : 0; }
   function gtrStrum(owner, dir, fast) {
     init();
-    var now = ctx.currentTime, gap = strumGap(fast), vel = strumVel(dir, fast), k = 0;
+    var now = tNow(), gap = strumGap(fast), vel = strumVel(dir, fast), k = 0;
     gtr.strVoice.forEach(function (v) { dampAt(v, now, STRUM_DAMP); });
     for (var j = 0; j < gtr.n; j++) {
       var i = dir > 0 ? j : gtr.n - 1 - j, w = dir > 0 ? 1 : upWeight(i, gtr.n);
       if (w > 0 && gtrMidi(i) >= 0) pluck(i, vel * w, owner, (k++) * gap);
     }
     pickFx($('neck'), dir);
+    if (String(owner).indexOf('sg') !== 0) songHeard('chord', gtr.chords[gtr.chord].name, dir);
   }
 
   // Strum gesture on a strings area. Every change of direction starts a new strum, and a short flick (8 px is
@@ -1801,8 +1907,8 @@ body[data-screen="home"] .rotate { display: none !important; }
     fluteStopAll();
     fl.cells.forEach(function (c) { c.remove(); });
     fl.cells = []; fl.notes = [];
-    var st = TONAL.flute, root = 60 + st.key;
-    fl.notes = T.run(root, st.scale, 2 * T.iv(st.scale).length + 1); // two octaves and the top root
+    var st = TONAL.flute, root = 60 + st.key, n = 2 * T.iv(st.scale).length + 1;
+    fl.notes = songLow.flute !== undefined ? scaleFrom(songLow.flute, st.key, st.scale, n) : T.run(root, st.scale, n); // two octaves and the top root
     fl.notes.forEach(function (m) {
       var c = document.createElement('div');
       c.className = 'fcell' + (T.pc(m) === st.key ? ' root' : '');
@@ -1824,7 +1930,7 @@ body[data-screen="home"] .rotate { display: none !important; }
 
   function fluteVoice(midi, lvl) {
     init();
-    var t = ctx.currentTime, f = mtof(midi);
+    var t = tNow(), f = mtof(midi);
     var g = ctx.createGain(), ex = ctx.createGain(), lp = ctx.createBiquadFilter();
     g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.42 * LEVEL.flute, t + 0.06);
     ex.gain.value = lvl;
@@ -1874,12 +1980,14 @@ body[data-screen="home"] .rotate { display: none !important; }
       if (fl.cells[fl.cur]) fl.cells[fl.cur].classList.remove('on');
       fl.cur = at.idx; fl.cells[fl.cur].classList.add('on');
     }
+    heardVoice('fl', 'flute', fl.notes[at.idx], 1);
     fdot.style.display = 'block';
     fdot.style.transform = 'translate(' + x + 'px,' + y + 'px)';
   }
 
   function fluteSilence() {
     if (fl.v) { releaseVoice(fl.v, fl.v.rel); fl.v = null; }
+    delete heardV.fl;
     if (fl.cells[fl.cur]) fl.cells[fl.cur].classList.remove('on');
     fl.cur = -1; fdot.style.display = 'none';
   }
@@ -1944,9 +2052,9 @@ body[data-screen="home"] .rotate { display: none !important; }
 
   function tablaStroke(bol, vel) {
     init();
-    var B = BOLS[bol], t = ctx.currentTime;
+    var B = BOLS[bol], t = tNow();
     var prev = B.d ? tb.dV : tb.bV;
-    releaseVoice(prev, 0.03); // one skin per drum: a new stroke damps the last one
+    if (t > ctx.currentTime + 0.002) dampAt(prev, t, 0.03); else releaseVoice(prev, 0.03); // one skin per drum: a new stroke damps the last one
     var f0 = mtof(saMidi() - (B.d ? 0 : 17)) * (B.ratio || 1);
     var g = ctx.createGain(); g.gain.value = vel * 0.38 * LEVEL.tabla[bol]; g.connect(bus);
     var v = { g: g, oscs: [], parts: [], rel: 0.05, done: false, f0: f0 }, longest = 0, last = null;
@@ -2066,6 +2174,7 @@ body[data-screen="home"] .rotate { display: none !important; }
   function tablaHit(bol, dr, label, vel) {
     var v = tablaStroke(bol, (vel || 0.7) + (Math.random() - 0.5) * 0.08);
     if (dr) flashZone(dr, bol, label || bol);
+    songHeard('hit', bol);
     return v;
   }
 
@@ -2229,7 +2338,7 @@ body[data-screen="home"] .rotate { display: none !important; }
   function ehit(i, vel, when) {
     init();
     var pad = EKITS[ep.kit].pads[i], P = pad[2], tune = ep.tune[ep.kit][i];
-    var pk = Math.pow(2, tune.p / 12), dk = tune.d, t = Math.max(when || 0, ctx.currentTime);
+    var pk = Math.pow(2, tune.p / 12), dk = tune.d, t = Math.max(when || 0, tNow());
     var g = ctx.createGain(); g.gain.value = vel * 0.85 * LEVEL.epad[ep.kit][i]; g.connect(eOut);
     var v = { g: g, oscs: [], rel: 0.04, done: false }, longest = 0, last = null;
 
@@ -2357,10 +2466,12 @@ body[data-screen="home"] .rotate { display: none !important; }
       el.classList.add('on'); clearTimeout(el._t);
       el._t = setTimeout(function () { el.classList.remove('on'); }, 100);
     }, Math.max(0, (t - ctx.currentTime) * 1000));
+    return v;
   }
 
   function epadHit(i, vel) {
     ehit(i, vel);
+    songHeard('hit', i);
     selectPad(i);
     recordHit(i, vel);
   }
@@ -2519,6 +2630,7 @@ body[data-screen="home"] .rotate { display: none !important; }
     if (recording && !pb) rec.push({ t: recNow(), type: 'v', op: 'start', key: id, tab: tab, m: m, l: l, x: x });
     if (pb && window.__PB_TEST__) (window.__pbPlayed = window.__pbPlayed || []).push(tab);
     vmap[id] = { tab: tab, v: ENG[tab].make(m, l, x || {}) };
+    if (!pb) heardVoice(id, tab, m, l);
     showNote(m, tab);
   }
   function vSet(id, m, l, x, pb) {
@@ -2527,6 +2639,7 @@ body[data-screen="home"] .rotate { display: none !important; }
     if (recording && !pb) rec.push({ t: recNow(), type: 'v', op: 'set', key: id, m: m, l: l, x: x });
     if (a.v.done) return;
     ENG[a.tab].set(a.v, m, l, x || {});
+    if (!pb) heardVoice(id, a.tab, m, l);
     showNote(m, a.tab);
   }
   function vStop(id, silent) {
@@ -2534,6 +2647,7 @@ body[data-screen="home"] .rotate { display: none !important; }
     if (!a) return;
     delete vmap[id];
     if (recording && !silent && String(id).indexOf('pb') !== 0) rec.push({ t: recNow(), type: 'v', op: 'stop', key: id });
+    delete heardV[id];
     releaseVoice(a.v, a.v.rel);
   }
 
@@ -2629,7 +2743,7 @@ body[data-screen="home"] .rotate { display: none !important; }
 
   ENG.harmonica = {
     make: function (m, l, x) {
-      var c = hmChain(), t = ctx.currentTime, f = mtof(m), all = [], os = [];
+      var c = hmChain(), t = tNow(), f = mtof(m), all = [], os = [];
       var g = ctx.createGain(), lv = ctx.createGain(), lp = ctx.createBiquadFilter();
       g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.42 * LEVEL.harmonica, t + 0.03);
       lv.gain.value = l;
@@ -2764,7 +2878,7 @@ body[data-screen="home"] .rotate { display: none !important; }
     function bright(l) { return Math.min(C.lp[2], C.lp[0] + C.lp[1] * l); }
     return {
       make: function (m, l, x) {
-        var c = bowChain(tab), t = ctx.currentTime, g = ctx.createGain(), lv = ctx.createGain(), v;
+        var c = bowChain(tab), t = tNow(), g = ctx.createGain(), lv = ctx.createGain(), v;
         lv.gain.value = l; lv.connect(g); g.connect(c.in);
         if (x.pizz) { // plucked: a rendered string that rings down on its own
           var r = Math.round(m), s = ctx.createBufferSource();
@@ -3085,7 +3199,7 @@ body[data-screen="home"] .rotate { display: none !important; }
   function brassEngine(tab, cfg, hook) {
     return {
       make: function (m, l, x) {
-        var c = brassChain(tab, cfg, hook), t = ctx.currentTime, f = mtof(m), all = [], os = [], mix = [];
+        var c = brassChain(tab, cfg, hook), t = tNow(), f = mtof(m), all = [], os = [], mix = [];
         var g = ctx.createGain(), lv = ctx.createGain(), sum = ctx.createGain(), peak = cfg.gain * LEVEL[tab];
         // attack: a smooth rise that is 95% there after cfg.att seconds
         g.gain.setValueAtTime(0, t); g.gain.setTargetAtTime(peak, t, cfg.att / 3);
@@ -3178,7 +3292,7 @@ body[data-screen="home"] .rotate { display: none !important; }
     var st = TONAL.horn, root = 48 + st.key;
     hn.cells.forEach(function (c) { c.remove(); });
     hn.cells = [];
-    hn.notes = T.run(root, st.scale, 2 * T.iv(st.scale).length + 1);
+    hn.notes = songLow.horn !== undefined ? scaleFrom(songLow.horn, st.key, st.scale, 2 * T.iv(st.scale).length + 1) : T.run(root, st.scale, 2 * T.iv(st.scale).length + 1);
     hn.notes.forEach(function (m) {
       var c = document.createElement('div');
       c.className = 'hcell' + (T.pc(m) === st.key ? ' root' : '');
@@ -3289,7 +3403,7 @@ body[data-screen="home"] .rotate { display: none !important; }
       var st = TONAL[tab], root = T.rootFrom(st.key, low);
       w.cells.forEach(function (c) { c.remove(); });
       w.cells = [];
-      w.notes = T.run(root, st.scale, 2 * T.iv(st.scale).length + 1);
+      w.notes = songLow[tab] !== undefined ? scaleFrom(songLow[tab], st.key, st.scale, 2 * T.iv(st.scale).length + 1) : T.run(root, st.scale, 2 * T.iv(st.scale).length + 1);
       w.notes.forEach(function (m) {
         var c = document.createElement('div');
         c.className = 'wcell' + (T.pc(m) === st.key ? ' root' : '');
@@ -3489,7 +3603,7 @@ body[data-screen="home"] .rotate { display: none !important; }
   }
   ENG.organ = {
     make: function (m, l, x) {
-      var c = orgChain(), t = ctx.currentTime, f = mtof(m), all = [], ranks = [];
+      var c = orgChain(), t = tNow(), f = mtof(m), all = [], ranks = [];
       var g = ctx.createGain(), sum = ctx.createGain(), tone = biq('lowpass', x.up ? 4500 : 8000, 0.5);
       g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.32 * LEVEL.organ, t + 0.03);
       ORG_RANK.forEach(function (r, i) {
@@ -3553,7 +3667,7 @@ body[data-screen="home"] .rotate { display: none !important; }
   function syCutHz(pct) { return 120 * Math.pow(100, pct / 100); } // 0-100% of the knob: 120 Hz to 12 kHz
   ENG.synth = {
     make: function (m, l, x) {
-      var c = softChain('synth'), p = SYN[x.p] || SYN.lead, t = ctx.currentTime, f = mtof(m), all = [], os = [];
+      var c = softChain('synth'), p = SYN[x.p] || SYN.lead, t = tNow(), f = mtof(m), all = [], os = [];
       var g = ctx.createGain(), flt = biq('lowpass', 1000, p.q), peak = 0.36 * LEVEL.synth[x.p] * (0.5 + 0.5 * l), att = Math.max(0.002, x.att / 1000);
       var cut = Math.min(18000, syCutHz(x.cut) * Math.pow(f / 261.6, 0.5)); // the filter follows the keyboard
       var vd = vibrato(t, 5.6, x.vib, 0.25, all);
@@ -3599,7 +3713,7 @@ body[data-screen="home"] .rotate { display: none !important; }
   var xy = { notes: [], bars: [], ptr: {}, n: 0 };
   ENG.xylo = {
     make: function (m, l) {
-      var c = softChain('xylo'), t = ctx.currentTime, f = mtof(m), k = Math.pow(523 / f, 0.35), all = [], longest = null, lt = 0;
+      var c = softChain('xylo'), t = tNow(), f = mtof(m), k = Math.pow(523 / f, 0.35), all = [], longest = null, lt = 0;
       var g = ctx.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.5 * l * LEVEL.xylo, t + 0.001);
       XY_MODES.forEach(function (md) {
         if (f * md[0] > 16000) return;
@@ -3625,7 +3739,7 @@ body[data-screen="home"] .rotate { display: none !important; }
   function buildXylo() {
     xyStopAll();
     var st = TONAL.xylo, root = T.rootFrom(st.key, 65), n;
-    xy.notes = T.run(root, st.scale, 2 * T.iv(st.scale).length + 1);
+    xy.notes = songLow.xylo !== undefined ? scaleFrom(songLow.xylo, st.key, st.scale, 2 * T.iv(st.scale).length + 1) : T.run(root, st.scale, 2 * T.iv(st.scale).length + 1);
     n = xy.notes.length;
     xylo.innerHTML = '';
     xy.bars = xy.notes.map(function (m, i) {
@@ -3681,7 +3795,7 @@ body[data-screen="home"] .rotate { display: none !important; }
   }
   ENG.ebass = {
     make: function (m, l, x) {
-      var c = ebChain(), t = ctx.currentTime, mode = x.mode || 'finger', r = Math.round(m), all = [];
+      var c = ebChain(), t = tNow(), mode = x.mode || 'finger', r = Math.round(m), all = [];
       var s = ctx.createBufferSource(), g = ctx.createGain();
       s.buffer = ksBuffer(r, 'bass' + mode); s.playbackRate.value = Math.pow(2, (m - r) / 12);
       g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.6 * l * LEVEL.ebass[mode], t + 0.003);
@@ -3775,7 +3889,7 @@ body[data-screen="home"] .rotate { display: none !important; }
   }
   ENG.rhythm = {
     make: function (m, l, x) {
-      var c = rhChain(), t = ctx.currentTime, when = t + (x.dl || 0), notes = x.notes, all = [], last = null;
+      var c = rhChain(), t = tNow(), when = t + (x.dl || 0), notes = x.notes, all = [], last = null;
       var g = ctx.createGain(), sum = ctx.createGain(), peak = 0.42 * l * LEVEL.rhythm;
       g.gain.setValueAtTime(0, t); g.gain.setValueAtTime(0, when); g.gain.linearRampToValueAtTime(peak, when + 0.003);
       if (x.palm) { // the side of the hand on the bridge: dark, and dies quickly
@@ -3848,6 +3962,7 @@ body[data-screen="home"] .rotate { display: none !important; }
     vStart('rhythm', id, 0, vel, { notes: rhNotes(), dir: dir, mute: !!mute, palm: rh.palm && !mute, dl: dl || 0, gap: gap || 0.011 });
     rhFlash(dl || 0);
     setTimeout(function () { pickFx($('rneck'), dir); }, Math.max(0, (dl || 0) * 1000));
+    if (!mute && !/^(ra|sg)/.test(id)) songHeard('chord', rh.chords[rh.chord].name, dir);
   }
   function rhTick() {
     if (!rh.auto) return;
@@ -3981,13 +4096,14 @@ body[data-screen="home"] .rotate { display: none !important; }
     else if (tab === 'xylo') buildXylo();
     else if (tab === 'ebass') buildEbass();
     else if (tab === 'rhythm') buildRhythm();
+    songRetarget(tab);
   }
   function syncNewControls(tab) {
     $('irev').value = NST[tab].rev;
     nread.textContent = '';
   }
-  $('key').onchange = function () { TONAL[state.tab].key = +this.value; saveTonal(); rebuildTonal(state.tab); };
-  $('scale').onchange = function () { TONAL[state.tab].scale = this.value; saveTonal(); rebuildTonal(state.tab); };
+  $('key').onchange = function () { TONAL[state.tab].key = +this.value; saveTonal(); rebuildTonal(state.tab); songRefit(); };
+  $('scale').onchange = function () { TONAL[state.tab].scale = this.value; saveTonal(); rebuildTonal(state.tab); songRefit(); };
   $('slock').onclick = function () {
     LOCK[state.tab] = !LOCK[state.tab]; saveTonal();
     this.setAttribute('aria-pressed', LOCK[state.tab]);
@@ -4004,7 +4120,7 @@ body[data-screen="home"] .rotate { display: none !important; }
   toggleBtn('htrem', function () { hm.trem = !hm.trem; hmTrem(); return hm.trem; });
   toggleBtn('bsnap', function () { return bw.snap = !bw.snap; });
   toggleBtn('bvib', function () { return bw.vib = !bw.vib; });
-  toggleBtn('bpizz', function () { bw.pizz = !bw.pizz; buildBowed(); return bw.pizz; });
+  toggleBtn('bpizz', function () { bw.pizz = !bw.pizz; buildBowed(); songRetarget(bw.tab); return bw.pizz; });
   toggleBtn('hstop', function () { hn.stop = !hn.stop; hnStopTone(); return hn.stop; });
   $('hslide').oninput = function () { hn.slide = +this.value; };
   toggleBtn('tgrowl', function () { return tp.growl = !tp.growl; });
@@ -4043,6 +4159,7 @@ body[data-screen="home"] .rotate { display: none !important; }
   document.addEventListener('visibilitychange', function () {
     if (!document.hidden) return;
     releaseAllHeld(); setDrone(false); seqPlay(false); rhAuto(false);
+    if (sg.on && !sg.paused) songPause();
   });
 
   // Safety net: when no finger is on the screen, nothing touch-driven may keep sounding
@@ -4073,10 +4190,12 @@ body[data-screen="home"] .rotate { display: none !important; }
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     var tag = (e.target.tagName || '').toLowerCase();
     if (state.screen === 'home') { galleryKey(e); return; }
-    if (e.repeat || tag === 'select' || tag === 'input') return;
+    if (e.repeat || tag === 'select' || tag === 'input') { if (e.key === 'Escape' && !$('songSheet').hidden) songsSheet(false); return; }
+    if (!$('songSheet').hidden && e.key !== 'Escape') return;
     var k = e.key.toLowerCase();
     if (k === 'escape') {
-      if ($('panel').classList.contains('open')) $('more').click(); else goHome();
+      if (!$('songSheet').hidden) songsSheet(false);
+      else if ($('panel').classList.contains('open')) $('more').click(); else goHome();
       return;
     }
     if (state.tab === 'piano') {
@@ -4365,6 +4484,7 @@ body[data-screen="home"] .rotate { display: none !important; }
   /* ---------- Switching instruments ---------- */
   // Leaving an instrument: every sound fades out quickly, nothing keeps ringing into the next one
   function silenceAll() {
+    songsSheet(false); songClose();
     releaseAllHeld();
     if (playing) stopPlayback();
     if (recording) $('rec').click();
@@ -4518,6 +4638,842 @@ body[data-screen="home"] .rotate { display: none !important; }
 
   $('anyway').onclick = function () { document.body.classList.add('allow-portrait'); };
 
+  /* ---------- Songs: free tracks with Auto-play and Train me ---------- */
+  // The library is tracks/*.json (built by tools/make-tracks.mjs, listed in TRACKS.md). It is fetched the first time
+  // the Songs sheet opens and the service worker caches it, so songs work offline. A note is
+  // [start beat, length in beats, MIDI note, velocity 0-127]; a beat is a quarter note.
+  // Picking a track fits it to the instrument: it moves into the instrument's key (and, when the scale shown can't
+  // hold every note, the song's own scale), then into the octave where most of it can be played; rows of notes start
+  // lower or the keyboard changes octave so the whole song is on screen. Closing the song puts all of that back.
+  var SONG_FILES = ['melodies', 'chords', 'bass', 'drums', 'tabla'];
+  var SONG_TYPE = { guitar: 'chords', rhythm: 'chords', ebass: 'bass', drums: 'drums', epad: 'drums', tabla1: 'tabla', tabla2: 'tabla' };
+  // Where a fitted song should sit on each instrument (MIDI), and the instruments whose row of notes can start lower
+  var SONG_RANGE = { piano: [48, 84], organ: [48, 84], synth: [36, 84], flute: [60, 96], harmonica: [55, 96], horn: [41, 77],
+    trumpet: [54, 84], sax: [49, 81], xylo: [60, 96], violin: [55, 93], viola: [48, 83], cello: [36, 71], ebass: [28, 55] };
+  var SONG_ROWS = { flute: 1, horn: 1, trumpet: 1, sax: 1, xylo: 1 };
+  var SONG_TAGS = ['Kids', 'Classical', 'Folk', 'Indian', 'Hymn'];
+  // Tabla bols as strokes on the two drums (the dayan's Na, Tin, Tun, Te, Ti; the bayan's Ge, Ke). On the single
+  // tabla the bayan's part plays itself.
+  var TABLA_MAP = { Dha: ['Na', 'Ge'], Dhin: ['Tin', 'Ge'], Dhi: ['Tin', 'Ge'], Din: ['Tin', 'Ge'], Tin: ['Tin'], Tu: ['Tun'], Na: ['Na'], Ta: ['Na'],
+    Ti: ['Te'], Ra: ['Ti'], Ki: ['Ke'], Ka: ['Ke'], Kat: ['Ke'], Ge: ['Ge'], Ga: ['Ge'], Di: ['Tin'], Ne: ['Na'] };
+  // Drum-pad names for a groove's pads, in each kit (the first that the kit has)
+  var EP_NAMES = { kick: ['Kick'], snare: ['Snare'], hatC: ['Closed hat'], hatO: ['Open hat'], clap: ['Clap'], crash: ['Crash'],
+    tomL: ['Tom low', 'Tom'], tomH: ['Tom high', 'Tom'] };
+  var ARROW = { D: ' ↓', U: ' ↑' };
+  var LOOKAHEAD = 0.12, PERFECT = 0.08, GOOD = 0.18; // seconds
+  var songLib = null, songLibP = null;
+  var sg = { tr: null, plan: null, tab: '', mode: 'auto', level: 'wait', on: false, paused: false, tempo: 100, speed: 100, loop: false,
+             count: true, metro: false, sec: -1, timer: 0, raf: 0, voices: [], lastV: {}, timers: [], restore: null, best: {}, fx: [], glow: [] };
+  try { sg.best = JSON.parse(localStorage.getItem('pb-songs') || '{}') || {}; } catch (e) { sg.best = {}; }
+
+  function songType(tab) { return SONG_TYPE[tab] || 'melody'; }
+  function loadSongs() {
+    if (songLibP) return songLibP;
+    songLibP = Promise.all(SONG_FILES.map(function (f) {
+      return fetch('tracks/' + f + '.json').then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
+    })).then(function (lists) { songLib = [].concat.apply([], lists); return songLib; }, function (e) { songLibP = null; throw e; });
+    return songLibP;
+  }
+  function scaleFrom(low, key, scale, count) {
+    var out = [];
+    for (var m = low; out.length < count && m < low + 72; m++) if (T.inScale(m, key, scale)) out.push(m);
+    return out;
+  }
+  function keyPc(name) { var m = /^([A-G])(#|b)?/.exec(name), s = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 }; return (s[m[1]] + (m[2] === '#' ? 1 : m[2] === 'b' ? -1 : 0) + 12) % 12; }
+  // "F#m7" -> root, chord tones (above the root) and the triad's name as the chord buttons spell it
+  function parseChord(sym, shift) {
+    var m = /^([A-G](?:#|b)?)(.*)$/.exec(sym), q = m[2], root = (keyPc(m[1]) + (shift || 0) + 120) % 12;
+    var iv = /^m(?!aj)/.test(q) ? [0, 3, 7] : /^dim/.test(q) ? [0, 3, 6] : /^(\+|aug)/.test(q) ? [0, 4, 8] : /^sus4/.test(q) ? [0, 5, 7] : [0, 4, 7];
+    if (/maj7/.test(q)) iv = iv.concat([11]); else if (/7/.test(q)) iv = iv.concat([10]);
+    return { root: root, iv: iv, name: T.NAMES[root] + (iv[1] === 3 ? (iv[2] === 6 ? 'dim' : 'm') : iv[2] === 8 ? '+' : '') };
+  }
+  function bpb(tr) { return tr.time[0] * 4 / tr.time[1]; }
+  function songSecs(tr) { return tr.bars * bpb(tr) * 60 / tr.tempo; }
+  function songSuits(tr, tab) { return tr.type === songType(tab); }
+  function epadIndex(name) {
+    var pads = EKITS[ep.kit].pads, want = EP_NAMES[name] || [];
+    for (var k = 0; k < want.length; k++) for (var i = 0; i < pads.length; i++) if (pads[i][0] === want[k]) return i;
+    return -1;
+  }
+  function chordList(tab) { return tab === 'rhythm' ? rh.chords : gtr.chords; }
+  function chordIndex(tab, name) { var l = chordList(tab); for (var i = 0; i < l.length; i++) if (l[i].name === name) return i; return -1; }
+  function tablaDrum(tab, stroke) { var d = BOLS[stroke].d; return tab === 'tabla1' ? (d ? tb.drums.d1 : null) : d ? tb.drums.d2 : tb.drums.b2; }
+  // Where an event is played: a note's key, hole or spot; a chord's button; a pad or a zone of a drum
+  function evTarget(tab, e) {
+    if (e.k === 'note') return songTarget(tab, e.m);
+    if (e.k === 'chord') { e.ci = chordIndex(tab, e.c.name); var w = $(tab === 'rhythm' ? 'rchords' : 'chords'); return e.ci >= 0 ? { el: w.querySelector('[data-chord="' + e.ci + '"]'), pad: $(tab === 'rhythm' ? 'rpads' : 'gpads').querySelector('[data-dir="' + e.dir + '"]') } : null; }
+    if (tab === 'drums') return padEls[e.hit] ? { el: padEls[e.hit] } : null;
+    if (tab === 'epad') { e.hit = epadIndex(e.pad); return e.hit >= 0 ? { el: ep.els[e.hit] } : null; }
+    var dr = tablaDrum(tab, e.hit);
+    return dr && dr.els[e.hit] ? { el: dr.els[e.hit], dr: dr } : null;
+  }
+  function bestKey(tr, tab, level) { return tr.id + '|' + tab + '|' + level; }
+
+  /* Fitting a track to the instrument */
+  // Notes the instrument's layout can play right now, as a lookup
+  function layoutSet(tab) {
+    var set = {}, i, k, s;
+    function add(list) { list.forEach(function (m) { set[m] = 1; }); }
+    if (tab === 'piano') add(Object.keys(keyEls).map(Number));
+    else if (tab === 'organ') orgMan.forEach(function (kr) { add(kr.keys.map(function (b) { return +b.dataset.midi; })); });
+    else if (tab === 'synth') add(syKeys.keys.map(function (b) { return +b.dataset.midi; }));
+    else if (tab === 'flute') add(fl.notes);
+    else if (tab === 'horn') add(hn.notes);
+    else if (tab === 'trumpet') add(tpRow.notes);
+    else if (tab === 'sax') add(sxRow.notes);
+    else if (tab === 'xylo') add(xy.notes);
+    else if (tab === 'harmonica') for (i = 0; i < 10; i++) { set[hmNote(i, false)] = 1; set[hmNote(i, true)] = 1; }
+    else if (BOWCFG[tab]) for (i = 0; i < 4; i++) for (s = 0; s <= BOW_SPAN; s++) { k = BOWCFG[tab].open[i] + s; if (T.inScale(k, TONAL[tab].key, TONAL[tab].scale)) set[k] = 1; }
+    else if (tab === 'ebass') for (i = 0; i < 4; i++) for (s = 0; s <= EB_FRETS; s++) { k = EB_OPEN[i] + s; if (T.inScale(k, TONAL.ebass.key, TONAL.ebass.scale)) set[k] = 1; }
+    return set;
+  }
+  // Where note m is on the instrument: { el } for a key, hole, cell or bar; { box, kind, i, s } for string i, s semitones
+  // (or frets) up, on a fingerboard
+  function tgRow(tg) { return tg.kind === 'bow' ? bw.rows[tg.i] : tg.kind === 'eb' ? eb.rows[tg.i] : null; }
+  function tgFx(tg) { return tg.kind === 'bow' ? bowX(tg.s) : ebX(tg.s); }
+  function songTarget(tab, m) {
+    var i, best = null;
+    function inList(notes, els) { var j = notes.indexOf(m); return j >= 0 && els[j] ? { el: els[j] } : null; }
+    function keyIn(keys) { for (var j = 0; j < keys.length; j++) if (+keys[j].dataset.midi === m) return keys[j]; return null; }
+    switch (tab) {
+      case 'piano': return keyEls[m] ? { el: keyEls[m] } : null;
+      case 'organ': for (i = 0; i < 2; i++) { var ok = keyIn(orgMan[i].keys); if (ok) return { el: ok, up: i }; } return null;
+      case 'synth': var sk = keyIn(syKeys.keys); return sk ? { el: sk } : null;
+      case 'flute': return inList(fl.notes, fl.cells);
+      case 'horn': return inList(hn.notes, hn.cells);
+      case 'trumpet': return inList(tpRow.notes, tpRow.cells);
+      case 'sax': return inList(sxRow.notes, sxRow.cells);
+      case 'xylo': return inList(xy.notes, xy.bars);
+      case 'harmonica':
+        for (i = 0; i < 10; i++) for (var d = 0; d < 2; d++) if (hmNote(i, !!d) === m && hm.cols[i]) return { el: hm.cols[i].children[d ? 2 : 0] };
+        return null;
+      case 'ebass':
+        for (i = 0; i < 4; i++) { var f = m - EB_OPEN[i]; if (f >= 0 && f <= EB_FRETS && (!best || f < best.f)) best = { f: f, i: i }; }
+        return best ? { box: ebEl, kind: 'eb', i: best.i, s: best.f } : null;
+    }
+    if (BOWCFG[tab]) {
+      var C = BOWCFG[tab];
+      for (i = 0; i < 4; i++) { var s = m - C.open[i]; if (s >= 0 && s <= BOW_SPAN && (!best || s < best.s)) best = { s: s, i: i }; }
+      return best ? { box: bowed, kind: 'bow', i: best.i, s: best.s } : null;
+    }
+    return null;
+  }
+  // Moves the instrument's layout to cover notes lo..hi where it can
+  function songLayout(tab, lo, hi) {
+    var st = TONAL[tab];
+    if (SONG_ROWS[tab]) songLow[tab] = T.snap(lo, st.key, st.scale, lo - 12, lo);
+    else if (tab === 'piano') {
+      var o = Math.floor((lo - st.key) / 12) - 1;
+      if (12 * (o + 1) + st.key + 12 * state.range < hi) o = Math.floor((hi - st.key) / 12) - 1 - state.range + 1;
+      state.octave = clamp(o, 1, 8 - state.range);
+    } else if (tab === 'synth') {
+      var so = clamp(Math.floor((lo - st.key) / 12) - 1, 2, 4);
+      sy.oct = so; $('soct').value = so;
+    }
+  }
+  // The plan for playing track tr on instrument tab: events in beats, each with its sounding note, where it is on the
+  // instrument (null if it can't be played there) and its label
+  function fitTrack(tr, tab) {
+    sg.fitting = true;
+    try { return fitTrack1(tr, tab); } finally { sg.fitting = false; }
+  }
+  function fitTrack1(tr, tab) {
+    var type = tr.type, st = TONAL[tab], plan = { tr: tr, tab: tab, ev: [], back: [], warn: '', moved: 0, missing: 0, shift: 0 };
+    if (type === 'melody' || type === 'bass') {
+      var shift = ((st.key - keyPc(tr.key)) % 12 + 12) % 12;
+      if (shift > 6) shift -= 12;
+      plan.shift = shift;
+      var ms = tr.notes.map(function (n) { return n[2] + shift; });
+      // a scale that holds every note: the one shown if it can, otherwise the song's own
+      var fits = ms.every(function (m) { return T.inScale(m, st.key, st.scale); });
+      if (!fits) { plan.scale = tr.scale; st.scale = tr.scale; }
+      delete songLow[tab];
+      rebuildTonal(tab);
+      // the octave where most of the song sits in the instrument's range (or layout), nearest the written one
+      var R = SONG_RANGE[tab] || [36, 96], fixed = !SONG_ROWS[tab] && tab !== 'piano' && tab !== 'synth', set = fixed ? layoutSet(tab) : null, bestO = 0, bestN = -1;
+      [0, 1, -1, 2, -2, 3, -3].forEach(function (o) {
+        var n = 0;
+        ms.forEach(function (m) { var k = m + 12 * o; if (fixed ? set[k] : k >= R[0] && k <= R[1]) n++; });
+        if (n > bestN) { bestN = n; bestO = o; }
+      });
+      ms = ms.map(function (m) { return m + 12 * bestO; });
+      plan.shift += 12 * bestO;
+      if (!fixed) {
+        var lo = Math.max(R[0], Math.min.apply(null, ms)), hi = Math.min(R[1], Math.max.apply(null, ms));
+        songLayout(tab, lo, hi);
+        rebuildTonal(tab);
+      }
+      tr.notes.forEach(function (n, i) {
+        var m = ms[i], tg = songTarget(tab, m), k;
+        for (k = 1; !tg && k <= 2; k++) { // fold a stray note into an octave the instrument has
+          if ((tg = songTarget(tab, ms[i] - 12 * k))) m = ms[i] - 12 * k;
+          else if ((tg = songTarget(tab, ms[i] + 12 * k))) m = ms[i] + 12 * k;
+        }
+        if (m !== ms[i]) plan.moved++;
+        if (!tg) plan.missing++;
+        plan.ev.push({ i: i, b: n[0], d: n[1], m: m, v: 0.45 + 0.55 * n[3] / 127, tg: tg, k: 'note', lab: songLabel(tr, i, m, st.key) });
+      });
+      var nm = TAB_NAMES[tab] || tab;
+      if (plan.missing) plan.warn = plan.missing + (plan.missing > 1 ? ' notes don’t' : ' note doesn’t') + ' fit the ' + nm + '; the song plays them for you';
+      else if (plan.moved) plan.warn = 'This song doesn’t quite fit the ' + nm + ': ' + plan.moved + (plan.moved > 1 ? ' notes move' : ' note moves') + ' an octave';
+    }
+    else if (type === 'chords') fitChords(tr, tab, plan);
+    else fitHits(tr, tab, plan);
+    if (tr.chords && type !== 'chords') plan.back = songChords(tr, plan.shift);
+    plan.tune = songTune(tr, plan);
+    plan.ev.sort(function (a, b) { return a.b - b.b || a.i - b.i; });
+    plan.len = tr.bars * bpb(tr);
+    return plan;
+  }
+  // Chord songs: every strum is an event on the chord's button, in the instrument's key
+  function fitChords(tr, tab, plan) {
+    var st = TONAL[tab], shift = ((st.key - keyPc(tr.key)) % 12 + 12) % 12;
+    if (shift > 6) shift -= 12;
+    plan.shift = shift;
+    var per = bpb(tr), syms = [];
+    tr.chords.forEach(function (bar, bi) {
+      var list = bar.split(/\s+/).filter(function (x) { return x && x !== '-'; });
+      list.forEach(function (sym, k) { syms.push({ b: bi * per + k * per / list.length, c: parseChord(sym, shift) }); });
+    });
+    function all(scale) { return syms.every(function (x) { for (var d = 0; d < 7; d++) if (T.chord(st.key, scale, d).name === x.c.name) return true; return false; }); }
+    if (!all(st.scale) && all(tr.scale)) { plan.scale = tr.scale; st.scale = tr.scale; }
+    rebuildTonal(tab);
+    tr.strum.forEach(function (s, i) {
+      var c = null, next = tr.strum[i + 1];
+      syms.forEach(function (x) { if (x.b <= s[0] + 1e-6) c = x.c; });
+      if (!c) return;
+      var e = { i: i, b: s[0], d: (next ? next[0] : tr.bars * per) - s[0], k: 'chord', c: c, dir: s[1] === 'U' ? -1 : 1, v: 0.75, lab: c.name + ARROW[s[1]] };
+      e.tg = evTarget(tab, e);
+      if (!e.tg) plan.missing++;
+      plan.ev.push(e);
+    });
+    if (plan.missing) plan.warn = 'Some chords aren’t on the buttons in this key; the song strums them for you';
+  }
+  // Grooves and taals: every hit is an event on its pad or drum zone
+  function fitHits(tr, tab, plan) {
+    var n = 0, per = bpb(tr);
+    tr.hits.forEach(function (h) {
+      var strokes = tr.type === 'tabla' ? TABLA_MAP[h[1]] || [] : [h[1]];
+      strokes.forEach(function (sk) {
+        var e = { i: n++, b: h[0], d: 0.25, k: 'hit', hit: sk, pad: sk, bol: h[1], v: h[2] / 127, lab: tr.type === 'tabla' ? h[1] : padName(sk) };
+        if (tr.type === 'tabla' && tr.tali && Math.abs(h[0] % per) < 1e-6) e.lab += ' ' + tr.tali[0];
+        e.tg = evTarget(tab, e);
+        if (tr.type === 'tabla' && !e.tg && tab === 'tabla1') e.auto = true; // the bayan's strokes on the single tabla
+        else if (!e.tg) plan.missing++;
+        plan.ev.push(e);
+      });
+    });
+    if (plan.missing) plan.warn = plan.missing + ' hits have no pad in this kit; the song plays them for you';
+  }
+  function padName(id) { for (var i = 0; i < PADS.length; i++) if (PADS[i].id === id) return PADS[i].name; return id; }
+  // The tune that comes along with a chord song or a bass line, near the middle of the keyboard
+  function songTune(tr, plan) {
+    var notes = tr.type === 'chords' ? tr.notes : tr.type === 'bass' ? tr.tune : null;
+    if (!notes || !notes.length) return [];
+    var sh = ((plan.shift % 12) + 12) % 12, ms = notes.map(function (n) { return n[2] + sh; }), mid = (Math.min.apply(null, ms) + Math.max.apply(null, ms)) / 2;
+    var o = 12 * Math.round((72 - mid) / 12);
+    return notes.map(function (n, i) { return { b: n[0], d: n[1], m: ms[i] + o, v: n[3] / 127 }; });
+  }
+  function songLabel(tr, i, m, key) {
+    if (state.labels === 'sargam' || (tr.sargam && state.labels !== 'off')) return tr.sargam ? tr.sargam[i] : T.label(m, key, 'sargam');
+    return T.name(m);
+  }
+  // Backing chords from the per-bar symbols: [beat, beats, notes]
+  function songChords(tr, shift) {
+    var out = [], per = bpb(tr);
+    (tr.chords || []).forEach(function (bar, bi) {
+      var syms = bar.split(/\s+/).filter(function (x) { return x && x !== '-'; });
+      syms.forEach(function (sym, k) {
+        var c = parseChord(sym, shift), base = 48 + c.root;
+        if (base > 54) base -= 12;
+        out.push({ b: bi * per + k * per / syms.length, d: per / syms.length, c: c, notes: c.iv.slice(0, 3).map(function (iv) { return base + 12 + iv; }).concat([base]) });
+      });
+    });
+    return out;
+  }
+
+  /* Sounds */
+  function songSound(tab, m, vel) {
+    switch (tab) {
+      case 'piano': return makeVoice(state.inst, m, vel);
+      case 'organ': var up = orgMan[0].keys.length && m > +orgMan[0].keys[orgMan[0].keys.length - 1].dataset.midi ? 1 : 0; return ENG.organ.make(m, 1, { stops: org.stops.slice(), up: up });
+      case 'synth': var k = sy.knobs[sy.preset]; return ENG.synth.make(m, vel, { p: sy.preset, cut: k.cut, att: k.att, rel: k.rel, vib: k.vib });
+      case 'flute': return fluteVoice(m, 0.75);
+      case 'harmonica': return ENG.harmonica.make(m, 0.85, { wah: hm.wah });
+      case 'horn': return ENG.horn.make(m, 0.7, {});
+      case 'trumpet': return ENG.trumpet.make(m, 0.7, { growl: tp.growl, mute: tp.mute });
+      case 'sax': return ENG.sax.make(m, 0.7, { growl: sx.growl, vib: sx.vib });
+      case 'xylo': return ENG.xylo.make(m, vel);
+      case 'ebass': return ENG.ebass.make(m, 0.8, { mode: eb.mode });
+    }
+    if (BOWCFG[tab]) return ENG[tab].make(m, 0.65, { vib: bw.vib, pizz: bw.pizz });
+    return null;
+  }
+  // Fade a voice out at a moment ahead on the audio clock; it keeps counting toward the note limit until then
+  function releaseAt(v, when, quick) {
+    if (!v || v.done) return;
+    if (when <= ctx.currentTime + 0.005) { releaseVoice(v, quick || v.rel); return; }
+    var p = v.g.gain, rel = quick || Math.min(v.rel || 0.1, 0.4);
+    try {
+      if (p.cancelAndHoldAtTime) p.cancelAndHoldAtTime(when); else p.cancelScheduledValues(when);
+      p.setTargetAtTime(0, when, rel / 5);
+    } catch (e) {}
+    v.oscs.forEach(function (o) { try { o.stop(when + rel + 0.1); } catch (e) {} });
+    songAt(when + rel, function () { v.done = true; });
+  }
+  function songClick(t, acc) {
+    var o = ctx.createOscillator(), g = ctx.createGain();
+    o.frequency.value = acc ? 1760 : 1320;
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(acc ? 0.3 : 0.18, t + 0.002); g.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+    o.connect(g); g.connect(bus); o.start(t); o.stop(t + 0.06);
+  }
+  // Run fn when the audio clock reaches t (for the lights: the sound itself is scheduled exactly)
+  function songAt(t, fn) {
+    var id = setTimeout(function () { var k = sg.timers.indexOf(id); if (k >= 0) sg.timers.splice(k, 1); fn(); }, Math.max(0, (t - ctx.currentTime) * 1000));
+    sg.timers.push(id);
+  }
+  function spb() { return 60 / (sg.tr.tempo * (sg.mode === 'auto' ? sg.tempo : sg.speed) / 100); }
+  function timeAt(b) { return sg.anchor.time + (b - sg.anchor.beat) * spb(); }
+  function beatAt(t) { return sg.anchor.beat + (t - sg.anchor.time) / spb(); }
+  function heardNow() { return ctx.currentTime - (ctx.outputLatency || 0); } // what the player hears now
+
+  // One event, on the audio clock at t
+  function songFire(e, t) {
+    var plan = sg.plan, dur = Math.max(0.05, e.d * spb() * 0.96);
+    if (e.k === 'note') {
+      SCHED = t;
+      var v; try { v = songSound(plan.tab, e.m, e.v); } finally { SCHED = 0; }
+      // the same note again: the last one stops quickly as this starts (a new bow or breath), so the two never beat
+      var prev = sg.lastV[e.m];
+      if (prev && prev.end > t - 0.4) releaseAt(prev.v, Math.max(prev.end, ctx.currentTime), 0.03);
+      if (v) { sg.voices.push(v); releaseAt(v, t + dur); sg.lastV[e.m] = { v: v, end: t + dur }; }
+      songAt(t, function () { songPress(e.tg, true); });
+      songAt(t + dur, function () { songPress(e.tg, false); });
+    } else if (e.k === 'chord') songStrum(e, t);
+    else songHitFire(e, t);
+  }
+  // A strum on the chord's button: the guitar's own strings (or the rhythm guitar's), scheduled at t
+  function songStrum(e, t) {
+    var tab = sg.plan.tab, ci = e.ci, id = 'sg' + e.i + '_' + Math.round(t * 1000);
+    if (!(ci >= 0)) { songBackFire({ d: e.d, notes: e.c.iv.map(function (iv) { return 60 + (e.c.root + iv) % 12 + (iv >= 12 ? 12 : 0); }) }, t); return; } // not on the buttons
+    if (tab === 'rhythm') {
+      rh.chord = ci;
+      rhStrum(id, e.dir, e.dir > 0 ? 0.75 : 0.6, false, Math.max(0, t - ctx.currentTime));
+      if (vmap[id]) sg.voices.push(vmap[id].v);
+    } else {
+      gtr.chord = ci;
+      SCHED = t;
+      try { gtrStrum(id, e.dir, 0.75); } finally { SCHED = 0; }
+      delete gtr.held[id]; // the strings ring on until the next strum damps them
+      gtr.strVoice.forEach(function (v) { if (v && sg.voices.indexOf(v) < 0) sg.voices.push(v); });
+    }
+    songAt(t, function () { songChordShow(tab, ci); songPress(e.tg, true); });
+    songAt(t + 0.12, function () { songPress(e.tg, false); });
+  }
+  function songChordShow(tab, ci) {
+    if (tab === 'rhythm') { rh.chord = ci; rhLabel(); } else { gtr.chord = ci; labelStrings(); }
+    $(tab === 'rhythm' ? 'rchords' : 'chords').querySelectorAll('[data-chord]').forEach(function (x) { x.setAttribute('aria-pressed', +x.dataset.chord === ci); });
+  }
+  // A drum hit or tabla stroke at t
+  function songHitFire(e, t) {
+    var tab = sg.plan.tab, v = null, vel = 0.35 + 0.65 * e.v;
+    SCHED = t;
+    try {
+      if (tab === 'drums') v = drum(e.hit, vel);
+      else if (tab === 'epad') { if (e.hit >= 0) v = ehit(e.hit, vel, t); }
+      else v = tablaStroke(e.hit, vel * 0.9);
+    } finally { SCHED = 0; }
+    if (v) sg.voices.push(v);
+    if (tab === 'epad') return; // the pad lights itself at its time
+    songAt(t, function () {
+      if (e.tg && e.tg.dr) flashZone(e.tg.dr, e.hit, e.bol);
+      else if (e.tg) { var el = e.tg.el; el.classList.add('on'); clearTimeout(el._t); el._t = setTimeout(function () { el.classList.remove('on'); }, 110); }
+    });
+  }
+  function songTuneFire(n, t) {
+    var dur = Math.max(0.08, n.d * spb() * 0.92);
+    SCHED = t;
+    try { var v = makeVoice('epiano', n.m, 0.22 + 0.2 * n.v); sg.voices.push(v); releaseAt(v, t + dur); } finally { SCHED = 0; }
+  }
+  function songBackFire(c, t) {
+    var dur = Math.max(0.1, c.d * spb() * 0.98);
+    SCHED = t;
+    try {
+      c.notes.forEach(function (m, j) { var v = makeVoice('epiano', m, j === 3 ? 0.3 : 0.24); sg.voices.push(v); releaseAt(v, t + dur); });
+    } finally { SCHED = 0; }
+  }
+  // The instrument visibly plays: keys go down, cells and holes light, a string shows the spot
+  function songPress(tg, on) {
+    if (!tg) return;
+    if (tg.el) tg.el.classList.toggle('on', on);
+    if (tg.pad) tg.pad.classList.toggle('on', on);
+    if (tg.box && tgRow(tg)) tgRow(tg).classList.toggle('on', on);
+    if (tg.box) songDot(on ? tg : null, 'press');
+  }
+
+  /* Glow, labels and the falling-notes lane (an overlay on the instrument) */
+  var sgOver = $('sgOver'), sgLane = $('sgLane'), sgDotEl = $('sgDot'), sgTag = $('sgTag');
+  function overRect() { return sgOver.getBoundingClientRect(); }
+  function tgCentre(tg, R) {
+    if (!tg) return null;
+    if (tg.el) { var r = tg.el.getBoundingClientRect(); return { x: r.left + r.width / 2 - R.left, y: r.top + r.height / 2 - R.top, top: r.top - R.top, w: r.width, h: r.height }; }
+    var b = tg.box.getBoundingClientRect();
+    var fy = (tg.i + 0.5) / 4;
+    return { x: b.left + b.width * tgFx(tg) - R.left, y: b.top + b.height * fy - R.top, top: b.top + b.height * fy - R.top - 14, w: 28, h: 28 };
+  }
+  function songDot(tg, cls) {
+    if (!tg) { sgDotEl.className = 'sgdot'; return; }
+    var c = tgCentre(tg, overRect());
+    sgDotEl.style.transform = 'translate(' + c.x.toFixed(1) + 'px,' + c.y.toFixed(1) + 'px)';
+    sgDotEl.className = 'sgdot show ' + cls;
+  }
+  function songGlow(list, label) {
+    sg.glow.forEach(function (tg) { if (tg.el) tg.el.classList.remove('sgnext'); if (tg.pad) tg.pad.classList.remove('sgnext'); });
+    sg.glow = (list || []).filter(Boolean);
+    var R = overRect(), first = null;
+    sg.glow.forEach(function (tg) { if (tg.el) tg.el.classList.add('sgnext'); if (tg.pad) tg.pad.classList.add('sgnext'); first = first || tg; });
+    var boxTg = sg.glow.filter(function (tg) { return tg.box; })[0];
+    if (boxTg) songDot(boxTg, 'next'); else if (sgDotEl.className.indexOf('next') >= 0) songDot(null);
+    if (first && label) {
+      var c = tgCentre(first, R);
+      sgTag.textContent = label;
+      sgTag.style.transform = 'translate(' + clamp(c.x, 30, R.width - 30).toFixed(1) + 'px,' + Math.max(28, c.top - 4).toFixed(1) + 'px)';
+      sgTag.className = 'sgtag show';
+    } else sgTag.className = 'sgtag';
+  }
+  function songShake() {
+    [sgTag].concat(sg.glow.map(function (tg) { return tg.el; })).forEach(function (el) {
+      if (!el || !el.animate) return;
+      el.animate([{ translate: '0 0' }, { translate: '-5px 0' }, { translate: '5px 0' }, { translate: '-3px 0' }, { translate: '0 0' }], { duration: 260 });
+    });
+  }
+  function songFx(text, tg, cls) {
+    var c = tgCentre(tg, overRect());
+    if (c) sg.fx.push({ text: text, x: c.x, y: c.top - 8, t: performance.now(), cls: cls });
+    sgLaneKick();
+  }
+  function sgLaneKick() { if (!sg.raf) sg.raf = requestAnimationFrame(songDraw); }
+  // Each frame: the lane (Rhythm), the glow on the next note (Rhythm and Play along), feedback words, progress
+  function songDraw() {
+    sg.raf = 0;
+    var cv = sgLane, R = overRect(), dpr = window.devicePixelRatio || 1, W = Math.round(R.width * dpr), H = Math.round(R.height * dpr);
+    if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
+    var g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, R.width, R.height);
+    var timed = sg.on && !sg.paused && sg.mode === 'train' && sg.level !== 'wait' && ctx;
+    if (timed) {
+      var now = heardNow(), lead = Math.max(1.4, 3 * spb()), next = null, css = getComputedStyle(document.body);
+      var ink = css.getPropertyValue('--key-on') || '#f2b134', ringed = [];
+      sg.plan.ev.forEach(function (e) {
+        if (!e.tg || e.b < sg.from || e.b >= sg.to) return;
+        var t = timeAt(e.b), dt = t - now;
+        if (!next && !e.res && dt > -GOOD) next = e;
+        if (sg.level !== 'rhythm' || dt > lead || dt < -0.25 || e.res) return;
+        var c = tgCentre(e.tg, R);
+        if (!c) return;
+        if (e.k !== 'note') { // pads, drum zones and chord buttons: one closing ring each, for the next hit on it
+          if (ringed.indexOf(e.tg.el) >= 0 || dt > 2 * spb()) return;
+          ringed.push(e.tg.el);
+          var r0 = Math.min(c.w, c.h) * 0.42;
+          g.strokeStyle = ink; g.lineWidth = 3; g.beginPath(); g.arc(c.x, c.y, r0 * (0.35 + 0.65 * Math.max(0, dt) / (2 * spb())) + 6, 0, Math.PI * 2); g.stroke();
+          return;
+        }
+        var y = c.y - (dt / lead) * c.y, hgt = Math.max(10, Math.min(c.y * 0.6, e.d * spb() / lead * c.y));
+        g.globalAlpha = 0.85; g.fillStyle = ink;
+        var w = Math.max(14, Math.min(c.w * 0.7, 46));
+        g.beginPath(); g.roundRect ? g.roundRect(c.x - w / 2, y - hgt, w, hgt, 6) : g.rect(c.x - w / 2, y - hgt, w, hgt); g.fill();
+        g.globalAlpha = 1; g.fillStyle = '#1d2a2a'; g.font = '700 11px system-ui, sans-serif'; g.textAlign = 'center';
+        if (hgt > 14) g.fillText(e.lab, c.x, y - 4);
+        if (dt < 2 * spb()) { // the approach ring closes in on the spot as the note comes due
+          g.strokeStyle = ink; g.lineWidth = 3; g.beginPath(); g.arc(c.x, c.y, 14 + 40 * Math.max(0, dt) / (2 * spb()), 0, Math.PI * 2); g.stroke();
+        }
+      });
+      var group = next ? sg.plan.ev.filter(function (e) { return e.b === next.b && e.tg && !e.res; }) : [];
+      var gk = group.map(function (e) { return e.i; }).join(',');
+      if (gk !== sg.glowKey) { sg.glowKey = gk; songGlow(group.map(function (e) { return e.tg; }), next && next.lab); }
+      g.globalAlpha = 1;
+    }
+    var t0 = performance.now();
+    sg.fx = sg.fx.filter(function (f) { return t0 - f.t < 700; });
+    sg.fx.forEach(function (f) {
+      var a = 1 - (t0 - f.t) / 700;
+      g.globalAlpha = a; g.font = '700 15px system-ui, sans-serif'; g.textAlign = 'center';
+      g.fillStyle = f.cls === 'miss' ? '#c62d2d' : f.cls === 'good' ? '#1f8a83' : '#c9540f';
+      g.fillText(f.text, f.x, f.y - 18 * (1 - a));
+    });
+    g.globalAlpha = 1;
+    if (sg.on) songProgress();
+    if ((timed || sg.fx.length || (sg.on && !sg.paused)) && document.body.dataset.screen === 'play') sgLaneKick();
+  }
+  function songProgress() {
+    if (!sg.tr) return;
+    var b = sg.on && sg.anchor && ctx ? Math.max(sg.from, Math.min(sg.to, sg.mode === 'train' && sg.level === 'wait' ? (sg.wEv ? sg.wEv.b : sg.from) : beatAt(heardNow()))) : sg.from;
+    var bar = Math.min(sg.tr.bars, Math.floor(b / bpb(sg.tr)) + 1), txt = 'Bar ' + bar + ' of ' + sg.tr.bars;
+    if ($('sgPos').textContent !== txt) $('sgPos').textContent = txt;
+  }
+
+  /* The transport: play, pause, stop, loop, sections, count-in and metronome */
+  function songSection() {
+    var per = bpb(sg.tr);
+    if (sg.sec >= 0) { sg.from = sg.sec * 4 * per; sg.to = Math.min(sg.plan.len, sg.from + 4 * per); }
+    else { sg.from = 0; sg.to = sg.plan.len; }
+  }
+  function songStart() {
+    if (!sg.tr) return;
+    init();
+    songHalt();
+    songSection();
+    sg.on = true; sg.paused = false; sg.pass = { hit: 0, perfect: 0, miss: 0, clean: 0, groups: 0 };
+    sg.plan.ev.forEach(function (e) { e.res = null; });
+    if (sg.mode === 'train' && sg.level === 'wait') { songWaitStep(true); songButtons(); return; }
+    var lead = sg.count ? bpb(sg.tr) : 0, t0 = ctx.currentTime + 0.12 + lead * spb();
+    sg.anchor = { time: t0, beat: sg.from };
+    for (var k = 0; k < lead; k++) songClick(t0 - (lead - k) * spb(), k === 0);
+    songCursor(sg.from);
+    sg.timer = setInterval(songTick, 25);
+    songTick(); sgLaneKick(); songButtons();
+  }
+  // Indexes of the next event, chord and click at or after beat b
+  function songCursor(b) {
+    sg.ei = 0; while (sg.ei < sg.plan.ev.length && sg.plan.ev[sg.ei].b < b - 1e-6) sg.ei++;
+    sg.bi = 0; while (sg.bi < sg.plan.back.length && sg.plan.back[sg.bi].b < b - 1e-6) sg.bi++;
+    sg.ti = 0; while (sg.ti < sg.plan.tune.length && sg.plan.tune[sg.ti].b < b - 1e-6) sg.ti++;
+    sg.click = Math.ceil(b - 1e-6);
+  }
+  function songTick() {
+    if (!sg.on || sg.paused || !ctx) return;
+    var ahead = ctx.currentTime + LOOKAHEAD, ev = sg.plan.ev, back = sg.plan.back, t;
+    var auto = sg.mode === 'auto', backing = !auto;
+    while (sg.ei < ev.length && ev[sg.ei].b < sg.to - 1e-6 && (t = timeAt(ev[sg.ei].b)) <= ahead) {
+      if (auto || !ev[sg.ei].tg) songFire(ev[sg.ei], t); // in Train the player plays what they can; the rest plays itself
+      sg.ei++;
+    }
+    while (backing && sg.bi < back.length && back[sg.bi].b < sg.to - 1e-6 && (t = timeAt(back[sg.bi].b)) <= ahead) { songBackFire(back[sg.bi], t); sg.bi++; }
+    var tune = sg.plan.tune;
+    while (sg.ti < tune.length && tune[sg.ti].b < sg.to - 1e-6 && (t = timeAt(tune[sg.ti].b)) <= ahead) { songTuneFire(tune[sg.ti], t); sg.ti++; }
+    while (sg.metro && sg.click < sg.to - 1e-6 && (t = timeAt(sg.click)) <= ahead) { songClick(t, sg.click % bpb(sg.tr) === 0); sg.click++; }
+    if (!auto) { // notes that went by unplayed
+      var late = heardNow() - GOOD;
+      ev.forEach(function (e) { if (e.tg && !e.res && e.b >= sg.from && e.b < sg.to && timeAt(e.b) < late) songJudge(e, 'miss'); });
+    }
+    // the end of the song or section: go round again, or finish
+    var end = timeAt(sg.to), done = sg.ei >= ev.length || ev[sg.ei].b >= sg.to - 1e-6;
+    if (done && end <= ahead) {
+      if (sg.loop || sg.sec >= 0) {
+        if (!auto) songAt(end, songPassDone);
+        sg.anchor = { time: end, beat: sg.from };
+        songCursor(sg.from);
+        if (!auto) songAt(end, function () { ev.forEach(function (e) { if (e.b >= sg.from && e.b < sg.to) e.res = null; }); });
+      } else if (ctx.currentTime > end + 0.05) {
+        songHalt();
+        if (!auto) songPassDone();
+        songButtons();
+      }
+    }
+  }
+  function songHalt() {
+    clearInterval(sg.timer); sg.timer = 0;
+    sg.timers.forEach(clearTimeout); sg.timers = [];
+    if (ctx) sg.voices.forEach(function (v) { releaseVoice(v, Math.min(v.rel || 0.1, 0.12)); });
+    sg.voices = []; sg.lastV = {};
+    sg.on = false; sg.paused = false;
+    if (sg.plan) sg.plan.ev.forEach(function (e) { songPress(e.tg, false); });
+    songGlow(null); songDot(null); sg.glowKey = '';
+    sg.wEv = null;
+  }
+  function songPause() {
+    if (!sg.on) return;
+    if (sg.paused) { // resume where it stopped
+      sg.paused = false;
+      if (!(sg.mode === 'train' && sg.level === 'wait')) {
+        sg.anchor = { time: ctx.currentTime + 0.1, beat: sg.pauseBeat };
+        songCursor(sg.pauseBeat);
+        sg.timer = setInterval(songTick, 25); songTick();
+      }
+      sgLaneKick();
+    } else {
+      sg.paused = true;
+      if (!(sg.mode === 'train' && sg.level === 'wait')) {
+        sg.pauseBeat = Math.max(sg.from, beatAt(ctx.currentTime));
+        clearInterval(sg.timer); sg.timer = 0;
+        sg.timers.forEach(clearTimeout); sg.timers = [];
+        sg.voices.forEach(function (v) { releaseVoice(v, Math.min(v.rel || 0.1, 0.12)); }); sg.voices = []; sg.lastV = {};
+        sg.plan.ev.forEach(function (e) { songPress(e.tg, false); });
+      }
+    }
+    songButtons();
+  }
+  function songButtons() {
+    $('sgPlay').textContent = !sg.on ? '▶ Play' : sg.paused ? '▶ Resume' : '❚❚ Pause';
+    $('sgPlay').setAttribute('aria-label', !sg.on ? 'Play' : sg.paused ? 'Resume' : 'Pause');
+    songScore();
+    songProgress();
+  }
+
+  /* Train me: Wait, Rhythm and Play along */
+  // Wait: light the next note (or every note of a chord or hit group) and hold there until it is played
+  function songWaitStep(first) {
+    var ev = sg.plan.ev, k = 0;
+    if (!first && sg.wEv) { var b = sg.wEv.b; while (k < ev.length && ev[k].b <= b + 1e-6) k++; }
+    else while (k < ev.length && ev[k].b < sg.from - 1e-6) k++;
+    while (k < ev.length && !ev[k].tg && ev[k].b < sg.to - 1e-6) k++; // a note the instrument doesn't have is skipped
+    if (k >= ev.length || ev[k].b >= sg.to - 1e-6) {
+      songPassDone();
+      if (sg.loop || sg.sec >= 0) { sg.plan.ev.forEach(function (e) { e.res = null; }); sg.wEv = null; songWaitStep(true); return; }
+      songHalt(); songButtons(); return;
+    }
+    sg.wEv = ev[k]; sg.wClean = true;
+    var group = ev.filter(function (e) { return Math.abs(e.b - ev[k].b) < 1e-6 && e.tg; });
+    sg.wGroup = group;
+    songGlow(group.map(function (e) { return e.tg; }), ev[k].lab);
+    songProgress();
+  }
+  // A held voice reports its note when it becomes audible or moves to another note (a bow, a slide, a new hole)
+  function heardVoice(id, tab, m, l) {
+    if (tab === 'rhythm') return;
+    var r = Math.round(m), on = l > 0.15, p = heardV[id];
+    if (on && (!p || !p.on || p.m !== r)) songHeard('note', r);
+    heardV[id] = { m: r, on: on };
+  }
+  function songMatch(e, kind, val) {
+    if (e.k === 'note') return kind === 'note' && T.pc(val) === T.pc(e.m); // the right note in any octave counts
+    if (e.k === 'chord') return kind === 'chord' && val === e.c.name;
+    return kind === 'hit' && val === e.hit;
+  }
+  function songHeard(kind, val, dir) {
+    if (!sg.on || sg.paused || sg.mode !== 'train' || sg.tab !== state.tab) return;
+    if (sg.level === 'wait') {
+      var hit = sg.wGroup.filter(function (e) { return !e.res && songMatch(e, kind, val); })[0];
+      if (!hit) { sg.wClean = false; songShake(); return; }
+      hit.res = 'hit'; songFx('✓', hit.tg, 'good');
+      if (sg.wGroup.every(function (e) { return e.res; })) {
+        sg.pass.groups++;
+        if (sg.wClean) { sg.pass.clean++; sg.streak = (sg.streak || 0) + 1; } else sg.streak = 0;
+        songScore();
+        songWaitStep(false);
+      }
+      return;
+    }
+    var now = heardNow(), best = null, bd = 1e9;
+    sg.plan.ev.forEach(function (e) {
+      if (!e.tg || e.res || e.b < sg.from || e.b >= sg.to || !songMatch(e, kind, val)) return;
+      var d = Math.abs(timeAt(e.b) - now);
+      if (d <= GOOD && d < bd) { bd = d; best = e; }
+    });
+    if (best) songJudge(best, bd <= PERFECT ? 'perfect' : 'good');
+    else if (sg.glow.length) songShake(); // a wrong note: a little shake, nothing lost
+  }
+  function songJudge(e, how) {
+    e.res = how;
+    if (how === 'miss') { sg.pass.miss++; sg.streak = 0; songFx('Miss', e.tg, 'miss'); }
+    else { sg.pass.hit++; if (how === 'perfect') sg.pass.perfect++; sg.streak = (sg.streak || 0) + 1; songFx(how === 'perfect' ? 'Perfect' : 'Good', e.tg, how); }
+    songScore();
+  }
+  function songAcc() {
+    var p = sg.pass;
+    if (!p) return 0;
+    if (sg.level === 'wait') return p.groups ? p.clean / p.groups : 0;
+    var n = p.hit + p.miss;
+    return n ? (p.perfect + 0.7 * (p.hit - p.perfect)) / n : 0;
+  }
+  function songStars(acc) { return acc >= 0.9 ? 3 : acc >= 0.7 ? 2 : 1; }
+  // A pass through the song (or section) is over: stars, and the best score kept on this phone
+  function songPassDone() {
+    if (sg.mode !== 'train' || !sg.pass) return;
+    var p = sg.pass, n = sg.level === 'wait' ? p.groups : p.hit + p.miss;
+    if (!n) return;
+    var acc = songAcc(), stars = songStars(acc), key = bestKey(sg.tr, sg.tab, sg.level), old = sg.best[key];
+    sg.last = { stars: stars, acc: acc };
+    if (!old || acc > old.acc) {
+      sg.best[key] = { stars: stars, acc: Math.round(acc * 1000) / 1000 };
+      try { localStorage.setItem('pb-songs', JSON.stringify(sg.best)); } catch (e) {} // storage can be blocked: the app carries on
+    }
+    $('sgResult').textContent = '★★★'.slice(0, stars) + '☆☆☆'.slice(stars) + ' ' + Math.round(acc * 100) + '%';
+    sg.pass = { hit: 0, perfect: 0, miss: 0, clean: 0, groups: 0 };
+  }
+  function songScore() {
+    var el = $('sgScore');
+    if (sg.mode !== 'train' || !sg.pass) { el.textContent = ''; return; }
+    var b = sg.best[bestKey(sg.tr, sg.tab, sg.level)];
+    el.textContent = 'Streak ' + (sg.streak || 0) + (sg.on ? ' · ' + Math.round(songAcc() * 100) + '%' : '') + (b ? ' · Best ' + '★★★'.slice(0, b.stars) : '');
+  }
+
+  /* Opening and closing a song */
+  function songOpen(tr, mode, level) {
+    var tab = state.tab;
+    songClose();
+    sg.restore = { tab: tab, scale: TONAL[tab] ? TONAL[tab].scale : null, oct: state.octave, soct: sy.oct };
+    sg.tr = tr; sg.tab = tab; sg.mode = mode; if (level) sg.level = level;
+    sg.sec = -1; sg.streak = 0; sg.last = null;
+    sg.plan = fitTrack(tr, tab);
+    songHeader(tab);
+    document.body.classList.add('song');
+    $('songBar').hidden = false;
+    $('sgName').textContent = tr.title;
+    $('sgWarn').textContent = sg.plan.warn;
+    $('sgWarn').hidden = !sg.plan.warn;
+    $('sgResult').textContent = '';
+    var secs = $('sgSec'), per = 4;
+    secs.innerHTML = '<option value="-1">Whole song</option>';
+    for (var b = 0; b < tr.bars; b += per) {
+      var o = document.createElement('option'); o.value = b / per; o.textContent = 'Bars ' + (b + 1) + '–' + Math.min(tr.bars, b + per); secs.appendChild(o);
+    }
+    secs.value = -1;
+    songModeUi();
+    rects = {};
+    songPrewarm();
+    songStart();
+  }
+  function songModeUi() {
+    $('sgMode').value = sg.mode === 'auto' ? 'auto' : sg.level;
+    var t = $('sgTempo');
+    t.max = sg.mode === 'auto' ? 120 : 100;
+    t.value = sg.mode === 'auto' ? sg.tempo : sg.speed;
+    $('sgTempoLbl').textContent = t.value + '%';
+    $('sgTempoName').textContent = sg.mode === 'auto' ? 'Tempo' : 'Speed';
+    document.body.dataset.sgmode = sg.mode === 'auto' ? 'auto' : sg.level;
+    songScore();
+  }
+  // Plucked sounds are rendered once per note: do it before the song needs them
+  function songPrewarm() {
+    if (!ctx || !sg.plan) return;
+    if (sg.tab === 'guitar' || sg.tab === 'rhythm') { // every string of every chord in the song
+      var ns = [], was = sg.tab === 'rhythm' ? rh.chord : gtr.chord, kind = sg.tab === 'rhythm' ? 'acoustic' : gtr.sound;
+      sg.plan.ev.forEach(function (e) {
+        if (!(e.ci >= 0)) return;
+        if (sg.tab === 'rhythm') { rh.chord = e.ci; rhNotes().forEach(function (m) { if (m >= 0 && ns.indexOf(m) < 0) ns.push(m); }); }
+        else { gtr.chord = e.ci; for (var i = 0; i < gtr.n; i++) { var m = gtrMidi(i); if (m >= 0 && ns.indexOf(m) < 0) ns.push(m); if (m >= 0 && gType().course && i < 4 && ns.indexOf(m + 12) < 0) ns.push(m + 12); } }
+      });
+      if (sg.tab === 'rhythm') rh.chord = was; else gtr.chord = was;
+      (function next() { if (ns.length && sg.plan) { ksBuffer(ns.shift(), kind); setTimeout(next, 0); } })();
+      return;
+    }
+    var type = sg.tab === 'ebass' ? 'bass' + eb.mode : BOWCFG[sg.tab] && bw.pizz ? BOWCFG[sg.tab].pizz : null;
+    if (!type) return;
+    var list = []; sg.plan.ev.forEach(function (e) { if (list.indexOf(e.m) < 0) list.push(e.m); });
+    (function next() { if (list.length && sg.plan) { ksBuffer(list.shift(), type); setTimeout(next, 0); } })();
+  }
+  // Close the song: stop it and put the instrument back as it was
+  function songClose() {
+    if (!sg.tr) return;
+    songHalt();
+    var r = sg.restore, tab = r && r.tab;
+    sg.tr = null; sg.plan = null;
+    $('songBar').hidden = true;
+    document.body.classList.remove('song');
+    if (r && TONAL[tab]) {
+      delete songLow[tab];
+      TONAL[tab].scale = r.scale;
+      if (tab === 'piano') state.octave = r.oct;
+      if (tab === 'synth') { sy.oct = r.soct; $('soct').value = r.soct; }
+      saveTonal();
+      if (tab === state.tab) syncKeyControls(tab); else rebuildTonal(tab);
+    }
+    sg.restore = null;
+  }
+  // The header's key and scale show what the song is using, without rebuilding the layout it was fitted to
+  function songHeader(tab) {
+    var st = TONAL[tab];
+    if (!st || tab !== state.tab) return;
+    $('key').value = st.key; $('scale').value = st.scale;
+    $('tonal').textContent = T.describe(st.key, st.scale);
+    document.body.dataset.chroma = st.scale === 'chromatic';
+  }
+  // The layout was rebuilt (octave, labels, pizzicato...): find each note's place on it again
+  function songRetarget(tab) {
+    if (!sg.plan || sg.fitting || sg.tab !== tab) return;
+    var on = sg.glow.length;
+    songGlow(null);
+    sg.plan.ev.forEach(function (e) { if (!e.auto) e.tg = evTarget(tab, e); });
+    if (on && sg.wEv) { sg.wGroup = sg.plan.ev.filter(function (e) { return Math.abs(e.b - sg.wEv.b) < 1e-6 && e.tg; }); songGlow(sg.wGroup.map(function (e) { return e.tg; }), sg.wEv.lab); }
+    sg.glowKey = '';
+  }
+  // The key or scale changed while a song is open: fit it again
+  function songRefit() {
+    if (!sg.tr || sg.tab !== state.tab) return;
+    var was = sg.on;
+    songHalt();
+    delete songLow[sg.tab];
+    sg.plan = fitTrack(sg.tr, sg.tab);
+    songHeader(sg.tab);
+    $('sgWarn').textContent = sg.plan.warn; $('sgWarn').hidden = !sg.plan.warn;
+    if (was) songStart(); else songButtons();
+  }
+
+  /* The Songs sheet: the tracks that suit this instrument */
+  var sgFilter = { q: '', tag: '' };
+  function songsSheet(open) {
+    var sh = $('songSheet');
+    if (!open) { sh.hidden = true; $('songs').setAttribute('aria-expanded', 'false'); return; }
+    sh.hidden = false; $('songs').setAttribute('aria-expanded', 'true');
+    $('sgTitle').textContent = 'Songs for ' + (TAB_NAMES[state.tab] || 'this instrument');
+    $('sgList').innerHTML = '<li class="sgempty">Loading songs…</li>';
+    loadSongs().then(songsList, function () { $('sgList').innerHTML = '<li class="sgempty">The songs could not load. Open the app once with a connection so they are saved for offline use.</li>'; });
+  }
+  function fmtTime(s) { s = Math.round(s); return Math.floor(s / 60) + ':' + ('0' + s % 60).slice(-2); }
+  function songsList() {
+    var tab = state.tab, q = sgFilter.q.toLowerCase(), ul = $('sgList');
+    var list = songLib.filter(function (tr) {
+      return songSuits(tr, tab) && (!sgFilter.tag || tr.tags.indexOf(sgFilter.tag) >= 0) &&
+        (!q || (tr.title + ' ' + tr.by + ' ' + tr.tags.join(' ')).toLowerCase().indexOf(q) >= 0);
+    });
+    ul.innerHTML = '';
+    if (!list.length) { ul.innerHTML = '<li class="sgempty">No songs match.</li>'; return; }
+    list.forEach(function (tr) {
+      var li = document.createElement('li'), b = sg.best[bestKey(tr, tab, 'wait')] || sg.best[bestKey(tr, tab, 'rhythm')] || sg.best[bestKey(tr, tab, 'along')];
+      li.className = 'sgitem'; li.dataset.id = tr.id;
+      li.innerHTML = '<div class="sgmain"><b class="sgt"></b><span class="sgby"></span>' +
+        '<span class="sgmeta"><span class="sglvl" aria-label="Difficulty ' + tr.level + ' of 3">' + '★★★'.slice(0, tr.level) + '<i>' + '★★★'.slice(tr.level) + '</i></span> · ' + fmtTime(songSecs(tr)) +
+        ' · ' + tr.tags.join(', ') + ' <span class="free">Free</span>' + (b ? ' <span class="sgbest">Best ' + '★★★'.slice(0, b.stars) + '</span>' : '') + '</span></div>' +
+        '<div class="sgbtns"><button data-go="auto">Auto-play</button><button data-go="train" class="sgtrain">Train me</button></div>';
+      li.querySelector('.sgt').textContent = tr.title;
+      li.querySelector('.sgby').textContent = tr.by;
+      ul.appendChild(li);
+    });
+  }
+  (function songsUi() {
+    var chips = $('sgTags');
+    ['All'].concat(SONG_TAGS).forEach(function (t) {
+      var b = document.createElement('button'); b.className = 'chip'; b.textContent = t; b.dataset.tag = t === 'All' ? '' : t;
+      b.setAttribute('aria-pressed', t === 'All'); chips.appendChild(b);
+    });
+    chips.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-tag]'); if (!b) return;
+      sgFilter.tag = b.dataset.tag;
+      chips.querySelectorAll('[data-tag]').forEach(function (x) { x.setAttribute('aria-pressed', x === b); });
+      if (songLib) songsList();
+    });
+    $('sgSearch').addEventListener('input', function () { sgFilter.q = this.value; if (songLib) songsList(); });
+    $('songs').onclick = function () { init(); songsSheet(true); };
+    $('sgClose').onclick = function () { songsSheet(false); };
+    $('songSheet').addEventListener('click', function (e) {
+      if (e.target === this) { songsSheet(false); return; }
+      var go = e.target.closest('[data-go]');
+      if (!go) return;
+      var tr = songLib.filter(function (x) { return x.id === go.closest('[data-id]').dataset.id; })[0];
+      songsSheet(false);
+      songOpen(tr, go.dataset.go === 'auto' ? 'auto' : 'train', go.dataset.go === 'auto' ? null : 'wait');
+    });
+    $('sgPlay').onclick = function () { if (!sg.on) songStart(); else songPause(); };
+    $('sgStop').onclick = function () { songHalt(); songButtons(); };
+    $('sgX').onclick = function () { songClose(); };
+    $('sgMode').onchange = function () {
+      var v = this.value;
+      sg.mode = v === 'auto' ? 'auto' : 'train'; if (v !== 'auto') sg.level = v;
+      songModeUi(); songStart();
+    };
+    $('sgTempo').oninput = function () {
+      var v = +this.value, b = sg.on && !sg.paused && sg.anchor && ctx ? beatAt(ctx.currentTime) : null;
+      if (sg.mode === 'auto') sg.tempo = v; else sg.speed = v;
+      $('sgTempoLbl').textContent = v + '%';
+      if (b !== null && !(sg.mode === 'train' && sg.level === 'wait')) sg.anchor = { time: ctx.currentTime, beat: b }; // keep the place, change the pace
+    };
+    $('sgLoop').onclick = function () { sg.loop = !sg.loop; this.setAttribute('aria-pressed', sg.loop); };
+    $('sgCount').onclick = function () { sg.count = !sg.count; this.setAttribute('aria-pressed', sg.count); };
+    $('sgMetro').onclick = function () { sg.metro = !sg.metro; this.setAttribute('aria-pressed', sg.metro); if (sg.on && sg.anchor && ctx) sg.click = Math.ceil(beatAt(ctx.currentTime + LOOKAHEAD)); };
+    $('sgSec').onchange = function () { sg.sec = +this.value; if (sg.tr) songStart(); };
+    window.addEventListener('resize', function () { if (sg.glow.length && sg.wEv) songGlow(sg.glow, sg.wEv.lab); });
+  })();
+
   // Any trim the measured table doesn't list plays at 1
   (function fillLevels() {
     LEVEL = LEVEL || {};
@@ -4573,6 +5529,9 @@ body[data-screen="home"] .rotate { display: none !important; }
       bowRect: function () { return bw.rect = bowed.getBoundingClientRect(); },
       bwDown: bwDown, bwMove: bwMove, bwLift: bwLift, bwTick: bwTick, bowPitch: bowPitch,
       setDrone: setDrone, voices: function () { return live.filter(function (v) { return !v.done; }).length; },
+      songs: { load: loadSongs, lib: function () { return songLib; }, fit: fitTrack, open: songOpen, close: songClose, start: songStart,
+               halt: songHalt, state: function () { return sg; }, fire: songFire, heard: songHeard, target: songTarget, layoutSet: layoutSet,
+               type: songType, suits: songSuits, spb: spb, setSched: function (t) { SCHED = t; } },
       // A fresh audio context for each render: forget every node made for the last one
       reset: function () {
         silenceAll();
