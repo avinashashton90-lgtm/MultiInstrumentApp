@@ -507,32 +507,69 @@ body[data-screen="home"] .rotate { display: none !important; }
 .songsb { display: inline-flex; align-items: center; gap: 5px; border-color: var(--accent); color: var(--accent); font-weight: 700; }
 .songsb svg { width: 17px; height: 17px; }
 body.song .songsb { background: var(--accent); color: #fff; }
-.songbar {
-  display: flex; align-items: center; gap: 6px; padding: 4px 10px; flex: 0 0 auto; overflow-x: auto; touch-action: pan-x;
-  background: color-mix(in srgb, var(--accent) 14%, var(--bar)); border-top: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
-}
+.songbar { flex: 0 0 auto; background: color-mix(in srgb, var(--accent) 14%, var(--bar)); border-top: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); }
 .songbar[hidden] { display: none; }
-.songbar::-webkit-scrollbar { display: none; }
-.songbar button, .songbar select { min-height: 32px; padding: 2px 9px; }
+.sgrow { display: flex; align-items: center; gap: 6px; padding: 4px 10px; overflow-x: auto; touch-action: pan-x; }
+.sgrow::-webkit-scrollbar { display: none; }
+.sgrow[hidden] { display: none; }
+.sgkeyrow { padding-top: 0; }
+.songbar button, .songbar select, .sgmenu button, .sgmenu select { min-height: 32px; padding: 2px 9px; }
+.sgkeyrow button { min-height: 28px; font-size: .8rem; }
 .sgname { font-size: .85rem; max-width: 22ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 0 0 auto; }
 .sgplay { min-width: 92px; font-weight: 700; }
+.sghelp { min-width: 34px; font-weight: 800; border-radius: 50%; }
 .sgscore, .sgresult { font-size: .8rem; font-weight: 700; white-space: nowrap; flex: 0 0 auto; }
 .sgresult { color: var(--black-on); }
 .sgwarn { font-size: .75rem; color: var(--rec); white-space: nowrap; flex: 0 0 auto; }
 .sgpos { white-space: nowrap; }
+.sgkey { font-size: .85rem; color: var(--accent); white-space: nowrap; flex: 0 0 auto; }
+.sgtp { display: inline-flex; align-items: center; gap: 4px; flex: 0 0 auto; }
+.sgtp button { min-width: 32px; font-weight: 800; }
+#sgTp { font-size: .8rem; font-weight: 700; min-width: 11ch; text-align: center; white-space: nowrap; }
+.sglabels { display: inline-flex; align-items: center; gap: 4px; flex: 0 0 auto; }
+.sglabels button { border-radius: 0; margin-left: -2px; }
+.sglabels .lbl + button { border-radius: 10px 0 0 10px; margin-left: 0; }
+.sglabels button:last-child { border-radius: 0 10px 10px 0; }
+.sgaskx { font-size: .75rem; color: var(--muted); white-space: nowrap; }
+.sgkeyrow [hidden] { display: none; }
+.sgprog { height: 4px; background: color-mix(in srgb, var(--accent) 18%, transparent); }
+.sgprog i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .15s linear; }
+.sgmenu { position: fixed; z-index: 25; display: flex; flex-direction: column; gap: 6px; padding: 8px; min-width: 200px; background: var(--bg); border: 2px solid var(--edge); border-radius: 12px; box-shadow: 0 6px 18px rgba(0,0,0,.3); }
+.sgmenu[hidden] { display: none; }
+/* Rhythm: the falling notes in a strip of their own above the instrument; the bottom edge is the hit-line */
+.sgstrip { position: relative; flex: 0 0 auto; height: clamp(64px, 24vh, 150px); margin: 0 8px; border-radius: 10px 10px 0 0; background: linear-gradient(#26302f, #3a4847); overflow: hidden; }
+.sgstrip[hidden] { display: none; }
+.sgstrip canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
 .sgover { position: absolute; inset: 0; pointer-events: none; z-index: 6; overflow: hidden; }
 .sgover canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
 body:not(.song) .sgover { display: none; }
-.sgnext { box-shadow: inset 0 0 0 4px var(--key-on), 0 0 14px 3px var(--key-on) !important; animation: sgpulse .9s ease-in-out infinite alternate; position: relative; z-index: 3; }
+.sgnext { box-shadow: inset 0 0 0 5px var(--key-on), 0 0 18px 5px var(--key-on) !important; animation: sgpulse .9s ease-in-out infinite alternate; position: relative; z-index: 3; }
+.sgsoon:not(.sgnext) { box-shadow: inset 0 0 0 3px color-mix(in srgb, var(--key-on) 45%, transparent) !important; }
 .bkey.sgnext, .mkey.sharp.sgnext { z-index: 4; }
+.bkey.sgnext { position: absolute; } /* a black key keeps its place on the keyboard while it glows */
+.key.sgnext { background: linear-gradient(color-mix(in srgb, var(--key-on) 30%, var(--key)), var(--key) 70%); }
 .tabla .z.sgnext { stroke: var(--key-on); stroke-width: 6; box-shadow: none !important; }
 @keyframes sgpulse { from { filter: brightness(1); } to { filter: brightness(1.18); } }
-.sgtag { position: absolute; left: 0; top: 0; translate: -50% -100%; display: none; padding: 3px 9px; border-radius: 9px; background: var(--accent); color: #fff; font-weight: 700; font-size: .9rem; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,.25); }
+.sgtag { position: absolute; left: 0; top: 0; translate: -50% -50%; display: none; padding: 4px 12px; border-radius: 12px; background: var(--accent); color: #fff; font-weight: 800; font-size: 1.6rem; line-height: 1.1; white-space: pre-line; text-align: center; box-shadow: 0 3px 10px rgba(0,0,0,.35); z-index: 2; }
+.sgtag.up { translate: -50% -100%; }
+.sgtag.soon { font-size: .95rem; padding: 2px 8px; opacity: .5; box-shadow: none; z-index: 1; }
 .sgtag.show { display: block; }
+.sgcount { position: absolute; left: 50%; top: 40%; translate: -50% -50%; display: none; font-size: 5rem; font-weight: 800; color: var(--accent); text-shadow: 0 3px 14px rgba(0,0,0,.35); }
+.sgcount.show { display: block; }
 .sgdot { position: absolute; left: 0; top: 0; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%; display: none; }
 .sgdot.show { display: block; }
 .sgdot.next { border: 4px solid var(--key-on); box-shadow: 0 0 14px 4px var(--key-on); animation: sgpulse .9s ease-in-out infinite alternate; }
 .sgdot.press { background: var(--key-on); box-shadow: 0 0 10px 3px var(--key-on); }
+.sghint { position: absolute; inset: 0; z-index: 8; display: flex; align-items: center; justify-content: center; background: rgba(10, 16, 16, .5); }
+.sghint[hidden] { display: none; }
+.sghint-in { background: var(--bg); color: var(--ink); border-radius: 16px; padding: 14px 22px; box-shadow: 0 8px 24px rgba(0,0,0,.35); max-width: 92%; }
+.sghint h2 { margin: 0 0 6px; font-size: 1.1rem; }
+.sghint ol { list-style: none; margin: 0 0 12px; padding: 0; font-size: 1.05rem; line-height: 1.6; }
+.sghint b { color: var(--accent); }
+/* A zoomed keyboard (a song is open): big keys, scrolling sideways when the song is wider than the screen */
+.view.zoomed { overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; }
+.view.zoomed .piano { min-width: 100%; }
+.key, .mkey, .fcell, .hcell, .wcell, .xbar { white-space: pre-line; text-align: center; }
 @media (prefers-reduced-motion: reduce) { .sgnext, .sgdot.next { animation: none; } }
 
 .sheet { position: fixed; inset: 0; z-index: 30; display: flex; align-items: flex-end; justify-content: center; background: rgba(10, 16, 16, .45); }
@@ -699,31 +736,62 @@ body:not(.song) .sgover { display: none; }
 </div>
 
 <div class="songbar" id="songBar" hidden>
-  <b class="sgname" id="sgName"></b>
-  <select id="sgMode" aria-label="Song mode">
-    <option value="auto">Auto-play</option>
-    <option value="wait">Train: Wait</option>
-    <option value="rhythm">Train: Rhythm</option>
-    <option value="along">Train: Play along</option>
-  </select>
-  <button id="sgPlay" class="sgplay">▶ Play</button>
-  <button id="sgStop" aria-label="Stop">■</button>
-  <span class="lbl" id="sgTempoName">Tempo</span>
-  <input type="range" id="sgTempo" class="fine" min="50" max="120" step="5" value="100" aria-label="Song tempo, percent">
-  <b class="kval" id="sgTempoLbl">100%</b>
+  <div class="sgrow">
+    <button id="sgX" aria-label="Close the song">✕</button>
+    <b class="sgname" id="sgName"></b>
+    <button id="sgPlay" class="sgplay">▶ Play</button>
+    <button id="sgStop" aria-label="Stop">■ Stop</button>
+    <span class="lbl" id="sgTempoName">Speed</span>
+    <input type="range" id="sgTempo" class="fine" min="50" max="120" step="5" value="100" aria-label="Speed, percent">
+    <b class="kval" id="sgTempoLbl">100%</b>
+    <select id="sgMode" aria-label="Level">
+      <option value="wait">Wait</option>
+      <option value="rhythm">Rhythm</option>
+      <option value="along">Play along</option>
+      <option value="auto">Auto-play</option>
+    </select>
+    <button id="sgMore" aria-haspopup="true" aria-expanded="false" aria-controls="sgMenu">More ▾</button>
+    <button id="sgHelp" class="sghelp" aria-label="How Train me works">?</button>
+    <span class="sgpos lbl" id="sgPos"></span>
+    <span class="sgscore" id="sgScore" aria-live="polite"></span>
+    <span class="sgresult" id="sgResult" aria-live="polite"></span>
+  </div>
+  <div class="sgrow sgkeyrow" id="sgKeyRow">
+    <b class="sgkey" id="sgKeyName" aria-live="polite"></b>
+    <span class="sgtp" role="group" aria-label="Transpose">
+      <button id="sgTpDown" aria-label="Transpose down a semitone">−</button><span id="sgTp" aria-live="polite">Original key</span><button id="sgTpUp" aria-label="Transpose up a semitone">+</button>
+    </span>
+    <button id="sgReset">Reset to song key</button>
+    <span class="sglabels" id="sgLabels" role="group" aria-label="Labels">
+      <span class="lbl">Labels</span><button data-lab="names" aria-pressed="true">Note names</button><button data-lab="sargam" aria-pressed="false">Sargam</button><button data-lab="both" aria-pressed="false">Both</button>
+    </span>
+    <input type="range" id="sgPan" class="fine" min="0" max="100" step="1" value="0" aria-label="Scroll the keys sideways" hidden>
+    <span class="sgwarn" id="sgWarn" hidden></span>
+  </div>
+  <div class="sgrow sgkeyrow" id="sgAsk" hidden>
+    <span class="lbl" id="sgAskQ"></span><button id="sgKeep" aria-pressed="true">Keep original</button><button id="sgRemap" aria-pressed="false">Remap to this mode (experimental)</button>
+    <span class="sgaskx" id="sgAskX"></span>
+  </div>
+  <div class="sgprog" aria-hidden="true"><i id="sgProg"></i></div>
+</div>
+<div class="sgmenu" id="sgMenu" hidden>
   <button id="sgLoop" aria-pressed="false">Loop</button>
-  <select id="sgSec" aria-label="Repeat a section"></select>
   <button id="sgCount" aria-pressed="true">Count-in</button>
   <button id="sgMetro" aria-pressed="false">Metronome</button>
-  <span class="sgpos lbl" id="sgPos"></span>
-  <span class="sgscore" id="sgScore" aria-live="polite"></span>
-  <span class="sgresult" id="sgResult" aria-live="polite"></span>
-  <span class="sgwarn" id="sgWarn" hidden></span>
-  <button id="sgX" aria-label="Close the song">✕</button>
+  <button id="sgBack" aria-pressed="false">Chord backing</button>
+  <select id="sgSec" aria-label="Whole song or a section"></select>
 </div>
+<div class="sgstrip" id="sgStrip" hidden aria-hidden="true"><canvas id="sgStripCv"></canvas></div>
 
 <div class="stage">
-  <div class="sgover" id="sgOver" aria-hidden="true"><canvas id="sgLane"></canvas><div class="sgdot" id="sgDot"></div><div class="sgtag" id="sgTag"></div></div>
+  <div class="sgover" id="sgOver" aria-hidden="true"><canvas id="sgLane"></canvas><div class="sgdot" id="sgDot"></div><div class="sgtag soon" id="sgTag2"></div><div class="sgtag soon" id="sgTag3"></div><div class="sgtag" id="sgTag"></div><div class="sgcount" id="sgCountIn"></div></div>
+  <div class="sghint" id="sgHint" hidden role="dialog" aria-labelledby="sgHintH">
+    <div class="sghint-in">
+      <h2 id="sgHintH">Train me</h2>
+      <ol><li><b>1.</b> Look at the glowing key.</li><li><b>2.</b> Press it.</li><li><b>3.</b> The song moves on.</li></ol>
+      <button id="sgHintOk" class="sgplay">Got it</button>
+    </div>
+  </div>
   <div class="view only-piano"><div class="piano" id="piano"></div></div>
 
   <div class="view only-drums"><div class="pads" id="pads"></div></div>
@@ -887,6 +955,7 @@ body:not(.song) .sgover { display: none; }
       <select id="labels">
         <option value="names">Note names</option>
         <option value="sargam">Sa Re Ga</option>
+        <option value="both">Both</option>
         <option value="off">None</option>
       </select></div>
     <div class="r only-piano"><span>Touch strength</span>
@@ -930,7 +999,7 @@ body:not(.song) .sgover { display: none; }
   var AC = window.AudioContext || window.webkitAudioContext;
   var ctx, bus, master, limiter, makeup, wet, lfoDepth, noiseBuf, drive, conv, gch, eOut, hall;
   // App version: matches the service worker's cache name (sw.js), shown in Settings so a phone can be checked
-  var APP_VERSION = 7;
+  var APP_VERSION = 8;
   var MAKEUP = 1.26; // +2 dB after the limiter (Chrome's compressor adds its own make-up on top: see TESTING.md)
   var $ = function (id) { return document.getElementById(id); };
 
@@ -951,9 +1020,19 @@ body:not(.song) .sgover { display: none; }
       blues: { name: 'Blues', iv: [0, 3, 5, 6, 7, 10], parent: 'minor' },
       dorian: { name: 'Dorian', iv: [0, 2, 3, 5, 7, 9, 10] },
       mixolydian: { name: 'Mixolydian', iv: [0, 2, 4, 5, 7, 9, 10] },
+      // Raags as modes (the songs name them so): Bilawal is the major scale, Bhoopali the major pentatonic, Yaman
+      // the major scale with a sharp Ma, Khamaj the major scale with a flat Ni
+      bilawal: { name: 'Bilawal (raag)', iv: [0, 2, 4, 5, 7, 9, 11] },
+      bhoopali: { name: 'Bhoopali (raag)', iv: [0, 2, 4, 7, 9], parent: 'major' },
+      yaman: { name: 'Yaman (raag)', iv: [0, 2, 4, 6, 7, 9, 11] },
+      khamaj: { name: 'Khamaj (raag)', iv: [0, 2, 4, 5, 7, 9, 10] },
       chromatic: { name: 'Chromatic', iv: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], parent: 'major' }
     };
-    var ORDER = ['major', 'minor', 'harmonic', 'melodic', 'penta', 'minpenta', 'blues', 'dorian', 'mixolydian', 'chromatic'];
+    var ORDER = ['major', 'minor', 'harmonic', 'melodic', 'penta', 'minpenta', 'blues', 'dorian', 'mixolydian', 'bilawal', 'bhoopali', 'yaman', 'khamaj', 'chromatic'];
+    // Notes an open song borrows from outside its mode (a raised leading note, say): while it is open they count as in
+    // the scale for that key and scale, so the instrument's layout has a place for them and Scale lock leaves them be
+    var EXTRA = null;
+    function setExtra(key, scale, rels) { EXTRA = rels && rels.length ? { key: key, scale: scale, rel: rels.slice() } : null; }
     function pc(m) { return ((Math.round(m) % 12) + 12) % 12; }
     function rel(m, key) { return ((pc(m) - key) % 12 + 12) % 12; }
     function iv(scale) { return SCALES[scale].iv; }
@@ -971,7 +1050,10 @@ body:not(.song) .sgover { display: none; }
       for (var i = 0; i < count; i++) out.push(degree(root, scale, i));
       return out;
     }
-    function inScale(m, key, scale) { return iv(scale).indexOf(rel(m, key)) >= 0; }
+    function inScale(m, key, scale) {
+      var r = rel(m, key);
+      return iv(scale).indexOf(r) >= 0 || !!(EXTRA && EXTRA.key === key && EXTRA.scale === scale && EXTRA.rel.indexOf(r) >= 0);
+    }
     // Nearest scale note to m (a tie goes to the lower note), kept within [lo, hi] when given
     function snap(m, key, scale, lo, hi) {
       lo = lo === undefined ? -1e9 : lo; hi = hi === undefined ? 1e9 : hi;
@@ -1004,10 +1086,11 @@ body:not(.song) .sgover { display: none; }
       var base = Math.round(m) - r;
       return [0, degree(base, sc, i + 2) - Math.round(m), degree(base, sc, i + 4) - Math.round(m)];
     }
-    // Label for a note: 'names' (C, E♭ ...), 'sargam' (counted from the key) or 'off'
+    // Label for a note: 'names' (C, E♭ ...), 'sargam' (counted from the key), 'both' (name over sargam) or 'off'
     function label(m, key, mode) {
       if (mode === 'off') return '';
       if (mode === 'sargam') return SARGAM[rel(m, key)];
+      if (mode === 'both') return NAMES[pc(m)] + '\n' + SARGAM[rel(m, key)];
       return NAMES[pc(m)];
     }
     function name(m) { return NAMES[pc(m)] + (Math.floor(Math.round(m) / 12) - 1); }
@@ -1015,7 +1098,7 @@ body:not(.song) .sgover { display: none; }
     function describe(key, scale) {
       return NAMES[key] + ' ' + SCALES[scale].name + ': ' + iv(scale).map(function (i) { return NAMES[(key + i) % 12]; }).join(' ');
     }
-    return { describe: describe, NAMES: NAMES, SARGAM: SARGAM, SCALES: SCALES, ORDER: ORDER, pc: pc, rel: rel, iv: iv, hepta: hepta, mtof: mtof,
+    return { describe: describe, NAMES: NAMES, SARGAM: SARGAM, SCALES: SCALES, ORDER: ORDER, pc: pc, rel: rel, iv: iv, hepta: hepta, mtof: mtof, setExtra: setExtra,
              rootFrom: rootFrom, degree: degree, run: run, inScale: inScale, snap: snap, seventh: seventh, chord: chord,
              triadOn: triadOn, label: label, name: name };
   })();
@@ -1042,7 +1125,9 @@ body:not(.song) .sgover { display: none; }
     } catch (e) {}
   })();
   function saveTonal() { try { localStorage.setItem('pb-tonal', JSON.stringify({ t: TONAL, l: LOCK })); } catch (e) {} }
-  function lockNote(tab, m) { var st = TONAL[tab]; return LOCK[tab] ? T.snap(m, st.key, st.scale) : m; }
+  // (Scale lock rests while a song is open on the instrument: every key plays its own note, so a wrong key in Train me is
+  // heard as wrong rather than snapped onto the right one)
+  function lockNote(tab, m) { var st = TONAL[tab]; return LOCK[tab] && !(sg.tr && sg.tab === tab) ? T.snap(m, st.key, st.scale) : m; }
 
   // Which shared toolbar controls each instrument shows (CSS reads these from <body data-g>)
   var GROUPS = {
@@ -1088,7 +1173,8 @@ body:not(.song) .sgover { display: none; }
   }/*END LEVEL*/;
 
   // Songs (see "Songs" below): rows that start lower while a song is open, and the last note each voice was heard on
-  var songLow = {}, heardV = {};
+  // and, for the keyboards, the stretch of notes the keyboard zooms to (songZoom) and how many notes a row holds (songSpan)
+  var songLow = {}, songZoom = {}, songSpan = {}, heardV = {};
 
   var state = {
     tab: 'piano', inst: 'piano', octave: 3, range: 3, chord: 'off', labels: 'names',
@@ -1339,6 +1425,7 @@ body:not(.song) .sgover { display: none; }
 
   function pianoLabel(m) {
     var key = TONAL.piano.key, txt = T.label(m, key, state.labels);
+    if (songZoom.piano && !T.inScale(m, key, TONAL.piano.scale)) return ''; // a song's keyboard names only its own notes
     if (state.labels === 'names' && T.pc(m) === key) txt += Math.floor(m / 12) - 1;
     return txt;
   }
@@ -1351,13 +1438,19 @@ body:not(.song) .sgover { display: none; }
     return k;
   }
 
+  // While a song is open the keyboard zooms to the song's notes and one key either side (starting and ending on a
+  // white key), so the keys are big; a song wider than the screen scrolls sideways (PIANO_MIN px a white key at least)
+  var PIANO_MIN = 52;
   function buildPiano() {
     stopAll();
     piano.innerHTML = '';
     keyEls = {}; lit = {}; rects = {};
-    var root = pianoRoot(), top = root + 12 * state.range, m;
+    var root = pianoRoot(), top = root + 12 * state.range, m, z = songZoom.piano;
     var lo = isBlack(root) ? root - 1 : root, hi = isBlack(top) ? top + 1 : top, whites = [];
+    if (z) { lo = z[0] - 1; if (isBlack(lo)) lo--; hi = z[1] + 1; if (isBlack(hi)) hi++; root = lo; }
     for (m = lo; m <= hi; m++) if (!isBlack(m)) whites.push(m);
+    piano.style.width = z ? 'max(100%, ' + whites.length * PIANO_MIN + 'px)' : '';
+    piano.parentNode.classList.toggle('zoomed', !!z);
     var bw = 100 / whites.length;
     whites.forEach(function (w) { pianoKey('key', w).textContent = pianoLabel(w); });
     for (m = lo; m <= hi; m++) {
@@ -1908,7 +2001,7 @@ body:not(.song) .sgover { display: none; }
     fl.cells.forEach(function (c) { c.remove(); });
     fl.cells = []; fl.notes = [];
     var st = TONAL.flute, root = 60 + st.key, n = 2 * T.iv(st.scale).length + 1;
-    fl.notes = songLow.flute !== undefined ? scaleFrom(songLow.flute, st.key, st.scale, n) : T.run(root, st.scale, n); // two octaves and the top root
+    fl.notes = songLow.flute !== undefined ? scaleFrom(songLow.flute, st.key, st.scale, songSpan.flute || n) : T.run(root, st.scale, n); // two octaves and the top root
     fl.notes.forEach(function (m) {
       var c = document.createElement('div');
       c.className = 'fcell' + (T.pc(m) === st.key ? ' root' : '');
@@ -2958,7 +3051,7 @@ body:not(.song) .sgover { display: none; }
   // Pitch for a finger at fx (0-1 across the fingerboard) on string i; snapped to the scale when asked
   function bowPitch(i, fx) {
     var C = BOWCFG[bw.tab], s = clamp(fx * (BOW_SPAN + 1) - 0.5, 0, BOW_SPAN), m = C.open[i] + s;
-    if (!bw.snap) return m;
+    if (!bw.snap || (sg.tr && sg.tab === bw.tab)) return m;   // a song wants the exact fret, like Scale lock
     var st = TONAL[bw.tab];
     return T.snap(m, st.key, st.scale, C.open[i], C.open[i] + BOW_SPAN);
   }
@@ -3292,7 +3385,7 @@ body:not(.song) .sgover { display: none; }
     var st = TONAL.horn, root = 48 + st.key;
     hn.cells.forEach(function (c) { c.remove(); });
     hn.cells = [];
-    hn.notes = songLow.horn !== undefined ? scaleFrom(songLow.horn, st.key, st.scale, 2 * T.iv(st.scale).length + 1) : T.run(root, st.scale, 2 * T.iv(st.scale).length + 1);
+    hn.notes = songLow.horn !== undefined ? scaleFrom(songLow.horn, st.key, st.scale, songSpan.horn || 2 * T.iv(st.scale).length + 1) : T.run(root, st.scale, 2 * T.iv(st.scale).length + 1);
     hn.notes.forEach(function (m) {
       var c = document.createElement('div');
       c.className = 'hcell' + (T.pc(m) === st.key ? ' root' : '');
@@ -3403,7 +3496,7 @@ body:not(.song) .sgover { display: none; }
       var st = TONAL[tab], root = T.rootFrom(st.key, low);
       w.cells.forEach(function (c) { c.remove(); });
       w.cells = [];
-      w.notes = songLow[tab] !== undefined ? scaleFrom(songLow[tab], st.key, st.scale, 2 * T.iv(st.scale).length + 1) : T.run(root, st.scale, 2 * T.iv(st.scale).length + 1);
+      w.notes = songLow[tab] !== undefined ? scaleFrom(songLow[tab], st.key, st.scale, songSpan[tab] || 2 * T.iv(st.scale).length + 1) : T.run(root, st.scale, 2 * T.iv(st.scale).length + 1);
       w.notes.forEach(function (m) {
         var c = document.createElement('div');
         c.className = 'wcell' + (T.pc(m) === st.key ? ' root' : '');
@@ -3573,6 +3666,8 @@ body:not(.song) .sgover { display: none; }
     return kr;
   }
   function chromKeys(root, octaves) { var out = []; for (var m = root; m <= root + 12 * octaves; m++) out.push(m); return out; }
+  // A song's notes lo..hi and a key either side (big keys while a song is open)
+  function songKeys(z) { var out = []; for (var m = z[0] - 1; m <= z[1] + 1; m++) out.push(m); return out; }
 
   /* ---------- Pipe organ ---------- */
   // Each key opens one pipe per drawn stop: 8' (unison), 4' (octave), 2 2/3' (twelfth), 2' (fifteenth). The lower
@@ -3650,8 +3745,9 @@ body:not(.song) .sgover { display: none; }
   });
   function buildOrgan() {
     var st = TONAL.organ, root = T.rootFrom(st.key, 48);
-    orgMan[0].build(chromKeys(root, 2), st.key, st.scale);
-    orgMan[1].build(chromKeys(root + 12, 2), st.key, st.scale);
+    var z = songZoom.organ, low = z ? songKeys(z) : chromKeys(root, 2);
+    orgMan[0].build(low, st.key, st.scale);
+    orgMan[1].build(low.map(function (m) { return m + 12; }), st.key, st.scale);
   }
 
   /* ---------- Synth ---------- */
@@ -3694,7 +3790,7 @@ body:not(.song) .sgover { display: none; }
   }, function (id) { vStop('s' + id); });
   function buildSynth() {
     var st = TONAL.synth;
-    syKeys.build(chromKeys(12 * (sy.oct + 1) + st.key, 2), st.key, st.scale);
+    syKeys.build(songZoom.synth ? songKeys(songZoom.synth) : chromKeys(12 * (sy.oct + 1) + st.key, 2), st.key, st.scale);
   }
   function syK() { return sy.knobs[sy.preset]; }
   makeKnob($('kcut'), $('vcut'), 0, 100, 1, 62, function () { return syK().cut; }, function (v) { syK().cut = v; },
@@ -3739,7 +3835,7 @@ body:not(.song) .sgover { display: none; }
   function buildXylo() {
     xyStopAll();
     var st = TONAL.xylo, root = T.rootFrom(st.key, 65), n;
-    xy.notes = songLow.xylo !== undefined ? scaleFrom(songLow.xylo, st.key, st.scale, 2 * T.iv(st.scale).length + 1) : T.run(root, st.scale, 2 * T.iv(st.scale).length + 1);
+    xy.notes = songLow.xylo !== undefined ? scaleFrom(songLow.xylo, st.key, st.scale, songSpan.xylo || 2 * T.iv(st.scale).length + 1) : T.run(root, st.scale, 2 * T.iv(st.scale).length + 1);
     n = xy.notes.length;
     xylo.innerHTML = '';
     xy.bars = xy.notes.map(function (m, i) {
@@ -3840,7 +3936,7 @@ body:not(.song) .sgover { display: none; }
   }
   function ebNote(str, x) {
     var f = clamp(Math.floor(x / eb.rect.width * (EB_FRETS + 1)), 0, EB_FRETS), m = EB_OPEN[str] + f, st = TONAL.ebass;
-    return eb.snap ? T.snap(m, st.key, st.scale, EB_OPEN[str], EB_OPEN[str] + EB_FRETS) : m;
+    return eb.snap && !(sg.tr && sg.tab === 'ebass') ? T.snap(m, st.key, st.scale, EB_OPEN[str], EB_OPEN[str] + EB_FRETS) : m;
   }
   function ebLight() {
     var on = {};
@@ -4102,8 +4198,9 @@ body:not(.song) .sgover { display: none; }
     $('irev').value = NST[tab].rev;
     nread.textContent = '';
   }
-  $('key').onchange = function () { TONAL[state.tab].key = +this.value; saveTonal(); rebuildTonal(state.tab); songRefit(); };
-  $('scale').onchange = function () { TONAL[state.tab].scale = this.value; saveTonal(); rebuildTonal(state.tab); songRefit(); };
+  // While a song is open the Key menu transposes the song and the Scale menu asks before touching its notes (Songs)
+  $('key').onchange = function () { if (songOwns()) { songSetKey(+this.value); return; } TONAL[state.tab].key = +this.value; saveTonal(); rebuildTonal(state.tab); };
+  $('scale').onchange = function () { if (songOwns()) { songSetScale(this.value); return; } TONAL[state.tab].scale = this.value; saveTonal(); rebuildTonal(state.tab); };
   $('slock').onclick = function () {
     LOCK[state.tab] = !LOCK[state.tab]; saveTonal();
     this.setAttribute('aria-pressed', LOCK[state.tab]);
@@ -4629,10 +4726,15 @@ body:not(.song) .sgover { display: none; }
   $('vib').oninput = function () { state.vib = +this.value; if (lfoDepth) lfoDepth.gain.value = state.vib * 35; };
   $('range').onchange = function () { state.range = +this.value; setOctave(state.octave); };
   $('chord').onchange = function () { state.chord = this.value; };
-  $('labels').onchange = function () {
-    state.labels = this.value;
-    rebuildTonal(state.tab);
-  };
+  $('labels').onchange = function () { setLabels(this.value); };
+  // One naming system at a time: keys, holes, the song's badges and its falling bars all follow it
+  function setLabels(v) {
+    state.labels = v; $('labels').value = v;
+    try { localStorage.setItem('pb-labels', v); } catch (e) {}
+    if (TONAL[state.tab]) rebuildTonal(state.tab);
+    songRelabel();
+  }
+  try { var svl = localStorage.getItem('pb-labels'); if (/^(names|sargam|both|off)$/.test(svl)) { state.labels = svl; $('labels').value = svl; } } catch (e) {}
   $('vel').onchange = function () { state.velocity = this.value === 'on'; };
   $('maxv').onchange = function () { MAX_VOICES = +this.value; };
 
@@ -4642,16 +4744,20 @@ body:not(.song) .sgover { display: none; }
   // The library is tracks/*.json (built by tools/make-tracks.mjs, listed in TRACKS.md). It is fetched the first time
   // the Songs sheet opens and the service worker caches it, so songs work offline. A note is
   // [start beat, length in beats, MIDI note, velocity 0-127]; a beat is a quarter note.
-  // Picking a track fits it to the instrument: it moves into the instrument's key (and, when the scale shown can't
-  // hold every note, the song's own scale), then into the octave where most of it can be played; rows of notes start
-  // lower or the keyboard changes octave so the whole song is on screen. Closing the song puts all of that back.
+  // Every pitched track carries its tonic (a pitch class, C = 0) and mode. Picking it sets the instrument's Key and
+  // Scale to the song's own and plays exactly the written notes, moved by whole octaves only to suit the instrument.
+  // The Transpose control (and the Key menu) moves the whole song by semitones, so every interval stays; changing
+  // the Scale keeps the song's notes unless the player asks to remap them to the new mode. Keyboards zoom to the
+  // song's notes, rows of notes hold just the song's stretch. Closing the song puts all of that back.
+  // Auto-play, Train me, the glow and the falling bars all read one list: sg.plan.ev.
   var SONG_FILES = ['melodies', 'chords', 'bass', 'drums', 'tabla'];
   var SONG_TYPE = { guitar: 'chords', rhythm: 'chords', ebass: 'bass', drums: 'drums', epad: 'drums', tabla1: 'tabla', tabla2: 'tabla' };
   // Where a fitted song should sit on each instrument (MIDI), and the instruments whose row of notes can start lower
-  var SONG_RANGE = { piano: [48, 84], organ: [48, 84], synth: [36, 84], flute: [60, 96], harmonica: [55, 96], horn: [41, 77],
+  var SONG_RANGE = { piano: [21, 108], organ: [36, 96], synth: [24, 96], flute: [60, 96], harmonica: [55, 96], horn: [41, 77],
     trumpet: [54, 84], sax: [49, 81], xylo: [60, 96], violin: [55, 93], viola: [48, 83], cello: [36, 71], ebass: [28, 55] };
   var SONG_ROWS = { flute: 1, horn: 1, trumpet: 1, sax: 1, xylo: 1 };
   var SONG_TAGS = ['Kids', 'Classical', 'Folk', 'Indian', 'Hymn'];
+  var EXACT_KEY = { piano: 1, organ: 1, synth: 1, xylo: 1 };
   // Tabla bols as strokes on the two drums (the dayan's Na, Tin, Tun, Te, Ti; the bayan's Ge, Ke). On the single
   // tabla the bayan's part plays itself.
   var TABLA_MAP = { Dha: ['Na', 'Ge'], Dhin: ['Tin', 'Ge'], Dhi: ['Tin', 'Ge'], Din: ['Tin', 'Ge'], Tin: ['Tin'], Tu: ['Tun'], Na: ['Na'], Ta: ['Na'],
@@ -4660,10 +4766,13 @@ body:not(.song) .sgover { display: none; }
   var EP_NAMES = { kick: ['Kick'], snare: ['Snare'], hatC: ['Closed hat'], hatO: ['Open hat'], clap: ['Clap'], crash: ['Crash'],
     tomL: ['Tom low', 'Tom'], tomH: ['Tom high', 'Tom'] };
   var ARROW = { D: ' ↓', U: ' ↑' };
-  var LOOKAHEAD = 0.12, PERFECT = 0.08, GOOD = 0.18; // seconds
+  var LOOKAHEAD = 0.12, PERFECT = 0.08, GOOD = 0.18, COUNT_IN = 3; // seconds; count-in beats ("3 2 1")
   var songLib = null, songLibP = null;
+  // tp: semitones the song is transposed (-6..+6); scale: a Scale the player chose instead of the song's mode (null:
+  // the song's own); remap: move the notes to that scale's steps (experimental); backing: soft chords under the song
   var sg = { tr: null, plan: null, tab: '', mode: 'auto', level: 'wait', on: false, paused: false, tempo: 100, speed: 100, loop: false,
-             count: true, metro: false, sec: -1, timer: 0, raf: 0, voices: [], lastV: {}, timers: [], restore: null, best: {}, fx: [], glow: [] };
+             count: true, metro: false, backing: false, sec: -1, timer: 0, raf: 0, voices: [], lastV: {}, timers: [], restore: null, best: {}, fx: [], glow: [],
+             soon: [], bars: [], tp: 0, scale: null, remap: false };
   try { sg.best = JSON.parse(localStorage.getItem('pb-songs') || '{}') || {}; } catch (e) { sg.best = {}; }
 
   function songType(tab) { return SONG_TYPE[tab] || 'melody'; }
@@ -4758,18 +4867,32 @@ body:not(.song) .sgover { display: none; }
     }
     return null;
   }
-  // Moves the instrument's layout to cover notes lo..hi where it can
+  // Moves the instrument's layout to cover the song's notes lo..hi: a keyboard zooms to them, a row of notes starts one
+  // scale note below and ends one above
   function songLayout(tab, lo, hi) {
     var st = TONAL[tab];
-    if (SONG_ROWS[tab]) songLow[tab] = T.snap(lo, st.key, st.scale, lo - 12, lo);
-    else if (tab === 'piano') {
-      var o = Math.floor((lo - st.key) / 12) - 1;
-      if (12 * (o + 1) + st.key + 12 * state.range < hi) o = Math.floor((hi - st.key) / 12) - 1 - state.range + 1;
-      state.octave = clamp(o, 1, 8 - state.range);
-    } else if (tab === 'synth') {
-      var so = clamp(Math.floor((lo - st.key) / 12) - 1, 2, 4);
-      sy.oct = so; $('soct').value = so;
-    }
+    if (SONG_ROWS[tab]) {
+      songLow[tab] = T.snap(lo - 1, st.key, st.scale, lo - 12, lo - 1);
+      var top = T.snap(hi + 1, st.key, st.scale, hi + 1, hi + 12);
+      songSpan[tab] = scaleFrom(songLow[tab], st.key, st.scale, 200).filter(function (m) { return m <= top; }).length;
+    } else if (tab === 'piano' || tab === 'organ' || tab === 'synth') songZoom[tab] = [lo, hi];
+  }
+  // The song's notes before any octave move: the written ones moved by the transpose, or (when the player asked)
+  // remapped onto the steps of the scale they chose
+  function songNotes(tr) {
+    var key = songKey(tr), to = sg.scale;
+    return tr.notes.map(function (n) {
+      var m = n[2] + sg.tp;
+      return sg.remap && to && to !== tr.mode ? remapNote(m, key, tr.mode, to) : m;
+    });
+  }
+  function songKey(tr) { return ((tr.tonic + sg.tp) % 12 + 12) % 12; }
+  // A note moved to the same step of another mode (a note outside the song's mode, or a mode with another number of
+  // steps, goes to the nearest note of the new one)
+  function remapNote(m, key, from, to) {
+    var r = T.rel(m, key), a = T.iv(from), b = T.iv(to), i = a.indexOf(r), base = Math.round(m) - r;
+    if (i >= 0 && a.length === b.length) return base + b[i];
+    return T.snap(m, key, to);
   }
   // The plan for playing track tr on instrument tab: events in beats, each with its sounding note, where it is on the
   // instrument (null if it can't be played there) and its label
@@ -4778,44 +4901,42 @@ body:not(.song) .sgover { display: none; }
     try { return fitTrack1(tr, tab); } finally { sg.fitting = false; }
   }
   function fitTrack1(tr, tab) {
-    var type = tr.type, st = TONAL[tab], plan = { tr: tr, tab: tab, ev: [], back: [], warn: '', moved: 0, missing: 0, shift: 0 };
+    var type = tr.type, st = TONAL[tab], plan = { tr: tr, tab: tab, ev: [], back: [], warn: '', moved: 0, missing: 0, shift: 0, oct: 0, extra: [] };
+    delete songLow[tab]; delete songZoom[tab]; delete songSpan[tab];
+    T.setExtra(null);
+    if (st && tr.tonic !== null && tr.tonic !== undefined) { // the instrument takes the song's key and mode
+      st.key = songKey(tr); st.scale = sg.scale || tr.mode;
+    }
     if (type === 'melody' || type === 'bass') {
-      var shift = ((st.key - keyPc(tr.key)) % 12 + 12) % 12;
-      if (shift > 6) shift -= 12;
-      plan.shift = shift;
-      var ms = tr.notes.map(function (n) { return n[2] + shift; });
-      // a scale that holds every note: the one shown if it can, otherwise the song's own
-      var fits = ms.every(function (m) { return T.inScale(m, st.key, st.scale); });
-      if (!fits) { plan.scale = tr.scale; st.scale = tr.scale; }
-      delete songLow[tab];
+      var ms = songNotes(tr);
+      // notes the song borrows from outside the scale get a place on the layout too
+      ms.forEach(function (m) { var r = T.rel(m, st.key); if (!T.inScale(m, st.key, st.scale) && plan.extra.indexOf(r) < 0) plan.extra.push(r); });
+      T.setExtra(st.key, st.scale, plan.extra);
       rebuildTonal(tab);
-      // the octave where most of the song sits in the instrument's range (or layout), nearest the written one
-      var R = SONG_RANGE[tab] || [36, 96], fixed = !SONG_ROWS[tab] && tab !== 'piano' && tab !== 'synth', set = fixed ? layoutSet(tab) : null, bestO = 0, bestN = -1;
-      [0, 1, -1, 2, -2, 3, -3].forEach(function (o) {
+      // whole octaves only: the octave where most of the song sits in the instrument's range (or on its layout),
+      // the written one when that is as good
+      var R = SONG_RANGE[tab] || [36, 96], fixed = !SONG_ROWS[tab] && tab !== 'piano' && tab !== 'synth' && tab !== 'organ', set = fixed ? layoutSet(tab) : null, bestO = 0, bestN = -1;
+      // (a new Scale or Remap keeps the octave it had, so the song's notes don't jump)
+      (sg.keepOct !== undefined ? [sg.keepOct] : [0, 1, -1, 2, -2, 3, -3]).forEach(function (o) {
         var n = 0;
         ms.forEach(function (m) { var k = m + 12 * o; if (fixed ? set[k] : k >= R[0] && k <= R[1]) n++; });
         if (n > bestN) { bestN = n; bestO = o; }
       });
       ms = ms.map(function (m) { return m + 12 * bestO; });
-      plan.shift += 12 * bestO;
+      plan.oct = bestO; plan.shift = sg.tp + 12 * bestO;
       if (!fixed) {
-        var lo = Math.max(R[0], Math.min.apply(null, ms)), hi = Math.min(R[1], Math.max.apply(null, ms));
-        songLayout(tab, lo, hi);
+        songLayout(tab, Math.min.apply(null, ms), Math.max.apply(null, ms));
         rebuildTonal(tab);
       }
+      // Sa for the sargam labels: the tonic in the octave the song was written around, moved with the song
+      plan.sa = 60 + tr.tonic - (tr.tonic > 6 ? 12 : 0) + plan.shift;
       tr.notes.forEach(function (n, i) {
-        var m = ms[i], tg = songTarget(tab, m), k;
-        for (k = 1; !tg && k <= 2; k++) { // fold a stray note into an octave the instrument has
-          if ((tg = songTarget(tab, ms[i] - 12 * k))) m = ms[i] - 12 * k;
-          else if ((tg = songTarget(tab, ms[i] + 12 * k))) m = ms[i] + 12 * k;
-        }
-        if (m !== ms[i]) plan.moved++;
+        var m = ms[i], tg = songTarget(tab, m);
         if (!tg) plan.missing++;
-        plan.ev.push({ i: i, b: n[0], d: n[1], m: m, v: 0.45 + 0.55 * n[3] / 127, tg: tg, k: 'note', lab: songLabel(tr, i, m, st.key) });
+        plan.ev.push({ i: i, b: n[0], d: n[1], m: m, v: 0.45 + 0.55 * n[3] / 127, tg: tg, k: 'note' });
       });
       var nm = TAB_NAMES[tab] || tab;
-      if (plan.missing) plan.warn = plan.missing + (plan.missing > 1 ? ' notes don’t' : ' note doesn’t') + ' fit the ' + nm + '; the song plays them for you';
-      else if (plan.moved) plan.warn = 'This song doesn’t quite fit the ' + nm + ': ' + plan.moved + (plan.moved > 1 ? ' notes move' : ' note moves') + ' an octave';
+      if (plan.missing) plan.warn = plan.missing + (plan.missing > 1 ? ' notes are' : ' note is') + ' outside the ' + nm + '’s range; the song plays ' + (plan.missing > 1 ? 'them' : 'it') + ' for you';
     }
     else if (type === 'chords') fitChords(tr, tab, plan);
     else fitHits(tr, tab, plan);
@@ -4823,20 +4944,18 @@ body:not(.song) .sgover { display: none; }
     plan.tune = songTune(tr, plan);
     plan.ev.sort(function (a, b) { return a.b - b.b || a.i - b.i; });
     plan.len = tr.bars * bpb(tr);
+    songRelabel(plan);
     return plan;
   }
   // Chord songs: every strum is an event on the chord's button, in the instrument's key
   function fitChords(tr, tab, plan) {
-    var st = TONAL[tab], shift = ((st.key - keyPc(tr.key)) % 12 + 12) % 12;
-    if (shift > 6) shift -= 12;
+    var shift = sg.tp;
     plan.shift = shift;
     var per = bpb(tr), syms = [];
     tr.chords.forEach(function (bar, bi) {
       var list = bar.split(/\s+/).filter(function (x) { return x && x !== '-'; });
       list.forEach(function (sym, k) { syms.push({ b: bi * per + k * per / list.length, c: parseChord(sym, shift) }); });
     });
-    function all(scale) { return syms.every(function (x) { for (var d = 0; d < 7; d++) if (T.chord(st.key, scale, d).name === x.c.name) return true; return false; }); }
-    if (!all(st.scale) && all(tr.scale)) { plan.scale = tr.scale; st.scale = tr.scale; }
     rebuildTonal(tab);
     tr.strum.forEach(function (s, i) {
       var c = null, next = tr.strum[i + 1];
@@ -4870,13 +4989,22 @@ body:not(.song) .sgover { display: none; }
   function songTune(tr, plan) {
     var notes = tr.type === 'chords' ? tr.notes : tr.type === 'bass' ? tr.tune : null;
     if (!notes || !notes.length) return [];
-    var sh = ((plan.shift % 12) + 12) % 12, ms = notes.map(function (n) { return n[2] + sh; }), mid = (Math.min.apply(null, ms) + Math.max.apply(null, ms)) / 2;
+    var ms = notes.map(function (n) { return n[2] + sg.tp; }), mid = (Math.min.apply(null, ms) + Math.max.apply(null, ms)) / 2;
     var o = 12 * Math.round((72 - mid) / 12);
     return notes.map(function (n, i) { return { b: n[0], d: n[1], m: ms[i] + o, v: n[3] / 127 }; });
   }
-  function songLabel(tr, i, m, key) {
-    if (state.labels === 'sargam' || (tr.sargam && state.labels !== 'off')) return tr.sargam ? tr.sargam[i] : T.label(m, key, 'sargam');
-    return T.name(m);
+  // A note's name on badges and bars, in the naming system chosen (Labels): C4, Sa (a dot below for the low octave,
+  // above for the high one, counted from the song's Sa) or both
+  function songLabel(m, plan) {
+    var nm = T.name(m), d = m - plan.sa, o = Math.floor(d / 12), s = T.SARGAM[((d % 12) + 12) % 12];
+    var sa = o < 0 ? s[0] + '̣' + s.slice(1) : o > 0 ? s[0] + '̇' + s.slice(1) : s;
+    return state.labels === 'sargam' ? sa : state.labels === 'both' ? nm + ' · ' + sa : nm;
+  }
+  function songRelabel(plan) {
+    plan = plan || sg.plan;
+    if (!plan || plan.sa === undefined) return;
+    plan.ev.forEach(function (e) { if (e.k === 'note') e.lab = songLabel(e.m, plan); });
+    if (plan === sg.plan) { songRetarget(sg.tab); sgLaneKick(); }
   }
   // Backing chords from the per-bar symbols: [beat, beats, notes]
   function songChords(tr, shift) {
@@ -4999,7 +5127,7 @@ body:not(.song) .sgover { display: none; }
     var dur = Math.max(0.1, c.d * spb() * 0.98);
     SCHED = t;
     try {
-      c.notes.forEach(function (m, j) { var v = makeVoice('epiano', m, j === 3 ? 0.3 : 0.24); sg.voices.push(v); releaseAt(v, t + dur); });
+      c.notes.forEach(function (m, j) { var v = makeVoice('epiano', m, j === 3 ? 0.17 : 0.13); sg.voices.push(v); releaseAt(v, t + dur); }); // soft, under the song
     } finally { SCHED = 0; }
   }
   // The instrument visibly plays: keys go down, cells and holes light, a string shows the spot
@@ -5011,8 +5139,13 @@ body:not(.song) .sgover { display: none; }
     if (tg.box) songDot(on ? tg : null, 'press');
   }
 
-  /* Glow, labels and the falling-notes lane (an overlay on the instrument) */
-  var sgOver = $('sgOver'), sgLane = $('sgLane'), sgDotEl = $('sgDot'), sgTag = $('sgTag');
+  /* Glow, badges, the falling-notes strip and feedback */
+  // The overlay on the instrument holds the badges (the next note's name, big; the two after it, faint), the dot for a
+  // spot on a fingerboard, the count-in and the feedback words. In Rhythm the notes fall in a strip of their own above
+  // the instrument: each bar is as wide as its key and the same colour, and lands on the hit-line at the top of the
+  // instrument when it is due.
+  var sgOver = $('sgOver'), sgLane = $('sgLane'), sgDotEl = $('sgDot'), sgTag = $('sgTag'), sgSoonEls = [$('sgTag2'), $('sgTag3')];
+  var sgStrip = $('sgStrip'), sgStripCv = $('sgStripCv');
   function overRect() { return sgOver.getBoundingClientRect(); }
   function tgCentre(tg, R) {
     if (!tg) return null;
@@ -5021,94 +5154,164 @@ body:not(.song) .sgover { display: none; }
     var fy = (tg.i + 0.5) / 4;
     return { x: b.left + b.width * tgFx(tg) - R.left, y: b.top + b.height * fy - R.top, top: b.top + b.height * fy - R.top - 14, w: 28, h: 28 };
   }
+  // Where a target sits across the screen: its centre and width (a key's own width), from rect R's left edge
+  function tgSpan(tg, R) {
+    if (tg.el) { var r = tg.el.getBoundingClientRect(); return { x: r.left + r.width / 2 - R.left, w: r.width }; }
+    var b = tg.box.getBoundingClientRect();
+    return { x: b.left + b.width * tgFx(tg) - R.left, w: 26 };
+  }
+  function sameTg(a, b) { return a && b && (a.el ? a.el === b.el : !b.el && a.i === b.i && a.s === b.s); }
+  // A falling bar's colours: the key's own colour, and ink that reads on it
+  function rgbOf(c) { var m = /rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)(?:[,\s/]+([\d.]+))?/.exec(c || ''); return m && (m[4] === undefined || +m[4] > 0.05) ? [+m[1], +m[2], +m[3]] : null; }
+  function tgPaint(tg) {
+    if (tg.col) return tg.col;
+    var el = tg.el, rgb = null;
+    if (el && !(el instanceof SVGElement)) {
+      var was = el.classList.contains('on');
+      if (was) el.classList.remove('on');
+      var cs = getComputedStyle(el);
+      rgb = rgbOf(cs.backgroundColor) || rgbOf((/rgba?\([^)]*\)/.exec(cs.backgroundImage) || [])[0]);
+      if (was) el.classList.add('on');
+    }
+    if (!rgb) rgb = rgbOf(getComputedStyle(el && !(el instanceof SVGElement) ? el : document.body).getPropertyValue('--string-hit').trim().replace(/^#(..)(..)(..)$/, function (_, r, g, b) { return 'rgb(' + parseInt(r, 16) + ',' + parseInt(g, 16) + ',' + parseInt(b, 16) + ')'; })) || [242, 177, 52];
+    var light = 0.299 * rgb[0] + 0.587 * rgb[1] + 0.114 * rgb[2] > 140;
+    return tg.col = { fill: 'rgb(' + rgb.join(',') + ')', ink: light ? '#1d2a2a' : '#f4efe2', edge: light ? 'rgba(29,42,42,.55)' : 'rgba(244,239,226,.6)' };
+  }
   function songDot(tg, cls) {
     if (!tg) { sgDotEl.className = 'sgdot'; return; }
     var c = tgCentre(tg, overRect());
     sgDotEl.style.transform = 'translate(' + c.x.toFixed(1) + 'px,' + c.y.toFixed(1) + 'px)';
     sgDotEl.className = 'sgdot show ' + cls;
   }
-  function songGlow(list, label) {
-    sg.glow.forEach(function (tg) { if (tg.el) tg.el.classList.remove('sgnext'); if (tg.pad) tg.pad.classList.remove('sgnext'); });
-    sg.glow = (list || []).filter(Boolean);
-    var R = overRect(), first = null;
-    sg.glow.forEach(function (tg) { if (tg.el) tg.el.classList.add('sgnext'); if (tg.pad) tg.pad.classList.add('sgnext'); first = first || tg; });
-    var boxTg = sg.glow.filter(function (tg) { return tg.box; })[0];
-    if (boxTg) songDot(boxTg, 'next'); else if (sgDotEl.className.indexOf('next') >= 0) songDot(null);
-    if (first && label) {
-      var c = tgCentre(first, R);
-      sgTag.textContent = label;
-      sgTag.style.transform = 'translate(' + clamp(c.x, 30, R.width - 30).toFixed(1) + 'px,' + Math.max(28, c.top - 4).toFixed(1) + 'px)';
-      sgTag.className = 'sgtag show';
-    } else sgTag.className = 'sgtag';
+  // A badge on a target: on a key low down where its name is read (a black key's lower half), on a hole or cell in its
+  // middle, over a fingerboard spot just above it
+  function placeTag(el, tg, text, R) {
+    if (!tg || !text) { el.classList.remove('show'); return; }
+    var c = tgCentre(tg, R), y, cls = el.className.replace(/ ?\b(show|up)\b/g, '');
+    if (tg.el && /\b(key|mkey)\b/.test(tg.el.className) && !/\bsharp\b/.test(tg.el.className)) y = c.top + c.h * 0.72;
+    else if (tg.el && /\b(bkey|sharp)\b/.test(tg.el.className)) y = c.top + c.h * 0.62;
+    else if (tg.el) y = c.y;
+    else { y = c.top - 6; cls += ' up'; }
+    el.textContent = text;
+    el.style.transform = 'translate(' + clamp(c.x, 24, R.width - 24).toFixed(1) + 'px,' + clamp(y, 18, R.height - 6).toFixed(1) + 'px)';
+    el.className = cls + ' show';
   }
-  function songShake() {
-    [sgTag].concat(sg.glow.map(function (tg) { return tg.el; })).forEach(function (el) {
-      if (!el || !el.animate) return;
-      el.animate([{ translate: '0 0' }, { translate: '-5px 0' }, { translate: '5px 0' }, { translate: '-3px 0' }, { translate: '0 0' }], { duration: 260 });
+  // A zoomed keyboard wider than the screen scrolls to keep the note in view
+  function followTg(tg) {
+    var v = tg && tg.el && tg.el.closest && tg.el.closest('.zoomed');
+    if (!v || v.scrollWidth <= v.clientWidth + 1) return;
+    var r = tg.el.getBoundingClientRect(), V = v.getBoundingClientRect();
+    if (r.left < V.left + 24 || r.right > V.right - 24) { v.scrollLeft += (r.left + r.width / 2) - (V.left + V.width / 2); songPanSync(); }
+  }
+  // list: the targets to play now (labelled `label`); soon: the next two notes as { tg, lab }, shown faintly
+  function songGlow(list, label, soon) {
+    sg.glow.forEach(function (tg) { if (tg.el) tg.el.classList.remove('sgnext'); if (tg.pad) tg.pad.classList.remove('sgnext'); });
+    sg.soon.forEach(function (x) { if (x.tg.el) x.tg.el.classList.remove('sgsoon'); });
+    sg.glow = (list || []).filter(Boolean);
+    sg.glowLab = label || '';
+    var first = null;
+    sg.glow.forEach(function (tg) { if (tg.el) tg.el.classList.add('sgnext'); if (tg.pad) tg.pad.classList.add('sgnext'); first = first || tg; });
+    sg.soon = (soon || []).filter(function (x) { return x.tg && !sg.glow.some(function (g) { return sameTg(g, x.tg); }); });
+    sg.soon = sg.soon.filter(function (x, k) { return !sg.soon.slice(0, k).some(function (y) { return sameTg(y.tg, x.tg); }); });
+    sg.soon.forEach(function (x) { if (x.tg.el) x.tg.el.classList.add('sgsoon'); });
+    if (first) followTg(first);
+    var R = overRect(), boxTg = sg.glow.filter(function (tg) { return tg.box; })[0];
+    if (boxTg) songDot(boxTg, 'next'); else if (sgDotEl.className.indexOf('next') >= 0) songDot(null);
+    placeTag(sgTag, first, label, R);
+    sgSoonEls.forEach(function (el, k) { var x = sg.soon[k]; placeTag(el, x && x.tg, x && x.lab, R); });
+  }
+  // Put the badges back on their targets (the keyboard scrolled, the screen turned)
+  function songRetag() { if (sg.glow.length || sg.soon.length) songGlow(sg.glow, sg.glowLab, sg.soon); }
+  // A wrong key, string or button shakes gently (nothing is lost)
+  function songShake(el) {
+    var els = el ? [el] : sg.glow.map(function (tg) { return tg.el; });
+    els.forEach(function (x) {
+      if (!x || !x.animate) return;
+      x.animate([{ translate: '0 0' }, { translate: '-4px 0' }, { translate: '4px 0' }, { translate: '-2px 0' }, { translate: '0 0' }], { duration: 240 });
     });
+    sg.shakes = (sg.shakes || 0) + 1;
+  }
+  function wrongEl(kind, val) {
+    if (kind === 'note') { var t = songTarget(sg.tab, val); return t && t.el; }
+    if (kind === 'chord') { var w = $(sg.tab === 'rhythm' ? 'rchords' : 'chords'), ci = chordIndex(sg.tab, val); return ci >= 0 && w ? w.querySelector('[data-chord="' + ci + '"]') : null; }
+    return null;
   }
   function songFx(text, tg, cls) {
-    var c = tgCentre(tg, overRect());
-    if (c) sg.fx.push({ text: text, x: c.x, y: c.top - 8, t: performance.now(), cls: cls });
+    if (tg) sg.fx.push({ text: text, tg: tg, t: performance.now(), cls: cls });
     sgLaneKick();
   }
   function sgLaneKick() { if (!sg.raf) sg.raf = requestAnimationFrame(songDraw); }
-  // Each frame: the lane (Rhythm), the glow on the next note (Rhythm and Play along), feedback words, progress
-  function songDraw() {
-    sg.raf = 0;
-    var cv = sgLane, R = overRect(), dpr = window.devicePixelRatio || 1, W = Math.round(R.width * dpr), H = Math.round(R.height * dpr);
+  function fitCanvas(cv, R) {
+    var dpr = window.devicePixelRatio || 1, W = Math.round(R.width * dpr), H = Math.round(R.height * dpr);
     if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
     var g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, R.width, R.height);
+    return g;
+  }
+  function stripOn() { return !!(sg.tr && sg.mode === 'train' && sg.level === 'rhythm'); }
+  // Each frame: the falling bars (Rhythm), the glow on what is due (Rhythm and Play along), feedback words, progress
+  function songDraw() {
+    sg.raf = 0;
+    var R = overRect(), g = fitCanvas(sgLane, R), lane = stripOn(), S = lane ? sgStrip.getBoundingClientRect() : null, gs = lane ? fitCanvas(sgStripCv, S) : null;
     var timed = sg.on && !sg.paused && sg.mode === 'train' && sg.level !== 'wait' && ctx;
+    sg.bars = []; sg.barsAt = performance.now();
+    if (lane) { // the hit-line, where each bar lands as its note comes due
+      var hitY = S.height - 2;
+      gs.fillStyle = getComputedStyle(document.body).getPropertyValue('--key-on') || '#f2b134';
+      gs.fillRect(0, hitY - 2, S.width, 4);
+    }
     if (timed) {
-      var now = heardNow(), lead = Math.max(1.4, 3 * spb()), next = null, css = getComputedStyle(document.body);
-      var ink = css.getPropertyValue('--key-on') || '#f2b134', ringed = [];
+      var now = heardNow(), lead = Math.max(1.6, 4 * spb()), next = null;
+      if (lane) { gs.save(); gs.beginPath(); gs.rect(0, 0, S.width, hitY - 2); gs.clip(); }
       sg.plan.ev.forEach(function (e) {
         if (!e.tg || e.b < sg.from || e.b >= sg.to) return;
         var t = timeAt(e.b), dt = t - now;
         if (!next && !e.res && dt > -GOOD) next = e;
-        if (sg.level !== 'rhythm' || dt > lead || dt < -0.25 || e.res) return;
-        var c = tgCentre(e.tg, R);
-        if (!c) return;
-        if (e.k !== 'note') { // pads, drum zones and chord buttons: one closing ring each, for the next hit on it
-          if (ringed.indexOf(e.tg.el) >= 0 || dt > 2 * spb()) return;
-          ringed.push(e.tg.el);
-          var r0 = Math.min(c.w, c.h) * 0.42;
-          g.strokeStyle = ink; g.lineWidth = 3; g.beginPath(); g.arc(c.x, c.y, r0 * (0.35 + 0.65 * Math.max(0, dt) / (2 * spb())) + 6, 0, Math.PI * 2); g.stroke();
-          return;
+        if (!lane || dt > lead || dt < -0.3 || e.res) return;
+        var sp = tgSpan(e.tg, S), w = Math.max(8, sp.w - 4), yB = (hitY - 2) * (1 - dt / lead), h = Math.max(10, e.d * spb() / lead * (hitY - 2) - 3), p = tgPaint(e.tg);
+        gs.fillStyle = p.fill; gs.strokeStyle = p.edge; gs.lineWidth = 1.5;
+        gs.beginPath(); if (gs.roundRect) gs.roundRect(sp.x - w / 2, yB - h, w, h, 6); else gs.rect(sp.x - w / 2, yB - h, w, h);
+        gs.fill(); gs.stroke();
+        if (h > 16 && w > 14) { // the name in the Labels system: Both stacks the sargam over the note name
+          gs.fillStyle = p.ink; gs.font = '700 ' + (w > 40 ? 14 : 11) + 'px system-ui, sans-serif'; gs.textAlign = 'center';
+          String(e.lab).split(/\n| · /).forEach(function (line, j) { if (h > 16 + 14 * j) gs.fillText(line, sp.x, yB - 6 - 14 * j, w - 2); });
         }
-        var y = c.y - (dt / lead) * c.y, hgt = Math.max(10, Math.min(c.y * 0.6, e.d * spb() / lead * c.y));
-        g.globalAlpha = 0.85; g.fillStyle = ink;
-        var w = Math.max(14, Math.min(c.w * 0.7, 46));
-        g.beginPath(); g.roundRect ? g.roundRect(c.x - w / 2, y - hgt, w, hgt, 6) : g.rect(c.x - w / 2, y - hgt, w, hgt); g.fill();
-        g.globalAlpha = 1; g.fillStyle = '#1d2a2a'; g.font = '700 11px system-ui, sans-serif'; g.textAlign = 'center';
-        if (hgt > 14) g.fillText(e.lab, c.x, y - 4);
-        if (dt < 2 * spb()) { // the approach ring closes in on the spot as the note comes due
-          g.strokeStyle = ink; g.lineWidth = 3; g.beginPath(); g.arc(c.x, c.y, 14 + 40 * Math.max(0, dt) / (2 * spb()), 0, Math.PI * 2); g.stroke();
-        }
+        sg.bars.push({ i: e.i, x: sp.x, w: w, y: yB, left: S.left });
       });
+      if (lane) gs.restore();
       var group = next ? sg.plan.ev.filter(function (e) { return e.b === next.b && e.tg && !e.res; }) : [];
       var gk = group.map(function (e) { return e.i; }).join(',');
       if (gk !== sg.glowKey) { sg.glowKey = gk; songGlow(group.map(function (e) { return e.tg; }), next && next.lab); }
-      g.globalAlpha = 1;
     }
+    // feedback words: at the hit-line in Rhythm, over the target otherwise
     var t0 = performance.now();
-    sg.fx = sg.fx.filter(function (f) { return t0 - f.t < 700; });
+    sg.fx = sg.fx.filter(function (f) { return t0 - f.t < 750; });
     sg.fx.forEach(function (f) {
-      var a = 1 - (t0 - f.t) / 700;
-      g.globalAlpha = a; g.font = '700 15px system-ui, sans-serif'; g.textAlign = 'center';
-      g.fillStyle = f.cls === 'miss' ? '#c62d2d' : f.cls === 'good' ? '#1f8a83' : '#c9540f';
-      g.fillText(f.text, f.x, f.y - 18 * (1 - a));
+      var a = 1 - (t0 - f.t) / 750, on = lane ? gs : g, x, y;
+      if (lane) { x = tgSpan(f.tg, S).x; y = hitY - 10; } else { var c = tgCentre(f.tg, R); if (!c) return; x = c.x; y = c.top - 8; }
+      on.globalAlpha = a; on.font = '800 16px system-ui, sans-serif'; on.textAlign = 'center';
+      on.fillStyle = f.cls === 'miss' ? '#e0492f' : f.cls === 'good' ? '#2fb3a8' : '#f2b134';
+      on.strokeStyle = 'rgba(0,0,0,.45)'; on.lineWidth = 3; on.strokeText(f.text, clamp(x, 30, (lane ? S : R).width - 30), y - 16 * (1 - a));
+      on.fillText(f.text, clamp(x, 30, (lane ? S : R).width - 30), y - 16 * (1 - a));
+      on.globalAlpha = 1;
     });
-    g.globalAlpha = 1;
     if (sg.on) songProgress();
     if ((timed || sg.fx.length || (sg.on && !sg.paused)) && document.body.dataset.screen === 'play') sgLaneKick();
   }
   function songProgress() {
-    if (!sg.tr) return;
+    if (!sg.tr || !sg.plan) return;
     var b = sg.on && sg.anchor && ctx ? Math.max(sg.from, Math.min(sg.to, sg.mode === 'train' && sg.level === 'wait' ? (sg.wEv ? sg.wEv.b : sg.from) : beatAt(heardNow()))) : sg.from;
+    if (sg.mode === 'train' && sg.level === 'wait' && sg.on && !sg.wEv) b = sg.to;
     var bar = Math.min(sg.tr.bars, Math.floor(b / bpb(sg.tr)) + 1), txt = 'Bar ' + bar + ' of ' + sg.tr.bars;
     if ($('sgPos').textContent !== txt) $('sgPos').textContent = txt;
+    var to = sg.to === undefined ? sg.plan.len : sg.to, from = sg.from || 0;
+    $('sgProg').style.width = (100 * clamp((b - from) / Math.max(1e-6, to - from), 0, 1)).toFixed(1) + '%';
+  }
+  // The count-in: 3 2 1 in big figures on the instrument, each with its click
+  function songCountShow(n) {
+    var el = $('sgCountIn');
+    el.textContent = n || '';
+    el.className = 'sgcount' + (n ? ' show' : '');
+    if (n && el.animate) el.animate([{ transform: 'scale(1.25)', opacity: 0.4 }, { transform: 'scale(1)', opacity: 1 }], { duration: 180 });
   }
 
   /* The transport: play, pause, stop, loop, sections, count-in and metronome */
@@ -5124,10 +5327,15 @@ body:not(.song) .sgover { display: none; }
     songSection();
     sg.on = true; sg.paused = false; sg.pass = { hit: 0, perfect: 0, miss: 0, clean: 0, groups: 0 };
     sg.plan.ev.forEach(function (e) { e.res = null; });
-    if (sg.mode === 'train' && sg.level === 'wait') { songWaitStep(true); songButtons(); return; }
-    var lead = sg.count ? bpb(sg.tr) : 0, t0 = ctx.currentTime + 0.12 + lead * spb();
+    if (sg.mode === 'train' && sg.level === 'wait') { sg.anchor = { time: ctx.currentTime, beat: sg.from }; songWaitStep(true); songButtons(); return; }
+    var lead = sg.count ? COUNT_IN : 0, t0 = ctx.currentTime + 0.12 + lead * spb();
     sg.anchor = { time: t0, beat: sg.from };
-    for (var k = 0; k < lead; k++) songClick(t0 - (lead - k) * spb(), k === 0);
+    for (var k = 0; k < lead; k++) {
+      var tc = t0 - (lead - k) * spb();
+      songClick(tc, k === 0);
+      (function (n) { songAt(tc, function () { songCountShow(n); }); })(lead - k);
+    }
+    if (lead) songAt(t0, function () { songCountShow(0); });
     songCursor(sg.from);
     sg.timer = setInterval(songTick, 25);
     songTick(); sgLaneKick(); songButtons();
@@ -5139,10 +5347,12 @@ body:not(.song) .sgover { display: none; }
     sg.ti = 0; while (sg.ti < sg.plan.tune.length && sg.plan.tune[sg.ti].b < b - 1e-6) sg.ti++;
     sg.click = Math.ceil(b - 1e-6);
   }
+  // Backing switched on mid-song: start from the next chord, not the ones already gone by
+  function songCursorBack() { var b = beatAt(ctx.currentTime + LOOKAHEAD); sg.bi = 0; while (sg.bi < sg.plan.back.length && sg.plan.back[sg.bi].b < b - 1e-6) sg.bi++; }
   function songTick() {
     if (!sg.on || sg.paused || !ctx) return;
     var ahead = ctx.currentTime + LOOKAHEAD, ev = sg.plan.ev, back = sg.plan.back, t;
-    var auto = sg.mode === 'auto', backing = !auto;
+    var auto = sg.mode === 'auto', backing = sg.backing; // soft chords only when asked for (More > Chord backing)
     while (sg.ei < ev.length && ev[sg.ei].b < sg.to - 1e-6 && (t = timeAt(ev[sg.ei].b)) <= ahead) {
       if (auto || !ev[sg.ei].tg) songFire(ev[sg.ei], t); // in Train the player plays what they can; the rest plays itself
       sg.ei++;
@@ -5177,8 +5387,9 @@ body:not(.song) .sgover { display: none; }
     sg.voices = []; sg.lastV = {};
     sg.on = false; sg.paused = false;
     if (sg.plan) sg.plan.ev.forEach(function (e) { songPress(e.tg, false); });
-    songGlow(null); songDot(null); sg.glowKey = '';
+    songGlow(null); songDot(null); sg.glowKey = ''; songCountShow(0);
     sg.wEv = null;
+    sgLaneKick();
   }
   function songPause() {
     if (!sg.on) return;
@@ -5224,8 +5435,17 @@ body:not(.song) .sgover { display: none; }
     sg.wEv = ev[k]; sg.wClean = true;
     var group = ev.filter(function (e) { return Math.abs(e.b - ev[k].b) < 1e-6 && e.tg; });
     sg.wGroup = group;
-    songGlow(group.map(function (e) { return e.tg; }), ev[k].lab);
+    songGlow(group.map(function (e) { return e.tg; }), ev[k].lab, songNext(ev[k].b, 2));
     songProgress();
+  }
+  // The first playable event of each of the next n moments after beat b (shown faintly), within the song or section
+  function songNext(b, n) {
+    var out = [], last = b;
+    sg.plan.ev.forEach(function (e) {
+      if (out.length >= n || !e.tg || e.b <= last + 1e-6 || e.b >= sg.to - 1e-6) return;
+      out.push({ tg: e.tg, lab: e.lab }); last = e.b;
+    });
+    return out;
   }
   // A held voice reports its note when it becomes audible or moves to another note (a bow, a slide, a new hole)
   function heardVoice(id, tab, m, l) {
@@ -5235,7 +5455,8 @@ body:not(.song) .sgover { display: none; }
     heardV[id] = { m: r, on: on };
   }
   function songMatch(e, kind, val) {
-    if (e.k === 'note') return kind === 'note' && T.pc(val) === T.pc(e.m); // the right note in any octave counts
+    // a keyboard wants the very key that glows; elsewhere (a hole, a string, the flute) the right note in any octave counts
+    if (e.k === 'note') return kind === 'note' && (EXACT_KEY[sg.tab] ? Math.round(val) === e.m : T.pc(val) === T.pc(e.m));
     if (e.k === 'chord') return kind === 'chord' && val === e.c.name;
     return kind === 'hit' && val === e.hit;
   }
@@ -5243,7 +5464,11 @@ body:not(.song) .sgover { display: none; }
     if (!sg.on || sg.paused || sg.mode !== 'train' || sg.tab !== state.tab) return;
     if (sg.level === 'wait') {
       var hit = sg.wGroup.filter(function (e) { return !e.res && songMatch(e, kind, val); })[0];
-      if (!hit) { sg.wClean = false; songShake(); return; }
+      if (!hit) {
+        // a key already played in this chord is fine; anything else is a wrong key: it shakes and the song waits
+        if (sg.wGroup.some(function (e) { return e.res && songMatch(e, kind, val); })) return;
+        sg.wClean = false; songShake(wrongEl(kind, val)); return;
+      }
       hit.res = 'hit'; songFx('✓', hit.tg, 'good');
       if (sg.wGroup.every(function (e) { return e.res; })) {
         sg.pass.groups++;
@@ -5260,7 +5485,7 @@ body:not(.song) .sgover { display: none; }
       if (d <= GOOD && d < bd) { bd = d; best = e; }
     });
     if (best) songJudge(best, bd <= PERFECT ? 'perfect' : 'good');
-    else if (sg.glow.length) songShake(); // a wrong note: a little shake, nothing lost
+    else if (sg.glow.length) songShake(wrongEl(kind, val)); // a wrong note: a little shake, nothing lost
   }
   function songJudge(e, how) {
     e.res = how;
@@ -5301,11 +5526,13 @@ body:not(.song) .sgover { display: none; }
   function songOpen(tr, mode, level) {
     var tab = state.tab;
     songClose();
-    sg.restore = { tab: tab, scale: TONAL[tab] ? TONAL[tab].scale : null, oct: state.octave, soct: sy.oct };
+    sg.restore = { tab: tab, key: TONAL[tab] ? TONAL[tab].key : null, scale: TONAL[tab] ? TONAL[tab].scale : null, oct: state.octave, soct: sy.oct };
     sg.tr = tr; sg.tab = tab; sg.mode = mode; if (level) sg.level = level;
-    sg.sec = -1; sg.streak = 0; sg.last = null;
+    sg.sec = -1; sg.streak = 0; sg.last = null; sg.shakes = 0;
+    sg.tp = 0; sg.scale = null; sg.remap = false; // a new song starts in its own key and mode
     sg.plan = fitTrack(tr, tab);
     songHeader(tab);
+    songKeyUi();
     document.body.classList.add('song');
     $('songBar').hidden = false;
     $('sgName').textContent = tr.title;
@@ -5321,7 +5548,8 @@ body:not(.song) .sgover { display: none; }
     songModeUi();
     rects = {};
     songPrewarm();
-    songStart();
+    // the first time Train me opens, the three-step hint comes first and the song starts when it is closed
+    if (mode === 'train' && !hintSeen()) songHint(true); else songStart();
   }
   function songModeUi() {
     $('sgMode').value = sg.mode === 'auto' ? 'auto' : sg.level;
@@ -5329,9 +5557,10 @@ body:not(.song) .sgover { display: none; }
     t.max = sg.mode === 'auto' ? 120 : 100;
     t.value = sg.mode === 'auto' ? sg.tempo : sg.speed;
     $('sgTempoLbl').textContent = t.value + '%';
-    $('sgTempoName').textContent = sg.mode === 'auto' ? 'Tempo' : 'Speed';
     document.body.dataset.sgmode = sg.mode === 'auto' ? 'auto' : sg.level;
+    sgStrip.hidden = !stripOn();
     songScore();
+    requestAnimationFrame(function () { rects = {}; songRetag(); sgLaneKick(); }); // the strip moved the instrument down
   }
   // Plucked sounds are rendered once per note: do it before the song needs them
   function songPrewarm() {
@@ -5360,9 +5589,11 @@ body:not(.song) .sgover { display: none; }
     sg.tr = null; sg.plan = null;
     $('songBar').hidden = true;
     document.body.classList.remove('song');
+    T.setExtra(null);
+    sgStrip.hidden = true; songHint(false); songMenu(false);
     if (r && TONAL[tab]) {
-      delete songLow[tab];
-      TONAL[tab].scale = r.scale;
+      delete songLow[tab]; delete songZoom[tab]; delete songSpan[tab];
+      TONAL[tab].key = r.key; TONAL[tab].scale = r.scale;
       if (tab === 'piano') state.octave = r.oct;
       if (tab === 'synth') { sy.oct = r.soct; $('soct').value = r.soct; }
       saveTonal();
@@ -5378,24 +5609,96 @@ body:not(.song) .sgover { display: none; }
     $('tonal').textContent = T.describe(st.key, st.scale);
     document.body.dataset.chroma = st.scale === 'chromatic';
   }
+  // The song's key line: "Song key: C Major", the transpose ("Transposed +2"), Reset, and, when the Scale menu was
+  // changed away from the song's mode, the choice between keeping the song's notes and remapping them
+  function modeName(mode) { return T.SCALES[mode].name.replace(/ \(raag\)$/, ''); }
+  function songKeyUi() {
+    var tr = sg.tr, pitched = !!(tr && tr.tonic !== null && tr.tonic !== undefined && TONAL[sg.tab]);
+    $('sgKeyRow').hidden = !pitched;
+    $('sgAsk').hidden = true;
+    document.body.classList.toggle('sgpitched', pitched);
+    if (!pitched) return;
+    var key = songKey(tr), sc = sg.scale;
+    $('sgKeyName').textContent = 'Song key: ' + T.NAMES[key] + ' ' + modeName(tr.mode) + (sc && sg.remap ? ', remapped to ' + modeName(sc) : '');
+    $('sgTp').textContent = sg.tp ? 'Transposed ' + (sg.tp > 0 ? '+' : '−') + Math.abs(sg.tp) : 'Original key';
+    $('sgTpDown').disabled = sg.tp <= -6; $('sgTpUp').disabled = sg.tp >= 6;
+    $('sgReset').disabled = !sg.tp && !sc;
+    $('sgAsk').hidden = !sc;
+    requestAnimationFrame(function () { songRetag(); sgLaneKick(); }); // a row came or went: the instrument moved
+    if (sc) {
+      var chords = tr.type === 'chords';
+      $('sgAskQ').textContent = 'Scale is ' + modeName(sc) + ':';
+      $('sgKeep').setAttribute('aria-pressed', !sg.remap);
+      $('sgRemap').setAttribute('aria-pressed', sg.remap);
+      $('sgRemap').hidden = chords;
+      $('sgAskX').textContent = chords ? 'A chord song keeps its own chords.' : sg.remap ? 'Each note moves to the same step of ' + modeName(sc) + ', so the tune changes.'
+        : 'The song plays its own notes; the keys just show ' + modeName(sc) + '.';
+    }
+    document.querySelectorAll('#sgLabels [data-lab]').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.lab === state.labels); });
+    songPanSync();
+  }
+  function songOwns() { return !!(sg.tr && sg.tab === state.tab && TONAL[sg.tab] && sg.tr.tonic !== null && sg.tr.tonic !== undefined); }
+  // The Key menu moved while a song is open: the whole song moves by the same number of semitones (nearest way)
+  function songSetKey(k) {
+    var d = ((k - sg.tr.tonic) % 12 + 12) % 12;
+    if (d > 6) d -= 12;
+    if (d === 6 && sg.tp < 0) d = -6;
+    songTranspose(d);
+  }
+  function songTranspose(tp) { sg.tp = clamp(tp, -6, 6); songRefit(); }
+  // The Scale menu moved: the song keeps its notes unless the player picks Remap
+  function songSetScale(sc) { sg.scale = sc === sg.tr.mode ? null : sc; if (!sg.scale) sg.remap = false; songRefit(true); }
+  function songReset() { sg.tp = 0; sg.scale = null; sg.remap = false; songRefit(); }
+  // The zoomed keyboard's scroll slider (shown when the song is wider than the screen)
+  function songPanSync() {
+    var v = $('piano').parentNode, pan = $('sgPan'), over = sg.tr && sg.tab === 'piano' && v.classList.contains('zoomed') && v.scrollWidth > v.clientWidth + 1;
+    pan.hidden = !over;
+    if (over) { pan.max = v.scrollWidth - v.clientWidth; pan.value = v.scrollLeft; }
+  }
+  // The first-time hint (three steps) and the "?" that shows it again
+  function hintSeen() { try { return localStorage.getItem('pb-trainhint') === '1'; } catch (e) { return false; } }
+  function songHint(show) {
+    var h = $('sgHint');
+    if (!show) { if (!h.hidden) { h.hidden = true; } return; }
+    if (sg.on && !sg.paused && !(sg.mode === 'train' && sg.level === 'wait')) { songPause(); sg.hintPaused = true; }
+    h.hidden = false;
+    $('sgHintOk').focus({ preventScroll: true });
+  }
+  function songHintDone() {
+    $('sgHint').hidden = true;
+    try { localStorage.setItem('pb-trainhint', '1'); } catch (e) {} // storage can be blocked: it shows again next time
+    if (!sg.tr) return;
+    if (!sg.on) songStart();
+    else if (sg.hintPaused && sg.paused) songPause();
+    sg.hintPaused = false;
+  }
+  function songMenu(open) {
+    $('sgMenu').hidden = !open;
+    $('sgMore').setAttribute('aria-expanded', !!open);
+    if (open) { var r = $('sgMore').getBoundingClientRect(); $('sgMenu').style.left = Math.max(8, Math.min(window.innerWidth - 230, r.left)) + 'px'; $('sgMenu').style.top = (r.bottom + 4) + 'px'; }
+  }
   // The layout was rebuilt (octave, labels, pizzicato...): find each note's place on it again
   function songRetarget(tab) {
     if (!sg.plan || sg.fitting || sg.tab !== tab) return;
     var on = sg.glow.length;
     songGlow(null);
     sg.plan.ev.forEach(function (e) { if (!e.auto) e.tg = evTarget(tab, e); });
-    if (on && sg.wEv) { sg.wGroup = sg.plan.ev.filter(function (e) { return Math.abs(e.b - sg.wEv.b) < 1e-6 && e.tg; }); songGlow(sg.wGroup.map(function (e) { return e.tg; }), sg.wEv.lab); }
+    if (on && sg.wEv) { sg.wGroup = sg.plan.ev.filter(function (e) { return Math.abs(e.b - sg.wEv.b) < 1e-6 && e.tg; }); songGlow(sg.wGroup.map(function (e) { return e.tg; }), sg.wEv.lab, songNext(sg.wEv.b, 2)); }
     sg.glowKey = '';
+    songPanSync();
   }
   // The key or scale changed while a song is open: fit it again
-  function songRefit() {
+  // sameOct: only the Scale or Remap changed, so the song stays in the octave it was in
+  function songRefit(sameOct) {
     if (!sg.tr || sg.tab !== state.tab) return;
     var was = sg.on;
     songHalt();
-    delete songLow[sg.tab];
-    sg.plan = fitTrack(sg.tr, sg.tab);
+    if (sameOct && sg.plan) sg.keepOct = sg.plan.oct;
+    try { sg.plan = fitTrack(sg.tr, sg.tab); } finally { delete sg.keepOct; }
     songHeader(sg.tab);
+    songKeyUi();
     $('sgWarn').textContent = sg.plan.warn; $('sgWarn').hidden = !sg.plan.warn;
+    songPrewarm();
     if (was) songStart(); else songButtons();
   }
 
@@ -5453,7 +5756,7 @@ body:not(.song) .sgover { display: none; }
       songsSheet(false);
       songOpen(tr, go.dataset.go === 'auto' ? 'auto' : 'train', go.dataset.go === 'auto' ? null : 'wait');
     });
-    $('sgPlay').onclick = function () { if (!sg.on) songStart(); else songPause(); };
+    $('sgPlay').onclick = function () { if (!$('sgHint').hidden) { songHintDone(); return; } if (!sg.on) songStart(); else songPause(); };
     $('sgStop').onclick = function () { songHalt(); songButtons(); };
     $('sgX').onclick = function () { songClose(); };
     $('sgMode').onchange = function () {
@@ -5470,8 +5773,21 @@ body:not(.song) .sgover { display: none; }
     $('sgLoop').onclick = function () { sg.loop = !sg.loop; this.setAttribute('aria-pressed', sg.loop); };
     $('sgCount').onclick = function () { sg.count = !sg.count; this.setAttribute('aria-pressed', sg.count); };
     $('sgMetro').onclick = function () { sg.metro = !sg.metro; this.setAttribute('aria-pressed', sg.metro); if (sg.on && sg.anchor && ctx) sg.click = Math.ceil(beatAt(ctx.currentTime + LOOKAHEAD)); };
-    $('sgSec').onchange = function () { sg.sec = +this.value; if (sg.tr) songStart(); };
-    window.addEventListener('resize', function () { if (sg.glow.length && sg.wEv) songGlow(sg.glow, sg.wEv.lab); });
+    $('sgBack').onclick = function () { sg.backing = !sg.backing; this.setAttribute('aria-pressed', sg.backing); if (sg.on && sg.anchor && ctx) songCursorBack(); };
+    $('sgSec').onchange = function () { sg.sec = +this.value; songMenu(false); if (sg.tr) songStart(); };
+    $('sgMore').onclick = function () { songMenu($('sgMenu').hidden); };
+    document.addEventListener('pointerdown', function (e) { if (!$('sgMenu').hidden && !e.target.closest('#sgMenu, #sgMore')) songMenu(false); }, true);
+    $('sgHelp').onclick = function () { songHint(true); };
+    $('sgHintOk').onclick = songHintDone;
+    $('sgTpDown').onclick = function () { songTranspose(sg.tp - 1); };
+    $('sgTpUp').onclick = function () { songTranspose(sg.tp + 1); };
+    $('sgReset').onclick = songReset;
+    $('sgKeep').onclick = function () { if (sg.remap) { sg.remap = false; songRefit(true); } };
+    $('sgRemap').onclick = function () { if (!sg.remap) { sg.remap = true; songRefit(true); } };
+    $('sgLabels').addEventListener('click', function (e) { var b = e.target.closest('[data-lab]'); if (b) { setLabels(b.dataset.lab); songKeyUi(); } });
+    $('sgPan').oninput = function () { $('piano').parentNode.scrollLeft = +this.value; };
+    $('piano').parentNode.addEventListener('scroll', function () { rects = {}; songRetag(); songPanSync(); sgLaneKick(); }, { passive: true });
+    window.addEventListener('resize', function () { songRetag(); songPanSync(); if (!$('sgMenu').hidden) songMenu(false); });
   })();
 
   // Any trim the measured table doesn't list plays at 1
@@ -5531,7 +5847,10 @@ body:not(.song) .sgover { display: none; }
       setDrone: setDrone, voices: function () { return live.filter(function (v) { return !v.done; }).length; },
       songs: { load: loadSongs, lib: function () { return songLib; }, fit: fitTrack, open: songOpen, close: songClose, start: songStart,
                halt: songHalt, state: function () { return sg; }, fire: songFire, heard: songHeard, target: songTarget, layoutSet: layoutSet,
-               type: songType, suits: songSuits, spb: spb, setSched: function (t) { SCHED = t; } },
+               type: songType, suits: songSuits, spb: spb, setSched: function (t) { SCHED = t; }, transpose: songTranspose,
+               setKey: songSetKey, setScale: songSetScale, reset: songReset, notes: songNotes, remap: remapNote, hintDone: songHintDone,
+               // where a target is on the screen (client pixels): its centre, top, width and height
+               point: function (tg) { return tgCentre(tg, { left: 0, top: 0 }); } },
       // A fresh audio context for each render: forget every node made for the last one
       reset: function () {
         silenceAll();

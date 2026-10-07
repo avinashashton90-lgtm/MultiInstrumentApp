@@ -14,11 +14,20 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const STEP = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
-const SCALES = {
+// Modes a track can be in (the same ids and steps as the app's Scale menu). Raag names are their own modes, so a
+// Bhoopali exercise says "Bhoopali" rather than "Major pentatonic".
+export const MODES = {
   major: [0, 2, 4, 5, 7, 9, 11], minor: [0, 2, 3, 5, 7, 8, 10], harmonic: [0, 2, 3, 5, 7, 8, 11], melodic: [0, 2, 3, 5, 7, 9, 11],
   penta: [0, 2, 4, 7, 9], minpenta: [0, 3, 5, 7, 10], blues: [0, 3, 5, 6, 7, 10], dorian: [0, 2, 3, 5, 7, 9, 10],
-  mixolydian: [0, 2, 4, 5, 7, 9, 10], chromatic: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+  mixolydian: [0, 2, 4, 5, 7, 9, 10], bilawal: [0, 2, 4, 5, 7, 9, 11], bhoopali: [0, 2, 4, 7, 9], yaman: [0, 2, 4, 6, 7, 9, 11],
+  khamaj: [0, 2, 4, 5, 7, 9, 10], chromatic: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 };
+export const MODE_NAMES = {
+  major: 'Major', minor: 'Natural minor', harmonic: 'Harmonic minor', melodic: 'Melodic minor', penta: 'Major pentatonic',
+  minpenta: 'Minor pentatonic', blues: 'Blues', dorian: 'Dorian', mixolydian: 'Mixolydian', bilawal: 'Bilawal', bhoopali: 'Bhoopali',
+  yaman: 'Yaman', khamaj: 'Khamaj', chromatic: 'Chromatic'
+};
+const NOTE_NAMES = ['C', 'C♯', 'D', 'E♭', 'E', 'F', 'F♯', 'G', 'A♭', 'A', 'B♭', 'B'];
 const SARGAM = ['Sa', 're', 'Re', 'ga', 'Ga', 'Ma', 'ma', 'Pa', 'dha', 'Dha', 'ni', 'Ni'];
 const r3 = (x) => Math.round(x * 1000) / 1000;
 
@@ -61,13 +70,21 @@ export function parseMelody(src, time, id) {
   return { notes, bars: bars.length };
 }
 
-// The smallest scale (from the one asked for) that holds every note, counted from the key
-function scaleFor(notes, key, want) {
-  const pcs = new Set(notes.map((n) => ((n[2] - key) % 12 + 12) % 12));
-  for (const s of [want, 'major', 'minor', 'harmonic', 'melodic', 'dorian', 'mixolydian', 'chromatic']) {
-    if ([...pcs].every((p) => SCALES[s].includes(p))) return s;
-  }
-  return 'chromatic';
+// The song's notes that fall outside its mode (a raised leading note, a chromatic passing note), named as the source
+// spells them (G♯ in A minor, not A♭)
+export function outside(notes, tonic, mode, mel) {
+  const out = [], spelt = {};
+  (mel || '').split(/[\s|]+/).forEach((tok) => { const m = /^>?([A-G])(#|b)\d/.exec(tok); if (m) spelt[pitchClass(m[1] + m[2])] = m[1] + (m[2] === '#' ? '♯' : '♭'); });
+  notes.forEach((n) => { const r = ((n[2] - tonic) % 12 + 12) % 12; if (!MODES[mode].includes(r) && !out.includes(r)) out.push(r); });
+  return out.sort((a, b) => a - b).map((r) => spelt[(tonic + r) % 12] || NOTE_NAMES[(tonic + r) % 12]);
+}
+// Tonic and mode for a pitched track, checked: the mode must be known and the tune must end on its tonic
+function tonal(src, notes, id) {
+  const tonic = pitchClass(src.key);
+  if (!MODES[src.mode]) throw new Error(`${id}: unknown mode ${src.mode}`);
+  const last = notes[notes.length - 1][2];
+  if (((last - tonic) % 12 + 12) % 12 !== 0 && !src.endsAway) throw new Error(`${id}: ends on ${NOTE_NAMES[((last % 12) + 12) % 12]}, not its tonic ${src.key}`);
+  return { tonic, mode: src.mode };
 }
 
 // Sargam for each note, counted from Sa (the key) in the octave from the key's note in octave 4: a dot below for
@@ -85,94 +102,94 @@ function sargamOf(notes, key) {
 // worth checking by ear against a version you know).
 const PD = 'Public domain: traditional';
 const MELODIES = [
-  { id: 'twinkle', title: 'Twinkle Twinkle Little Star', by: 'Traditional', status: PD + ' (French air, 1761)', tempo: 100, time: [4, 4], key: 'C', scale: 'major', level: 1, tags: ['Kids', 'Folk'],
+  { id: 'twinkle', title: 'Twinkle Twinkle Little Star', by: 'Traditional', status: PD + ' (French air, 1761)', tempo: 100, time: [4, 4], key: 'C', mode: 'major', level: 1, tags: ['Kids', 'Folk'],
     mel: 'C4:1 C4 G4 G4 | A4 A4 G4:2 | F4:1 F4 E4 E4 | D4 D4 C4:2 | G4:1 G4 F4 F4 | E4 E4 D4:2 | G4:1 G4 F4 F4 | E4 E4 D4:2 | C4:1 C4 G4 G4 | A4 A4 G4:2 | F4:1 F4 E4 E4 | D4 D4 C4:2',
     chords: 'C | F C | F C | G C | C F | C G | C F | C G | C | F C | F C | G C' },
-  { id: 'ode', title: 'Ode to Joy', by: 'Ludwig van Beethoven (1824)', status: 'Public domain: Beethoven died 1827', tempo: 108, time: [4, 4], key: 'C', scale: 'major', level: 1, tags: ['Classical'],
+  { id: 'ode', title: 'Ode to Joy', by: 'Ludwig van Beethoven (1824)', status: 'Public domain: Beethoven died 1827', tempo: 108, time: [4, 4], key: 'C', mode: 'major', level: 1, tags: ['Classical'],
     mel: 'E4:1 E4 F4 G4 | G4 F4 E4 D4 | C4 C4 D4 E4 | E4:1.5 D4:0.5 D4:2 | E4:1 E4 F4 G4 | G4 F4 E4 D4 | C4 C4 D4 E4 | D4:1.5 C4:0.5 C4:2 | D4:1 D4 E4 C4 | D4 E4:0.5 F4 E4:1 C4 | D4 E4:0.5 F4 E4:1 D4 | C4 D4 G3:2 | E4:1 E4 F4 G4 | G4 F4 E4 D4 | C4 C4 D4 E4 | D4:1.5 C4:0.5 C4:2',
     chords: 'C | G | C | G | C | G | C | G C | G | G C | G C | C G | C | G | C | G C' },
-  { id: 'jingle', title: 'Jingle Bells (chorus)', by: 'James Lord Pierpont (1857)', status: 'Public domain: Pierpont died 1893', tempo: 116, time: [4, 4], key: 'C', scale: 'major', level: 1, tags: ['Kids', 'Folk'],
+  { id: 'jingle', title: 'Jingle Bells (chorus)', by: 'James Lord Pierpont (1857)', status: 'Public domain: Pierpont died 1893', tempo: 116, time: [4, 4], key: 'C', mode: 'major', level: 1, tags: ['Kids', 'Folk'],
     mel: 'E4:1 E4 E4:2 | E4:1 E4 E4:2 | E4:1 G4 C4:1.5 D4:0.5 | E4:4 | F4:1 F4 F4:1.5 F4:0.5 | F4:1 E4 E4 E4:0.5 E4 | E4:1 D4 D4 E4 | D4:2 G4:2 | E4:1 E4 E4:2 | E4:1 E4 E4:2 | E4:1 G4 C4:1.5 D4:0.5 | E4:4 | F4:1 F4 F4 F4 | F4 E4 E4 E4:0.5 E4 | G4:1 G4 F4 D4 | C4:4',
     chords: 'C | C | C | C | F | C | D | G | C | C | C | C | F | C | G | C' },
-  { id: 'grace', title: 'Amazing Grace', by: 'Traditional (tune "New Britain")', status: PD + ' (American hymn tune, 1829)', tempo: 84, time: [3, 4], key: 'G', scale: 'major', level: 1, tags: ['Hymn', 'Folk'],
+  { id: 'grace', title: 'Amazing Grace', by: 'Traditional (tune "New Britain")', status: PD + ' (American hymn tune, 1829)', tempo: 84, time: [3, 4], key: 'G', mode: 'major', level: 1, tags: ['Hymn', 'Folk'],
     mel: 'r:2 D4:1 | G4:2 B4:0.5 G4 | B4:2 A4:1 | G4:2 E4:1 | D4:2 D4:1 | G4:2 B4:0.5 G4 | B4:2 A4:1 | D5:3~ | D5:2 B4:1 | D5:2 B4:0.5 G4 | B4:2 A4:1 | G4:2 E4:1 | D4:2 D4:1 | G4:2 B4:0.5 G4 | B4:2 A4:1 | G4:3',
     chords: '- | G | G | C | G | G | Em | D | D | G | G | C | G | Em | D | G' },
-  { id: 'greensleeves', title: 'Greensleeves', by: 'Traditional (English, 16th century)', status: PD, tempo: 96, time: [3, 4], key: 'A', scale: 'minor', level: 2, tags: ['Folk'],
+  { id: 'greensleeves', title: 'Greensleeves', by: 'Traditional (English, 16th century)', status: PD, tempo: 96, time: [3, 4], key: 'A', mode: 'minor', level: 2, tags: ['Folk'],
     mel: 'r:2 A4:1 | C5:2 D5:1 | E5:1.5 F5:0.5 E5:1 | D5:2 B4:1 | G4:1.5 A4:0.5 B4:1 | C5:2 A4:1 | A4:1.5 G#4:0.5 A4:1 | B4:2 G#4:1 | E4:2 A4:1 | C5:2 D5:1 | E5:1.5 F5:0.5 E5:1 | D5:2 B4:1 | G4:1.5 A4:0.5 B4:1 | C5:1.5 B4:0.5 A4:1 | G#4:1.5 F#4:0.5 G#4:1 | A4:3',
     chords: '- | Am | C | G | Em | Am | E | E | E | Am | C | G | Em | Am | E | Am' },
-  { id: 'frere', title: 'Frère Jacques', by: 'Traditional (French)', status: PD, tempo: 112, time: [4, 4], key: 'C', scale: 'major', level: 1, tags: ['Kids', 'Folk'],
+  { id: 'frere', title: 'Frère Jacques', by: 'Traditional (French)', status: PD, tempo: 112, time: [4, 4], key: 'C', mode: 'major', level: 1, tags: ['Kids', 'Folk'],
     mel: 'C4:1 D4 E4 C4 | C4 D4 E4 C4 | E4 F4 G4:2 | E4:1 F4 G4:2 | G4:0.5 A4 G4 F4 E4:1 C4 | G4:0.5 A4 G4 F4 E4:1 C4 | C4 G3 C4:2 | C4:1 G3 C4:2',
     chords: 'C | C | C | C | C | C | C G | C' },
-  { id: 'mary', title: 'Mary Had a Little Lamb', by: 'Traditional (American, 1830s)', status: PD, tempo: 112, time: [4, 4], key: 'C', scale: 'major', level: 1, tags: ['Kids'],
+  { id: 'mary', title: 'Mary Had a Little Lamb', by: 'Traditional (American, 1830s)', status: PD, tempo: 112, time: [4, 4], key: 'C', mode: 'major', level: 1, tags: ['Kids'],
     mel: 'E4:1 D4 C4 D4 | E4 E4 E4:2 | D4:1 D4 D4:2 | E4:1 G4 G4:2 | E4:1 D4 C4 D4 | E4 E4 E4 E4 | D4 D4 E4 D4 | C4:4',
     chords: 'C | C | G | C | C | C | G | C' },
-  { id: 'birthday', title: 'Happy Birthday', by: 'Mildred and Patty Hill (1893)', status: 'Public domain (melody 1893, "Good Morning to All"; US court ruling 2016)', tempo: 100, time: [3, 4], key: 'C', scale: 'major', level: 1, tags: ['Kids'],
+  { id: 'birthday', title: 'Happy Birthday', by: 'Mildred and Patty Hill (1893)', status: 'Public domain (melody 1893, "Good Morning to All"; US court ruling 2016)', tempo: 100, time: [3, 4], key: 'C', mode: 'major', level: 1, tags: ['Kids'],
     mel: 'r:2 G4:0.75 G4:0.25 | A4:1 G4 C5 | B4:2 G4:0.75 G4:0.25 | A4:1 G4 D5 | C5:2 G4:0.75 G4:0.25 | G5:1 E5 C5 | B4 A4 F5:0.75 F5:0.25 | E5:1 C5 D5 | C5:3',
     chords: '- | C | G | G | C | F | C G | C G | C' },
-  { id: 'london', title: 'London Bridge', by: 'Traditional (English)', status: PD, tempo: 112, time: [4, 4], key: 'C', scale: 'major', level: 1, tags: ['Kids'],
+  { id: 'london', title: 'London Bridge', by: 'Traditional (English)', status: PD, tempo: 112, time: [4, 4], key: 'C', mode: 'major', level: 1, tags: ['Kids'],
     mel: 'G4:1.5 A4:0.5 G4:1 F4 | E4 F4 G4:2 | D4:1 E4 F4:2 | E4:1 F4 G4:2 | G4:1.5 A4:0.5 G4:1 F4 | E4 F4 G4:2 | D4:2 G4:2 | E4:2 C4:2',
     chords: 'C | C | G | C | C | C | G | C' },
-  { id: 'saints', title: 'When the Saints Go Marching In', by: 'Traditional (American spiritual)', status: PD, check: true, tempo: 120, time: [4, 4], key: 'C', scale: 'major', level: 1, tags: ['Hymn', 'Folk'],
+  { id: 'saints', title: 'When the Saints Go Marching In', by: 'Traditional (American spiritual)', status: PD, check: true, tempo: 120, time: [4, 4], key: 'C', mode: 'major', level: 1, tags: ['Hymn', 'Folk'],
     mel: 'r:1 C4 E4 F4 | G4:4 | r:1 C4 E4 F4 | G4:4 | r:1 C4 E4 F4 | G4:2 E4:2 | C4:2 E4:2 | D4:4 | r:1 E4 E4 D4 | C4:3 C4:1 | E4:2 G4:2 | G4:1 F4:3 | r:1 E4 F4 G4 | E4:2 C4:2 | D4:4 | C4:4',
     chords: 'C | C | C | C | C | C | C | G | G | C | C | F | C | C | G | C' },
-  { id: 'auld', title: 'Auld Lang Syne', by: 'Traditional (Scottish)', status: PD, tempo: 88, time: [4, 4], key: 'C', scale: 'major', level: 1, tags: ['Folk'],
+  { id: 'auld', title: 'Auld Lang Syne', by: 'Traditional (Scottish)', status: PD, tempo: 88, time: [4, 4], key: 'C', mode: 'major', level: 1, tags: ['Folk'],
     mel: 'r:3 G3:1 | C4:1.5 C4:0.5 C4:1 E4 | D4:1.5 C4:0.5 D4:1 E4 | C4:1.5 C4:0.5 E4:1 G4 | A4:3 A4:1 | G4:1.5 E4:0.5 E4:1 C4 | D4:1.5 C4:0.5 D4:1 E4 | C4:1.5 A3:0.5 A3:1 G3 | C4:3 r:1',
     chords: '- | C | G | C | F | C | G | F G | C' },
-  { id: 'brahms', title: 'Lullaby (Wiegenlied)', by: 'Johannes Brahms (1868)', status: 'Public domain: Brahms died 1897', check: true, tempo: 84, time: [3, 4], key: 'C', scale: 'major', level: 1, tags: ['Classical', 'Kids'],
+  { id: 'brahms', title: 'Lullaby (Wiegenlied)', by: 'Johannes Brahms (1868)', status: 'Public domain: Brahms died 1897', check: true, tempo: 84, time: [3, 4], key: 'C', mode: 'major', level: 1, tags: ['Classical', 'Kids'],
     mel: 'r:2 E4:0.5 E4 | G4:2 E4:0.5 E4 | G4:2 E4:0.5 G4 | C5:1 B4:1.5 A4:0.5 | A4:1 G4 D4:0.5 E4 | F4:1 D4 D4:0.5 E4 | F4:2 D4:0.5 F4 | B4:0.5 A4 G4:1 B4 | C5:2 C4:0.5 C4 | C5:2 A4:0.5 F4 | G4:2 E4:0.5 C4 | F4:1 G4 A4 | G4:2 C4:0.5 C4 | C5:2 A4:0.5 F4 | G4:2 E4:0.5 C4 | F4:1 E4 D4 | C4:3',
     chords: '- | C | C | G | G | G | G | G | C | F | C | G | C | F | C | G | C' },
-  { id: 'minuet', title: 'Minuet in G', by: 'Christian Petzold (c. 1725, long credited to J. S. Bach)', status: 'Public domain: Petzold died 1733', tempo: 112, time: [3, 4], key: 'G', scale: 'major', level: 2, tags: ['Classical'],
+  { id: 'minuet', title: 'Minuet in G', by: 'Christian Petzold (c. 1725, long credited to J. S. Bach)', status: 'Public domain: Petzold died 1733', tempo: 112, time: [3, 4], key: 'G', mode: 'major', level: 2, tags: ['Classical'],
     mel: 'D5:1 G4:0.5 A4 B4 C5 | D5:1 G4 G4 | E5:1 C5:0.5 D5 E5 F#5 | G5:1 G4 G4 | C5:1 D5:0.5 C5 B4 A4 | B4:1 C5:0.5 B4 A4 G4 | F#4:1 G4:0.5 A4 B4 G4 | A4:3 | D5:1 G4:0.5 A4 B4 C5 | D5:1 G4 G4 | E5:1 C5:0.5 D5 E5 F#5 | G5:1 G4 G4 | C5:1 D5:0.5 C5 B4 A4 | B4:1 C5:0.5 B4 A4 G4 | A4:1 B4:0.5 A4 G4 F#4 | G4:3',
     chords: 'G | G | C | G | C | G | D | D | G | G | C | G | C | G | D | G' },
-  { id: 'canon', title: 'Canon in D (simplified)', by: 'Johann Pachelbel (c. 1690)', status: 'Public domain: Pachelbel died 1706', check: true, tempo: 72, time: [4, 4], key: 'D', scale: 'major', level: 1, tags: ['Classical'],
+  { id: 'canon', title: 'Canon in D (simplified)', by: 'Johann Pachelbel (c. 1690)', status: 'Public domain: Pachelbel died 1706', check: true, tempo: 72, time: [4, 4], key: 'D', mode: 'major', level: 1, tags: ['Classical'],
     mel: 'F#5:2 E5:2 | D5:2 C#5:2 | B4:2 A4:2 | B4:2 C#5:2 | D5:2 C#5:2 | B4:2 A4:2 | G4:2 F#4:2 | G4:2 E4:2 | D4:1 F#4 A4 G4 | F#4 D4 F#4 E4 | D4 B3 D4 A4 | G4 B4 A4 G4 | F#4:2 E4:2 | D4:4',
     chords: 'D A | Bm F#m | G D | G A | D A | Bm F#m | G D | G A | D A | Bm F#m | G D | G A | D A | D' },
-  { id: 'elise', title: 'Für Elise (opening)', by: 'Ludwig van Beethoven (1810)', status: 'Public domain: Beethoven died 1827', tempo: 66, time: [3, 8], key: 'A', scale: 'minor', level: 3, tags: ['Classical'],
+  { id: 'elise', title: 'Für Elise (opening)', by: 'Ludwig van Beethoven (1810)', status: 'Public domain: Beethoven died 1827', tempo: 66, time: [3, 8], key: 'A', mode: 'minor', level: 3, tags: ['Classical'],
     mel: 'r:1 E5:0.25 D#5 | E5 D#5 E5 B4 D5 C5 | A4:0.5 r:0.25 C4 E4 A4 | B4:0.5 r:0.25 E4 G#4 B4 | C5:0.5 r:0.25 E4 E5 D#5 | E5 D#5 E5 B4 D5 C5 | A4:0.5 r:0.25 C4 E4 A4 | B4:0.5 r:0.25 E4 C5 B4 | A4:1.5',
     chords: '- | - | Am | E | Am | - | Am | E | Am' },
-  { id: 'mountain', title: 'In the Hall of the Mountain King', by: 'Edvard Grieg (1875)', status: 'Public domain: Grieg died 1907', check: true, tempo: 100, time: [4, 4], key: 'A', scale: 'minor', level: 2, tags: ['Classical'],
+  { id: 'mountain', title: 'In the Hall of the Mountain King', by: 'Edvard Grieg (1875)', status: 'Public domain: Grieg died 1907', check: true, tempo: 100, time: [4, 4], key: 'A', mode: 'minor', level: 2, tags: ['Classical'],
     mel: 'A3:0.5 B3 C4 D4 E4 C4 E4:1 | D#4:0.5 B3 D#4:1 D4:0.5 Bb3 D4:1 | A3:0.5 B3 C4 D4 E4 C4 E4 A4 | G4 E4 C4 E4 G4:2 | A3:0.5 B3 C4 D4 E4 C4 E4:1 | D#4:0.5 B3 D#4:1 D4:0.5 Bb3 D4:1 | A3:0.5 B3 C4 D4 E4 C4 E4 A4 | G4 E4 C4 E4 A3:2',
     chords: 'Am | B Bb | Am | C | Am | B Bb | Am | C Am' },
-  { id: 'cancan', title: 'Can-Can (Galop infernal)', by: 'Jacques Offenbach (1858)', status: 'Public domain: Offenbach died 1880', check: true, tempo: 126, time: [2, 4], key: 'C', scale: 'major', level: 2, tags: ['Classical'],
+  { id: 'cancan', title: 'Can-Can (Galop infernal)', by: 'Jacques Offenbach (1858)', status: 'Public domain: Offenbach died 1880', check: true, tempo: 126, time: [2, 4], key: 'C', mode: 'major', level: 2, tags: ['Classical'],
     mel: 'C4:1 D4:0.25 F4 E4 D4 | G4:0.5 G4 G4 A4:0.25 E4 | F4:0.5 F4 F4 A4:0.25 G4 | F4:0.25 C5 B4 A4 G4 F4 E4 D4 | C4:1 D4:0.25 F4 E4 D4 | G4:0.5 G4 G4 A4:0.25 E4 | D4:0.25 G4 E4 D4 C4:1 | C4:2',
     chords: 'C | C | F | G | C | C | G C | C' },
-  { id: 'danube', title: 'The Blue Danube (theme)', by: 'Johann Strauss II (1866)', status: 'Public domain: Strauss died 1899', check: true, tempo: 150, time: [3, 4], key: 'D', scale: 'major', level: 2, tags: ['Classical'],
+  { id: 'danube', title: 'The Blue Danube (theme)', by: 'Johann Strauss II (1866)', status: 'Public domain: Strauss died 1899', check: true, tempo: 150, time: [3, 4], key: 'D', mode: 'major', level: 2, tags: ['Classical'],
     mel: 'r:2 D4:1 | D4:1 F#4 A4 | A4:3 | r:1 A5 A5 | r:1 F#5 F#5 | D4 D4 F#4 | A4:3 | r:1 A5 A5 | r:1 G5 G5 | C#4 C#4 E4 | B4:3 | r:1 B5 B5 | r:1 G5 G5 | C#4 C#4 E4 | B4:3 | r:1 B5 B5 | r:1 F#5 F#5 | D5:3',
     chords: '- | D | D | D | D | D | D | D | D | A | A | A | A | A | A | A | D | D' },
-  { id: 'raghupati', title: 'Raghupati Raghav Raja Ram', by: 'Traditional bhajan (tune popularised by V. D. Paluskar, d. 1931)', status: PD + ' (devotional song)', check: true, tempo: 92, time: [4, 4], key: 'C', scale: 'major', level: 1, tags: ['Indian', 'Folk'],
+  { id: 'raghupati', title: 'Raghupati Raghav Raja Ram', by: 'Traditional bhajan (tune popularised by V. D. Paluskar, d. 1931)', status: PD + ' (devotional song)', check: true, tempo: 92, time: [4, 4], key: 'C', mode: 'major', level: 1, tags: ['Indian', 'Folk'],
     mel: 'C4:1 D4 E4 E4 | E4 D4 E4 F4 | E4:2 D4:2 | C4:4 | E4:1 F4 G4 G4 | G4 F4 E4 F4 | E4:2 D4:2 | C4:4 | G4:1 G4 A4 G4 | F4:2 E4:2 | F4:1 F4 G4 F4 | E4:2 D4:2 | E4:1 F4 G4 F4 | E4 D4 C4 D4 | E4:2 D4:2 | C4:4',
     chords: 'C | C | G | C | C | F | G | C | C | F C | F | C G | C | F G | C G | C' },
-  { id: 'vaishnav', title: 'Vaishnav Jan To', by: 'Narsinh Mehta (15th century), traditional tune', status: PD + ' (poem 15th century; the tune is traditional)', check: true, tempo: 76, time: [4, 4], key: 'C', scale: 'mixolydian', level: 2, tags: ['Indian'],
+  { id: 'vaishnav', title: 'Vaishnav Jan To', by: 'Narsinh Mehta (15th century), traditional tune', status: PD + ' (poem 15th century; the tune is traditional)', check: true, tempo: 76, time: [4, 4], key: 'C', mode: 'khamaj', level: 2, tags: ['Indian'],
     mel: 'C4:1 C4 D4 E4 | F4:2 E4:1 D4 | E4:1 F4 G4 F4 | E4:2 D4:2 | E4:1 F4 G4 A4 | Bb4:2 A4:1 G4 | A4:1 G4 F4 E4 | D4:2 C4:2 | G4:1 G4 A4 Bb4 | C5:2 Bb4:1 A4 | G4:1 A4 G4 F4 | E4:2 D4:2 | E4:1 F4 G4 F4 | E4 D4 C4 D4 | E4:2 D4:2 | C4:4',
     chords: 'C | F C | C | C G | C | Bb F | F C | G C | C | C Bb | C F | C G | C | F C | G | C' },
-  { id: 'chandamama', title: 'Chandamama Raave', by: 'Traditional (Telugu lullaby)', status: PD + ' (folk lullaby)', check: true, tempo: 88, time: [4, 4], key: 'C', scale: 'penta', level: 1, tags: ['Indian', 'Kids'],
+  { id: 'chandamama', title: 'Chandamama Raave', by: 'Traditional (Telugu lullaby)', status: PD + ' (folk lullaby)', check: true, tempo: 88, time: [4, 4], key: 'C', mode: 'penta', level: 1, tags: ['Indian', 'Kids'],
     mel: 'E4:1 G4 G4:2 | E4:1 G4 G4:2 | A4:1 G4 E4 D4 | E4:4 | D4:1 E4 G4 E4 | D4 C4 D4:2 | E4:1 D4 C4 A3 | C4:4',
     chords: 'C | C | F C | C | G C | G | C Am | C' },
-  { id: 'alankar', title: 'Sa Re Ga Ma alankar (paltas)', by: 'Traditional exercise', status: PD + ' (teaching exercise)', tempo: 80, time: [3, 4], key: 'C', scale: 'major', level: 1, tags: ['Indian'],
+  { id: 'alankar', title: 'Sa Re Ga Ma alankar (paltas)', by: 'Traditional exercise', status: PD + ' (teaching exercise)', tempo: 80, time: [3, 4], key: 'C', mode: 'bilawal', level: 1, tags: ['Indian'],
     mel: 'C4:1 D4 E4 | D4 E4 F4 | E4 F4 G4 | F4 G4 A4 | G4 A4 B4 | A4 B4 C5 | C5 B4 A4 | B4 A4 G4 | A4 G4 F4 | G4 F4 E4 | F4 E4 D4 | E4 D4 C4 | C4:3',
     chords: 'C | G | C | F | C | F | C | G | F | C | G | C | C' },
-  { id: 'bilawal', title: 'Bilawal: aroha and avaroha', by: 'Traditional exercise', status: PD + ' (raag scale)', tempo: 80, time: [4, 4], key: 'C', scale: 'major', level: 1, tags: ['Indian'],
+  { id: 'bilawal', title: 'Bilawal: aroha and avaroha', by: 'Traditional exercise', status: PD + ' (raag scale)', tempo: 80, time: [4, 4], key: 'C', mode: 'bilawal', level: 1, tags: ['Indian'],
     mel: 'C4:1 D4 E4 F4 | G4 A4 B4 C5 | C5 B4 A4 G4 | F4 E4 D4 C4',
     chords: 'C | C | C | C' },
-  { id: 'bhoopali', title: 'Bhoopali: aroha and avaroha', by: 'Traditional exercise', status: PD + ' (raag scale)', tempo: 80, time: [4, 4], key: 'C', scale: 'penta', level: 1, tags: ['Indian'],
+  { id: 'bhoopali', title: 'Bhoopali: aroha and avaroha', by: 'Traditional exercise', status: PD + ' (raag scale)', tempo: 80, time: [4, 4], key: 'C', mode: 'bhoopali', level: 1, tags: ['Indian'],
     mel: 'C4:1 D4 E4 G4 | A4 C5:3 | C5:1 A4 G4 E4 | D4 C4:3',
     chords: 'C | C | C | C' },
-  { id: 'yaman', title: 'Yaman: aroha and avaroha', by: 'Traditional exercise', status: PD + ' (raag scale)', tempo: 76, time: [4, 4], key: 'C', scale: 'major', level: 2, tags: ['Indian'],
+  { id: 'yaman', title: 'Yaman: aroha and avaroha', by: 'Traditional exercise', status: PD + ' (raag scale)', tempo: 76, time: [4, 4], key: 'C', mode: 'yaman', level: 2, tags: ['Indian'],
     mel: 'B3:1 D4 E4 F#4 | A4 B4 C5:2 | C5:1 B4 A4 G4 | F#4 E4 D4 C4',
     chords: 'C | C | C | C' },
-  { id: 'sunny', title: 'Sunny Steps', by: 'Pocket Band (original)', status: 'Original, written for Pocket Band', tempo: 100, time: [4, 4], key: 'C', scale: 'major', level: 1, tags: ['Kids'],
+  { id: 'sunny', title: 'Sunny Steps', by: 'Pocket Band (original)', status: 'Original, written for Pocket Band', tempo: 100, time: [4, 4], key: 'C', mode: 'major', level: 1, tags: ['Kids'],
     mel: 'C4:1 D4 E4 C4 | E4 F4 G4:2 | G4:1 A4 G4 F4 | E4:2 C4:2 | D4:1 D4 E4 C4 | D4:2 G3:2 | C4:1 D4 E4 F4 | E4 D4 C4:2',
     chords: 'C | C | C F | C | G C | G | C F | G C' },
-  { id: 'fivefinger', title: 'Five Finger March', by: 'Pocket Band (original)', status: 'Original, written for Pocket Band', tempo: 96, time: [4, 4], key: 'C', scale: 'major', level: 1, tags: ['Kids'],
+  { id: 'fivefinger', title: 'Five Finger March', by: 'Pocket Band (original)', status: 'Original, written for Pocket Band', tempo: 96, time: [4, 4], key: 'C', mode: 'major', level: 1, tags: ['Kids'],
     mel: 'C4:1 E4 G4 E4 | F4 D4 E4:2 | E4:1 G4 F4 D4 | E4:2 C4:2 | G4:1 F4 E4 D4 | C4 D4 E4:2 | F4:1 E4 D4 G4 | C4:4',
     chords: 'C | G C | C G | C | C G | C | F G | C' },
-  { id: 'waltz', title: 'Little Waltz', by: 'Pocket Band (original)', status: 'Original, written for Pocket Band', tempo: 120, time: [3, 4], key: 'G', scale: 'major', level: 1, tags: ['Kids', 'Classical'],
+  { id: 'waltz', title: 'Little Waltz', by: 'Pocket Band (original)', status: 'Original, written for Pocket Band', tempo: 120, time: [3, 4], key: 'G', mode: 'major', level: 1, tags: ['Kids', 'Classical'],
     mel: 'G4:2 B4:1 | D5:2 B4:1 | A4:2 F#4:1 | G4:3 | E4:2 G4:1 | B4:2 G4:1 | A4:1 B4 A4 | D4:3 | G4:2 B4:1 | D5:2 E5:1 | D5:1 C5 B4 | A4:3 | B4:1 A4 G4 | A4:2 F#4:1 | G4:3~ | G4:3',
     chords: 'G | G | D | G | C | G | D | D | G | G | G | D | G | D | G | G' },
-  { id: 'rainy', title: 'Rainy Day Blues', by: 'Pocket Band (original)', status: 'Original, written for Pocket Band', tempo: 92, time: [4, 4], key: 'A', scale: 'blues', level: 2, tags: ['Folk'],
+  { id: 'rainy', title: 'Rainy Day Blues', by: 'Pocket Band (original)', status: 'Original, written for Pocket Band', tempo: 92, time: [4, 4], key: 'A', mode: 'blues', level: 2, tags: ['Folk'],
     mel: 'A4:1 C5 A4 D5 | D#5:0.5 E5 C5:1 A4:2 | A4:1 C5 A4 D5 | E5:1 G5:0.5 E5 D5:2 | D5:1 C5 A4 G4 | C5:1 D5 D#5:0.5 E5 C5:1 | E5:1 D5 C5 A4 | A4:4',
     chords: 'Am | Am | Am | Am | Dm | Dm | Em | Am' },
-  { id: 'ragawalk', title: 'Morning Walk in Bhoopali', by: 'Pocket Band (original)', status: 'Original, written for Pocket Band', tempo: 88, time: [4, 4], key: 'C', scale: 'penta', level: 1, tags: ['Indian', 'Kids'],
+  { id: 'ragawalk', title: 'Morning Walk in Bhoopali', by: 'Pocket Band (original)', status: 'Original, written for Pocket Band', tempo: 88, time: [4, 4], key: 'C', mode: 'bhoopali', level: 1, tags: ['Indian', 'Kids'],
     mel: 'C4:1 D4 E4:2 | D4:1 E4 G4:2 | A4:1 G4 E4 G4 | D4:4 | E4:1 G4 A4 C5 | A4 G4 E4:2 | D4:1 E4 D4 C4 | C4:4',
     chords: 'C | C | F C | G | C | F C | G | C' }
 ];
@@ -183,7 +200,7 @@ export function buildMelody(src) {
   if (chords && chords.length !== bars) throw new Error(`${src.id}: ${chords.length} chord bars for ${bars} melody bars`);
   const t = {
     id: src.id, type: src.type || 'melody', title: src.title, by: src.by, src: /^Original/.test(src.status) ? 'Original' : 'Public domain',
-    tempo: src.tempo, time: src.time, key: src.key, scale: scaleFor(notes, key, src.scale), level: src.level, tags: src.tags, bars, notes
+    tempo: src.tempo, time: src.time, key: src.key, ...tonal(src, notes, src.id), level: src.level, tags: src.tags, bars, notes
   };
   if (chords) t.chords = chords;
   if (src.tags.includes('Indian')) t.sargam = sargamOf(notes, key);
@@ -256,8 +273,9 @@ export function buildBass(src) {
     });
   });
   // a held note can't run past the next one
+  // the bass line is in the song's key and mode (its chord thirds may step outside the mode, as the chords do)
   return { id: 'bs-' + m.id, type: 'bass', title: mel.title, by: mel.by, src: mel.src, tempo: mel.tempo, time: mel.time, key: mel.key,
-    scale: scaleFor(notes, key, ({ blues: 'minor', minpenta: 'minor', penta: 'major', chromatic: 'minor' })[mel.scale] || mel.scale), level: src.level, tags: mel.tags, bars: mel.bars, notes, chords: mel.chords, tune: mel.notes };
+    tonic: mel.tonic, mode: mel.mode, level: src.level, tags: mel.tags, bars: mel.bars, notes, chords: mel.chords, tune: mel.notes };
 }
 
 /* ---------------- Drum grooves (drums, electric drum pad) ---------------- */
@@ -297,7 +315,7 @@ export function buildGroove(g) {
   });
   hits.push([0, 'crash', 110]);
   hits.sort((a, b) => a[0] - b[0] || a[1].localeCompare(b[1]));
-  return { id: 'dr-' + g.id, type: 'drums', title: g.title, by: 'Pocket Band (original)', src: 'Original', tempo: g.tempo, time: [4, 4], key: 'C', scale: 'major',
+  return { id: 'dr-' + g.id, type: 'drums', title: g.title, by: 'Pocket Band (original)', src: 'Original', tempo: g.tempo, time: [4, 4], tonic: null, mode: 'none',
     level: g.level, tags: g.id === 'march' ? ['Kids', 'Folk'] : g.id === 'bossa' || g.id === 'reggae' || g.id === 'shuffle' ? ['Folk'] : ['Kids'], bars: 4, hits };
 }
 
@@ -334,7 +352,7 @@ export function buildTaal(g) {
       hits.push([r3(cyc * n + k + j / parts.length), p, k === 0 && j === 0 ? 112 : j ? 80 : 96]);
     });
   });
-  return { id: 'tl-' + g.id, type: 'tabla', title: g.title, by: 'Traditional (theka)', src: 'Public domain', tempo: g.tempo, time: [n, 4], key: 'C', scale: 'major',
+  return { id: 'tl-' + g.id, type: 'tabla', title: g.title, by: 'Traditional (theka)', src: 'Public domain', tempo: g.tempo, time: [n, 4], tonic: null, mode: 'none',
     level: g.level, tags: ['Indian'], bars: 2, vibhag: g.vibhag, tali: g.tali, hits };
 }
 
@@ -350,18 +368,26 @@ function tracksMd(rows) {
     'The tracks live in `tracks/*.json` and are generated by `node tools/make-tracks.mjs` from the note lists in that file;',
     'edit there and re-run it (it also rewrites this list). The service worker caches them, so they work offline.', '',
     '**Format.** Each track: `id`, `type`, `title`, `by` (composer or "Traditional"), `src` (Public domain or Original),',
-    '`tempo` (beats a minute, a beat is a quarter note), `time` ([beats, unit]), `key`, `scale`, `level` (difficulty 1-3),',
+    '`tempo` (beats a minute, a beat is a quarter note), `time` ([beats, unit]), `key` (the tonic spelled as a name),',
+    '`tonic` (the same as a pitch class, C = 0 to B = 11), `mode` (major, minor, dorian, bhoopali and so on: the ids of the',
+    'app\'s Scale menu), `level` (difficulty 1-3),',
     '`tags`, `bars`, and depending on the type: `notes` as `[startBeat, durationBeats, midi, velocity]`, `chords` (one',
     'string a bar, chords split across the bar by spaces), `strum` (down and up strokes), `hits` as `[startBeat, pad, velocity]`',
-    'or `bols` (tabla strokes a beat), and `sargam` (Sa Re Ga labels for Indian melodies).', ''];
+    'or `bols` (tabla strokes a beat), and `sargam` (Sa Re Ga labels for Indian melodies). Drum grooves and taals are',
+    'unpitched: `tonic` is null and `mode` is "none".', '',
+    '**Key and mode.** Picking a song sets the instrument\'s Key and Scale to the song\'s own tonic and mode and plays the',
+    'written notes exactly (moved by whole octaves only, to suit the instrument). The build checks that every pitched track',
+    'has a known mode and ends on its tonic. "Outside the mode" lists the notes a tune borrows from outside its mode (a',
+    'raised leading note in a minor tune, say); they are part of the tune, and the app adds them to the instrument\'s layout', 'while the song is open.', ''];
   for (const file of Object.keys(KIND)) {
     const list = rows.filter((r) => r.file === file);
     if (!list.length) continue;
-    out.push('## ' + KIND[file], '', '| Track | By | Key | Time | Tempo | Length | Level | Tags | Source | Check |', '|---|---|---|---|---|---|---|---|---|---|');
+    out.push('## ' + KIND[file], '', '| Track | By | Key | Outside the mode | Time | Tempo | Length | Level | Tags | Source | Check |', '|---|---|---|---|---|---|---|---|---|---|---|');
     for (const { t, s: s0 } of list) {
       const s = s0.from ? MEL[s0.from] : s0.status ? s0 : { status: t.src === 'Original' ? 'Original, written for Pocket Band' : 'Public domain: traditional theka' };
-      const key = t.type === 'drums' || t.type === 'tabla' ? '–' : t.key + (t.scale === 'major' ? '' : ' ' + t.scale);
-      out.push(`| ${t.title} | ${t.by} | ${key} | ${t.time.join('/')} | ${t.tempo} | ${fmtLen(t)} | ${'★'.repeat(t.level)} | ${t.tags.join(', ')} | ${s.status} | ${s.check ? 'Needs ear check' : ''} |`);
+      const pitched = t.tonic !== null, key = pitched ? NOTE_NAMES[t.tonic] + ' ' + MODE_NAMES[t.mode] : '– (unpitched)';
+      const odd = pitched ? outside(t.notes, t.tonic, t.mode, (s0.from ? MEL[s0.from] : s0).mel).join(', ') || '–' : '–';
+      out.push(`| ${t.title} | ${t.by} | ${key} | ${odd} | ${t.time.join('/')} | ${t.tempo} | ${fmtLen(t)} | ${'★'.repeat(t.level)} | ${t.tags.join(', ')} | ${s.status} | ${s.check ? 'Needs ear check' : ''} |`);
     }
     out.push('');
   }
