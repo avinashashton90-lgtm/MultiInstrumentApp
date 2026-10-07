@@ -1,17 +1,28 @@
 // Check 12. Songs: the free track library, Auto-play and Train me, on every instrument.
 //   tracks    every track file validates: fields, every bar adds up, no overlapping notes (a melody or bass line is
-//             one note at a time), the length matches its bars, tempo, key, chords, pads and bols are valid, the
-//             files are small and cached by the service worker, TRACKS.md lists every track
-//   fit       every track that suits an instrument fits it: each note, chord or hit has a key, hole, spot, chord
-//             button, pad or drum zone to play it on after the track moves to the instrument's key, scale and octave,
-//             and it is the right one (worked out here from the track itself)
-//   autoplay  a sample track rendered offline through the instrument's own sound: every melody and bass note within
-//             5 cents of the note it should be (the track moved to the instrument's key), every strum sounds its
-//             chord, every drum hit and tabla stroke sounds at its time
+//             one note at a time), the length matches its bars, tempo, tonic and mode (a tune ends on its tonic;
+//             drum grooves and taals are unpitched), chords, pads and bols are valid, the files are small and cached
+//             by the service worker, TRACKS.md lists every track
+//   fit       every track that suits an instrument opens in its own key: the Key and Scale menus show the song's
+//             tonic and mode, the label says "Song key: ...", every note is the written one moved by one whole number
+//             of octaves (none at all on the piano: native-key playback is the stored track exactly), and each note,
+//             chord or hit has a key, hole, spot, chord button, pad or drum zone (the harmonica's missing chromatic
+//             notes are reported)
+//   transpose for every track and every key chosen in the real Key menu: the notes' intervals equal the original's,
+//             every note moved by the same number of semitones (plus whole octaves), the mode label stays the song's;
+//             the Transpose buttons say "Transposed +n", stop at ±6, Reset goes back; a new Scale keeps the notes
+//             ("Keep original") until Remap moves them to the new mode's steps
+//   autoplay  a sample track rendered offline through the instrument's own sound, in its own key and transposed +2:
+//             every melody and bass note within 5 cents of the note it should be (worked out here from the track),
+//             every strum sounds its chord, every drum hit and tabla stroke sounds at its time
 //   timing    a song played live on the real audio clock: each note sounds at the time the song says
-//   train     Train me (Wait) through the real Songs sheet and real touches: for every event of the sample track the
-//             right target glows with the right name (checked against the track itself), touching it plays it and
-//             the song moves on; the pass ends with three stars and a saved best score
+//   train     Train me (Wait, the default) through the real Songs sheet and real touches, after the first-time hint:
+//             for every event of the sample track the right target glows with the right name (checked against the
+//             track itself); a wrong key shakes and the song waits; touching the right one plays it and the song
+//             moves on; the pass ends with three stars and a saved best score
+//   align     Rhythm at five screen sizes: every falling bar is centred on its key, hole or spot and no wider, the
+//             strip's hit-line sits on top of the instrument, what glows is what is due, and the Wait badges sit on
+//             their keys (a zoomed keyboard wider than the screen scrolls to the note and stays aligned)
 //   stop      nothing is left ringing after Stop, closing the song, Home or switching instruments mid-song
 //   storage   with storage blocked the songs still open, train and score
 import fs from 'node:fs';
@@ -22,11 +33,17 @@ import { NAMES, pc, midiOf, row, pool, dryReverb, setToggle } from '../common.mj
 
 export const TRACK_FILES = ['melodies', 'chords', 'bass', 'drums', 'tabla'];
 export const TAGS = ['Kids', 'Classical', 'Folk', 'Indian', 'Hymn'];
+// Modes a track may be in, and what the app's key label calls them (written here from the definitions)
 const SCALE_IV = {
   major: [0, 2, 4, 5, 7, 9, 11], minor: [0, 2, 3, 5, 7, 8, 10], harmonic: [0, 2, 3, 5, 7, 8, 11], melodic: [0, 2, 3, 5, 7, 9, 11],
   penta: [0, 2, 4, 7, 9], minpenta: [0, 3, 5, 7, 10], blues: [0, 3, 5, 6, 7, 10], dorian: [0, 2, 3, 5, 7, 9, 10],
-  mixolydian: [0, 2, 4, 5, 7, 9, 10], chromatic: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+  mixolydian: [0, 2, 4, 5, 7, 9, 10], bilawal: [0, 2, 4, 5, 7, 9, 11], bhoopali: [0, 2, 4, 7, 9], yaman: [0, 2, 4, 6, 7, 9, 11],
+  khamaj: [0, 2, 4, 5, 7, 9, 10], chromatic: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 };
+const MODE_LABEL = { major: 'Major', minor: 'Natural minor', harmonic: 'Harmonic minor', melodic: 'Melodic minor', penta: 'Major pentatonic',
+  minpenta: 'Minor pentatonic', blues: 'Blues', dorian: 'Dorian', mixolydian: 'Mixolydian', bilawal: 'Bilawal', bhoopali: 'Bhoopali',
+  yaman: 'Yaman', khamaj: 'Khamaj', chromatic: 'Chromatic' };
+const pitchedType = (t) => t.type === 'melody' || t.type === 'bass' || t.type === 'chords';
 // Which tracks go with which instrument (the rule the Songs sheet uses)
 export const TYPE_OF = { guitar: 'chords', rhythm: 'chords', ebass: 'bass', drums: 'drums', epad: 'drums', tabla1: 'tabla', tabla2: 'tabla' };
 export const typeOf = (tab) => TYPE_OF[tab] || 'melody';
@@ -99,18 +116,21 @@ export function validateTrack(t) {
   if (![1, 2, 3].includes(t.level)) e.push('difficulty must be 1-3');
   if (!t.tags || !t.tags.length || t.tags.some((g) => !TAGS.includes(g))) e.push('tags must come from ' + TAGS.join(', '));
   if (!(t.bars >= 1)) e.push('no bars');
-  if (!/^[A-G](#|b)?$/.test(t.key || '')) e.push('bad key ' + t.key);
-  if (!SCALE_IV[t.scale]) e.push('bad scale ' + t.scale);
+  if (pitchedType(t)) {
+    if (!/^[A-G](#|b)?$/.test(t.key || '')) e.push('bad key ' + t.key);
+    else if (t.tonic !== keyPc(t.key)) e.push(`tonic ${t.tonic} is not the pitch class of ${t.key}`);
+    if (!SCALE_IV[t.mode]) e.push('missing or unknown mode ' + t.mode);
+    const tune = t.type === 'chords' ? t.notes : t.type === 'melody' ? t.notes : null;
+    if (tune && tune.length && pc(tune[tune.length - 1][2]) !== t.tonic) e.push(`the tune ends on ${NAMES[pc(tune[tune.length - 1][2])]}, not its tonic ${NAMES[t.tonic]}`);
+  } else if (t.tonic !== null || t.mode !== 'none') e.push('an unpitched track needs tonic null and mode "none"');
   if (t.chords) {
     if (t.chords.length !== t.bars) e.push(`${t.chords.length} chord bars for ${t.bars} bars`);
     t.chords.forEach((c, i) => c.split(/\s+/).filter((x) => x && x !== '-').forEach((s) => { if (!CHORD.test(s)) e.push(`bar ${i + 1}: bad chord ${s}`); }));
   }
-  const inScale = (m) => SCALE_IV[t.scale].includes(((m - keyPc(t.key)) % 12 + 12) % 12);
   if (t.type === 'melody' || t.type === 'bass') {
     if (!t.notes || !t.notes.length) e.push('no notes');
     else {
       checkNotes(t, t.notes, e, 'note');
-      t.notes.forEach((n, i) => { if (!inScale(n[2])) e.push(`note ${i + 1}: ${NAMES[pc(n[2])]} is not in ${t.key} ${t.scale}`); });
       if (t.type === 'bass' && t.notes.some((n) => n[2] < 28 || n[2] > 60)) e.push('bass notes outside E1-C4');
     }
     if (t.sargam && t.sargam.length !== t.notes.length) e.push('sargam labels do not match the notes');
@@ -159,14 +179,14 @@ function trackRows() {
   return [row('songs', '-', !bad.length && size < 2 * 1024 * 1024 && !notCached.length,
     (bad.length ? bad.slice(0, 4).join(' | ') + ' · ' : '') + `track files: ${all.length} tracks (${Object.entries(byType).map(([k, v]) => v + ' ' + k).join(', ')}), ` +
     `${(size / 1024).toFixed(1)} KB` + (notCached.length ? `; not cached by the service worker: ${notCached.join(', ')}` : ', all cached by the service worker') +
-    (bad.length ? '' : '; every bar adds up, no overlaps, lengths, tempos, keys, chords, pads and bols valid, all listed in TRACKS.md'),
+    (bad.length ? '' : `; every bar adds up, no overlaps; every pitched track has its tonic and mode (${[...new Set(all.filter(pitchedType).map((t) => t.mode))].join(', ')}) and its tune ends on the tonic; lengths, tempos, chords, pads and bols valid, all listed in TRACKS.md`),
     { tracks: all.length, kb: +(size / 1024).toFixed(1), bad: bad.length })];
 }
 
 // Opens the app with the test hooks on (window.PocketBandTest)
 const HOOKS = 'window.__PB_TEST__ = true;';
-async function openWithHooks(browser, base, tab, extra) {
-  const cur = await openApp(browser, base, { tab });
+async function openWithHooks(browser, base, tab, extra, viewport) {
+  const cur = await openApp(browser, base, { tab, viewport });
   await cur.page.addInitScript({ content: HOOKS + (extra || '') });
   await cur.page.reload({ waitUntil: 'load' });
   await cur.page.waitForFunction(() => window.PocketBandTest);
@@ -176,7 +196,7 @@ async function openWithHooks(browser, base, tab, extra) {
 }
 const pickList = (tabs) => INSTRUMENTS.filter((i) => !tabs || tabs.includes(i.tab));
 
-/* fit: every suitable track on every instrument */
+/* fit: every suitable track on every instrument, in its own key */
 async function fitRows(browser, base, workers, tabs) {
   const tasks = pickList(tabs).map((ins) => ({
     tab: ins.tab, check: 'songs', fresh: true,
@@ -186,40 +206,138 @@ async function fitRows(browser, base, workers, tabs) {
         const r = await cur.page.evaluate(async (tab) => {
           const P = window.PocketBandTest, S = P.songs, lib = await S.load(), out = [];
           for (const tr of lib.filter((t) => S.suits(t, tab))) {
-            S.open(tr, 'train', 'wait');
-            const plan = S.state().plan;
-            out.push({ id: tr.id, key: P.TONAL[tab] ? P.TONAL[tab].key : 0, n: plan.ev.length, missing: plan.missing, moved: plan.moved,
-              ev: plan.ev.map((e) => ({ i: e.i, k: e.k, m: e.m, name: e.c && e.c.name, hit: e.hit, auto: !!e.auto, tg: !!e.tg })) });
+            S.open(tr, 'auto'); S.halt();
+            const plan = S.state().plan, $ = (id) => document.getElementById(id);
+            out.push({ id: tr.id, key: P.TONAL[tab] ? P.TONAL[tab].key : null, scale: P.TONAL[tab] ? P.TONAL[tab].scale : null,
+              keyMenu: $('key').offsetParent ? +$('key').value : null, scaleMenu: $('scale').offsetParent ? $('scale').value : null,
+              label: $('sgKeyRow').hidden ? null : $('sgKeyName').textContent, n: plan.ev.length, missing: plan.missing, oct: plan.oct,
+              ev: plan.ev.map((e) => ({ i: e.i, k: e.k, m: e.m, b: e.b, d: e.d, name: e.c && e.c.name, hit: e.hit, auto: !!e.auto, tg: !!e.tg })) });
             S.close();
           }
           return out;
         }, ins.tab);
-        const lib = loadTracks(), errs = [];
+        const lib = loadTracks(), errs = [], octs = {};
+        let exact = 0;
         // what each track should become on this instrument, worked out here from the track itself
         for (const x of r) {
-          const tr = lib.find((t) => t.id === x.id), shift = ((x.key - keyPc(tr.key)) % 12 + 12) % 12;
+          const tr = lib.find((t) => t.id === x.id);
+          if (pitchedType(tr)) {
+            const want = `Song key: ${NAMES[tr.tonic]} ${MODE_LABEL[tr.mode]}`;
+            if (x.key !== tr.tonic || x.scale !== tr.mode) errs.push(`${x.id}: the instrument is in ${NAMES[x.key]} ${x.scale}, the song in ${NAMES[tr.tonic]} ${tr.mode}`);
+            if (x.keyMenu !== null && (x.keyMenu !== tr.tonic || x.scaleMenu !== tr.mode)) errs.push(`${x.id}: the Key and Scale menus show ${x.keyMenu} ${x.scaleMenu}`);
+            if (x.label !== want) errs.push(`${x.id}: labelled "${x.label}", expected "${want}"`);
+          }
           if (tr.type === 'melody' || tr.type === 'bass') {
             if (x.n !== tr.notes.length) errs.push(`${x.id}: ${x.n} events for ${tr.notes.length} notes`);
-            x.ev.forEach((e) => { if (pc(e.m) !== pc(tr.notes[e.i][2] + shift)) errs.push(`${x.id} note ${e.i + 1}: ${NAMES[pc(e.m)]}, the key says ${NAMES[pc(tr.notes[e.i][2] + shift)]}`); });
+            // the written notes, moved by whole octaves only, all by the same amount
+            const moves = new Set(x.ev.map((e) => e.m - tr.notes[e.i][2]));
+            if (moves.size !== 1 || [...moves][0] % 12 || [...moves][0] !== 12 * x.oct) errs.push(`${x.id}: notes moved by ${[...moves].join(', ')} semitones (whole octaves only, all the same)`);
+            x.ev.forEach((e) => { const n = tr.notes[e.i]; if (!near(e.b, n[0]) || !near(e.d, n[1])) errs.push(`${x.id} note ${e.i + 1}: at beat ${e.b} for ${e.d}, the track says ${n[0]} for ${n[1]}`); });
+            octs[x.oct] = (octs[x.oct] || 0) + 1;
+            if (!x.oct && moves.size === 1 && [...moves][0] === 0) exact++;
+            if (ins.tab === 'piano' && x.oct !== 0) errs.push(`${x.id}: moved ${x.oct} octaves on the piano; native-key playback must be the stored track`);
+            if (x.missing && ins.tab !== 'harmonica') errs.push(`${x.id}: ${x.missing} notes with nowhere to play`);
           } else if (tr.type === 'chords') {
             if (x.n !== tr.strum.length) errs.push(`${x.id}: ${x.n} strums for ${tr.strum.length}`);
-            x.ev.forEach((e) => { const sh = shift > 6 ? shift - 12 : shift, want = chordName(chordAt(tr, tr.strum[e.i][0]), sh); if (e.name !== want) errs.push(`${x.id} strum ${e.i + 1}: ${e.name}, expected ${want}`); });
+            x.ev.forEach((e) => { const want = chordName(chordAt(tr, tr.strum[e.i][0]), 0); if (e.name !== want) errs.push(`${x.id} strum ${e.i + 1}: ${e.name}, expected ${want}`); });
+            if (x.missing) errs.push(`${x.id}: ${x.missing} strums with no chord button`);
           } else if (tr.type === 'drums') {
             if (x.n !== tr.hits.length) errs.push(`${x.id}: ${x.n} events for ${tr.hits.length} hits`);
+            if (x.missing) errs.push(`${x.id}: ${x.missing} hits with no pad`);
           } else {
             const want = tr.hits.reduce((a, h) => a + TABLA[h[1]].length, 0);
             if (x.n !== want) errs.push(`${x.id}: ${x.n} strokes, the bols make ${want}`);
             if (ins.tab === 'tabla1' && x.ev.some((e) => !e.tg && !(e.auto && BAYAN.includes(e.hit)))) errs.push(`${x.id}: a dayan stroke has no zone`);
           }
         }
-        const missing = r.filter((x) => x.missing), full = r.filter((x) => !x.moved && !x.missing);
-        const ok = r.length >= 8 && !missing.length && !errs.length && full.length >= 5;
+        const missing = r.filter((x) => x.missing), notes = typeOf(ins.tab) === 'melody' || typeOf(ins.tab) === 'bass';
+        const ok = r.length >= 8 && !errs.length;
         const what = { melody: 'notes', bass: 'notes', chords: 'strums', drums: 'hits', tabla: 'strokes' }[typeOf(ins.tab)];
         return row('songs', ins.tab, ok, (errs.length ? errs.slice(0, 3).join('; ') + ' · ' : '') +
-          `fit: ${r.length} tracks, ${full.length} fit as written` + (r.length > full.length + missing.length ? `, ${r.length - full.length - missing.length} with notes moved an octave` : '') +
-          (missing.length ? `; ${what} with nowhere to play: ${missing.slice(0, 3).map((x) => x.id + ' (' + x.missing + ')').join(', ')}` : `, every one of the ${r.reduce((a, x) => a + x.n, 0)} ${what} has its place`) +
-          (errs.length ? '' : `, each the right ${what === 'strums' ? 'chord' : what === 'notes' ? 'note in the instrument\'s key' : 'pad or zone'}`) + (r.length < 8 ? '; fewer than 8 tracks' : ''),
-          { tracks: r.length, full: full.length, missing: missing.length });
+          `fit: ${r.length} tracks` + (r[0] && r[0].label ? ', each opening in its own key and mode (Key, Scale and "Song key" label)' : '') +
+          (notes ? `, every note the written one ${ins.tab === 'piano' ? 'exactly (native key = the stored track)' : 'moved by whole octaves only (' + Object.entries(octs).map(([o, n]) => n + ' at ' + (o > 0 ? '+' : '') + o).join(', ') + ' octaves; ' + exact + ' exactly as stored)'}` : '') +
+          (missing.length ? `; ${what} the ${ins.name.toLowerCase()} doesn't have, played for you: ${missing.map((x) => x.id + ' (' + x.missing + ')').join(', ')}` : `; every one of the ${r.reduce((a, x) => a + x.n, 0)} ${what} has its place`) +
+          (r.length < 8 ? '; fewer than 8 tracks' : ''),
+          { part: 'fit', tracks: r.length, missing: missing.length });
+      } finally { await cur.context.close(); }
+    }
+  }));
+  return pool(browser, base, tasks, workers);
+}
+
+/* transpose: every track in every key, through the real Key menu, and the Transpose, Reset and Scale controls */
+async function transposeRows(browser, base, workers, tabs) {
+  const lib = loadTracks();
+  const tasks = pickList(tabs).filter((i) => typeOf(i.tab) !== 'drums' && typeOf(i.tab) !== 'tabla').map((ins) => ({
+    tab: ins.tab, check: 'songs', fresh: true,
+    run: async () => {
+      const cur = await openWithHooks(browser, base, ins.tab);
+      try {
+        const r = await cur.page.evaluate(async (tab) => {
+          const P = window.PocketBandTest, S = P.songs, all = await S.load(), $ = (id) => document.getElementById(id), out = [];
+          const choose = (id, v) => { const el = $(id); el.value = v; el.dispatchEvent(new Event('change')); };
+          const snap = () => { const p = S.state().plan; return { key: P.TONAL[tab].key, scale: P.TONAL[tab].scale, label: $('sgKeyName').textContent, tp: $('sgTp').textContent,
+            ms: p.ev.map((e) => e.k === 'note' ? e.m : e.c.name), tune: p.tune.map((n) => n.m), menu: +$('key').value }; };
+          for (const tr of all.filter((t) => S.suits(t, tab))) {
+            S.open(tr, 'auto'); S.halt();
+            const keys = [];
+            for (let k = 0; k < 12; k++) { choose('key', k); keys.push(snap()); }
+            // the Transpose buttons, Reset, and a Scale away from the song's mode: Keep original, then Remap
+            S.reset();
+            const tpUp = [], other = tr.mode === 'dorian' ? 'major' : 'dorian';
+            for (let k = 0; k < 7; k++) { $('sgTpUp').click(); tpUp.push($('sgTp').textContent); }
+            const upLimit = $('sgTpUp').disabled;
+            $('sgReset').click();
+            const reset = snap();
+            choose('scale', other);
+            const keep = { ...snap(), ask: !$('sgAsk').hidden, keepOn: $('sgKeep').getAttribute('aria-pressed') };
+            const canRemap = !$('sgRemap').hidden;
+            if (canRemap) $('sgRemap').click();
+            const remap = snap();
+            out.push({ id: tr.id, keys, tpUp, upLimit, reset, keep, remap, other, canRemap });
+            S.close();
+          }
+          return out;
+        }, ins.tab);
+        const errs = [];
+        let checked = 0;
+        const iv = (a) => a.slice(1).map((m, i) => m - a[i]);
+        for (const x of r) {
+          const tr = lib.find((t) => t.id === x.id), mode = MODE_LABEL[tr.mode], notes = tr.type !== 'chords';
+          const orig = notes ? tr.notes.map((n) => n[2]) : tr.notes.map((n) => n[2]);
+          x.keys.forEach((k, key) => {
+            checked++;
+            let d = ((key - tr.tonic) % 12 + 12) % 12; if (d > 6) d -= 12;
+            if (k.key !== key || k.menu !== key) errs.push(`${x.id} in ${NAMES[key]}: the instrument went to ${NAMES[k.key]}`);
+            if (k.scale !== tr.mode) errs.push(`${x.id} in ${NAMES[key]}: the scale changed to ${k.scale}`);
+            if (k.label !== `Song key: ${NAMES[key]} ${mode}`) errs.push(`${x.id} in ${NAMES[key]}: labelled "${k.label}"`);
+            const wantTp = d ? `Transposed ${d > 0 ? '+' : '−'}${Math.abs(d)}` : 'Original key';
+            if (k.tp !== wantTp && !(Math.abs(d) === 6 && /Transposed [+−]6/.test(k.tp))) errs.push(`${x.id} in ${NAMES[key]}: "${k.tp}", expected "${wantTp}"`);
+            const got = notes ? k.ms : k.tune;
+            if (iv(got).join() !== iv(orig).join()) errs.push(`${x.id} in ${NAMES[key]}: the intervals changed`);
+            const move = got[0] - orig[0];
+            if (pc(move) !== pc(key - tr.tonic) || got.some((m, i) => m - orig[i] !== move)) errs.push(`${x.id} in ${NAMES[key]}: notes moved by ${move}, not ${d} semitones plus whole octaves`);
+            if (!notes) k.ms.forEach((name, i) => { const want = chordName(chordAt(tr, tr.strum[i][0]), d); if (name !== want && !(Math.abs(d) === 6)) errs.push(`${x.id} in ${NAMES[key]} strum ${i + 1}: ${name}, expected ${want}`); });
+          });
+          const wantUp = ['+1', '+2', '+3', '+4', '+5', '+6', '+6'].map((v) => 'Transposed ' + v);
+          if (x.tpUp.join() !== wantUp.join() || !x.upLimit) errs.push(`${x.id}: Transpose + showed ${x.tpUp.join(', ')}${x.upLimit ? '' : ' and did not stop at +6'}`);
+          if (x.reset.tp !== 'Original key' || x.reset.key !== tr.tonic) errs.push(`${x.id}: Reset left "${x.reset.tp}" in ${NAMES[x.reset.key]}`);
+          if (!x.keep.ask || x.keep.keepOn !== 'true') errs.push(`${x.id}: changing the Scale did not offer Keep original (on) and Remap`);
+          if (x.keep.ms.join() !== x.reset.ms.join()) errs.push(`${x.id}: Keep original changed the notes`);
+          if (x.keep.scale !== x.other || !x.keep.label.startsWith(`Song key: ${NAMES[tr.tonic]} ${mode}`)) errs.push(`${x.id}: after the Scale change the label says "${x.keep.label}"`);
+          if (x.canRemap && notes) {
+            // remapped: each note on the same step of the new mode
+            const from = SCALE_IV[tr.mode], to = SCALE_IV[x.other];
+            x.remap.ms.forEach((m, i) => {
+              const o = x.reset.ms[i], r = pc(o - tr.tonic), st = from.indexOf(r);
+              if (st >= 0 && from.length === to.length && m !== o - r + to[st]) errs.push(`${x.id} note ${i + 1}: remapped to ${NAMES[pc(m)]}, step ${st + 1} of ${x.other} is ${NAMES[pc(o - r + to[st])]}`);
+            });
+          }
+        }
+        return row('songs', ins.tab, !errs.length && r.length >= 8, (errs.length ? errs.slice(0, 3).join('; ') + ' · ' : '') +
+          `transpose: ${r.length} tracks x 12 keys (${checked} fits) through the Key menu: every interval kept, every note moved by the key's semitones plus whole octaves, ` +
+          `mode label kept, "Transposed ±n" shown; Transpose + stops at +6, Reset returns to the song key; a new Scale keeps the notes until Remap` + (r.some((x) => x.canRemap) ? ' moves each to the same step of the new mode' : ' (chord songs keep their chords)'),
+          { part: 'transpose', tracks: r.length, fits: checked });
       } finally { await cur.context.close(); }
     }
   }));
@@ -249,15 +367,19 @@ async function autoplayRows(browser, base, workers, tabs) {
     run: async () => {
       const type = typeOf(ins.tab), tr = lib.find((t) => t.id === SAMPLE[type]);
       const cur = await openWithHooks(browser, base, ins.tab, OFFLINE);
+      const out = [];
       try {
-        const r = await cur.page.evaluate(async ({ tab, id, win, type }) => {
+       // in the song's own key, then transposed up two semitones (unpitched tracks once)
+       for (const tp of type === 'drums' || type === 'tabla' ? [0] : [0, 2]) {
+        const r = await cur.page.evaluate(async ({ tab, id, win, type, tp }) => {
           const P = window.PocketBandTest, S = P.songs, lib = await S.load(), tr = lib.find((t) => t.id === id), PRE = 0.3, SR = 48000;
+          P.reset();
           for (const el of ['rev', 'irev']) { const x = document.getElementById(el); if (x) { x.value = 0; x.dispatchEvent(new Event('input')); } }
           P.bw.vib = false; P.sx.vib = false;
           S.state().count = false;
           window.__pbSeconds = PRE + tr.bars * tr.time[0] * 4 / tr.time[1] * 60 / tr.tempo + 2.5; // long enough for the whole song
           P.init(); P.setVolume(1);
-          S.open(tr, 'auto'); S.halt();
+          S.open(tr, 'auto'); if (tp) S.transpose(tp); S.halt();
           const sg = S.state(), spb = S.spb(), ev = sg.plan.ev, key = P.TONAL[tab] ? P.TONAL[tab].key : 0;
           sg.plan.tune = []; // only the instrument's own part, so it can be measured alone
           const steps = ev.map((e) => [PRE + e.b * spb, () => S.fire(e, PRE + e.b * spb)]);
@@ -289,20 +411,22 @@ async function autoplayRows(browser, base, workers, tabs) {
           // drums and tabla: a hit is heard when the sound jumps at its time
           const times = [...new Set(ev.map((e) => at(e).toFixed(4)))].map(Number);
           return { peak, hits: times.map((t) => ({ t, before: rms((t - 0.012) * SR, (t - 0.001) * SR), after: rms((t + 0.001) * SR, (t + 0.03) * SR) })) };
-        }, { tab: ins.tab, id: tr.id, win: ins.win || [60, 150], type });
-        const errs = [], dB = (x) => 20 * Math.log10(x + 1e-12), shift = r.trKey ? ((r.key - keyPc(r.trKey)) % 12 + 12) % 12 : 0;
+        }, { tab: ins.tab, id: tr.id, win: ins.win || [60, 150], type, tp });
+        const errs = [], dB = (x) => 20 * Math.log10(x + 1e-12), shift = tp;
         let detail;
         if (r.notes) {
           let worst = 0;
+          // expected: the written note plus the transpose, moved by one whole number of octaves for the whole song
+          const oct = r.notes.length ? Math.round((r.notes[0].want - tr.notes[r.notes[0].i][2] - tp) / 12) : 0;
           r.notes.forEach((n) => {
-            const want = tr.notes[n.i][2] + shift;
-            if (pc(want) !== pc(n.want)) errs.push(`note ${n.i + 1}: plans ${NAMES[pc(n.want)]}, the key says ${NAMES[pc(want)]}`);
+            const want = tr.notes[n.i][2] + shift + 12 * oct;
+            if (want !== n.want) errs.push(`note ${n.i + 1}: plans ${NAMES[pc(n.want)]}${Math.floor(n.want / 12) - 1}, the track says ${NAMES[pc(want)]}${Math.floor(want / 12) - 1}`);
             if (!(n.f > 0)) { errs.push(`note ${n.i + 1}: no pitch`); return; }
             const c = 100 * (midiOf(n.f) - n.want);
             worst = Math.max(worst, Math.abs(c));
             if (Math.abs(c) > 5) errs.push(`note ${n.i + 1} (${NAMES[pc(n.want)]}): ${c.toFixed(1)} cents`);
           });
-          detail = `${r.notes.length} notes, worst ${worst.toFixed(1)} cents`;
+          detail = `${r.notes.length} notes, each measured within 5 cents of the track's own note${tp ? ' + ' + tp : ''}${oct ? ' (' + (oct > 0 ? '+' : '') + oct + ' octave)' : ''}, worst ${worst.toFixed(1)} cents`;
         } else if (r.strums) {
           const sh = shift > 6 ? shift - 12 : shift;
           let worstShare = 1;
@@ -328,8 +452,10 @@ async function autoplayRows(browser, base, workers, tabs) {
           detail = `${r.hits.length} hit times, each heard at its moment (smallest jump ${worst.toFixed(1)} dB)`;
         }
         if (dB(r.peak) > -0.5) errs.push(`peak ${dB(r.peak).toFixed(1)} dBFS`);
-        return row('songs', ins.tab, !errs.length, (errs.length ? errs.slice(0, 3).join('; ') + ' · ' : '') +
-          `auto-play (offline render of "${tr.title}"${r.trKey ? ' in ' + NAMES[r.key] : ''}): ${detail}, peak ${dB(r.peak).toFixed(1)} dBFS`, { errors: errs.length });
+        out.push(row('songs', ins.tab, !errs.length, (errs.length ? errs.slice(0, 3).join('; ') + ' · ' : '') +
+          `auto-play (offline render of "${tr.title}"${r.trKey ? ' in ' + NAMES[r.key] + (tp ? ', transposed +' + tp : ', its own key') : ''}): ${detail}, peak ${dB(r.peak).toFixed(1)} dBFS`, { part: 'autoplay', errors: errs.length }));
+       }
+       return out;
       } finally { await cur.context.close(); }
     }
   }));
@@ -391,7 +517,7 @@ async function timingRows(browser, base, tabs) {
 // What glows now, from the screen: each glowing target with a point to touch and what it is, and the song's place.
 // A key is touched low (where a finger plays it), a drum zone at its label, a fingerboard spot at its dot.
 function glowNow() {
-  const S = window.PocketBandTest.songs, sg = S.state(), tag = document.querySelector('.sgtag.show');
+  const S = window.PocketBandTest.songs, sg = S.state(), tag = document.querySelector('#sgTag.show');
   if (!sg.on || !sg.wEv) return null;
   const out = [];
   for (const e of sg.wGroup) {
@@ -421,6 +547,32 @@ function glowNow() {
   return { targets: out, label: tag ? tag.textContent : '', i: sg.wEv.i, b: sg.wEv.b };
 }
 const labelPc = (s) => { const m = /^([A-G])([♯♭]?)/.exec(s); return m ? (NAMES.indexOf(m[1] + m[2]) + 12) % 12 : -1; };
+// In the page: a key, hole or spot near the glowing one that plays a different note (a wrong key), where to touch it
+function wrongNow() {
+  const S = window.PocketBandTest.songs, sg = S.state(), e = sg.wGroup && sg.wGroup[0];
+  if (!e || e.k !== 'note') return null;
+  for (const d of [1, -1, 2, -2, 3, -3, 4, -4, 5, -5]) {
+    const m = e.m + d;
+    if (sg.wGroup.some((g) => ((g.m - m) % 12 + 12) % 12 === 0)) continue;
+    const tg = S.target(sg.tab, m);
+    if (!tg) continue;
+    let x, y;
+    if (tg.el) {
+      const r = tg.el.getBoundingClientRect(), key = /\b(key|bkey|mkey)\b/.test(tg.el.className);
+      x = r.left + r.width / 2; y = r.top + r.height * (key ? (/\b(bkey|sharp)\b/.test(tg.el.className) ? 0.6 : 0.8) : 0.5);
+      if (document.elementFromPoint(x, y) !== tg.el && !tg.el.contains(document.elementFromPoint(x, y))) continue;
+    } else { const c = S.point(tg); x = c.x; y = c.y; }
+    if (x < 2 || x > innerWidth - 2) continue;
+    return { x, y, m, i: sg.wEv.i, shakes: sg.shakes || 0 };
+  }
+  return null;
+}
+// Close the first-time hint the way a person does
+async function hintOk(page, touch) {
+  await page.waitForSelector('#sgHint:not([hidden])', { timeout: 5000 });
+  await tapSel(page, touch, '#sgHintOk');
+  await page.waitForSelector('#sgHint', { state: 'hidden', timeout: 5000 });
+}
 
 /* train: through the real sheet and real touches */
 async function trainRows(browser, base, workers, tabs) {
@@ -437,6 +589,9 @@ async function trainRows(browser, base, workers, tabs) {
         await tapSel(page, touch, '#songs');
         await page.waitForSelector(`.sgitem[data-id="${tr.id}"]`);
         await tapSel(page, touch, `.sgitem[data-id="${tr.id}"] [data-go="train"]`);
+        const level = await page.evaluate(() => document.getElementById('sgMode').value);
+        if (level !== 'wait') errs.push(`Train me opened at level ${level}, not Wait`);
+        await hintOk(page, touch);
         await page.waitForFunction(() => document.querySelector('.stage .sgnext, .sgdot.show.next'));
         const keyEl = await page.evaluate(() => { const k = document.getElementById('key'); return k && k.offsetParent ? +k.value : null; });
         const shift = keyEl === null ? 0 : ((keyEl - keyPc(tr.key)) % 12 + 12) % 12, sh = shift > 6 ? shift - 12 : shift;
@@ -449,7 +604,7 @@ async function trainRows(browser, base, workers, tabs) {
         else tr.hits.forEach((h) => TABLA[h[1]].forEach((s) => { if (ins.tab === 'tabla2' || !BAYAN.includes(s)) add(h[0], { stroke: s, bol: h[1] }); }));
         groups.sort((a, b) => a.b - b.b);
         const names = ins.tab === 'epad' ? await page.evaluate(() => window.PocketBandTest.EKITS[window.PocketBandTest.ep.kit].pads.map((p) => p[0])) : null;
-        let done = 0, worst = 0;
+        let done = 0, worst = 0, wrongs = 0;
         for (const grp of groups) {
           const g = await page.evaluate(glowNow);
           if (!g) { errs.push(`beat ${grp.b}: nothing glows`); break; }
@@ -458,7 +613,17 @@ async function trainRows(browser, base, workers, tabs) {
           const it = grp.items, lit = g.targets;
           if (lit.length !== it.length) errs.push(`beat ${grp.b}: ${lit.length} targets glow, the track has ${it.length}`);
           if (type === 'melody' || type === 'bass') {
-            if (labelPc(g.label) !== it[0].pc && !/^(Sa|Re|Ga|Ma|Pa|Dha|Ni)/i.test(g.label)) errs.push(`beat ${grp.b}: labelled ${g.label}, expected ${NAMES[it[0].pc]}`);
+            if (labelPc(g.label) !== it[0].pc) errs.push(`beat ${grp.b}: labelled ${g.label}, expected ${NAMES[it[0].pc]}`);
+            // on the first three notes a wrong key first: it shakes, and the song waits (three slips still leave the
+            // pass above 90%, three stars)
+            const w = done < 3 ? await page.evaluate(wrongNow) : null;
+            if (w) {
+              await touch.down(2, w.x, w.y); await sleep(ins.win[1] + 15); await touch.up(2); await sleep(60);
+              const after = await page.evaluate(() => { const sg = window.PocketBandTest.songs.state(); return { i: sg.wEv && sg.wEv.i, shakes: sg.shakes || 0 }; });
+              if (after.i !== w.i) errs.push(`beat ${grp.b}: a wrong key (${NAMES[pc(w.m)]}) moved the song on`);
+              else if (after.shakes <= w.shakes) errs.push(`beat ${grp.b}: a wrong key (${NAMES[pc(w.m)]}) did not shake`);
+              else wrongs++;
+            }
             const [m] = await playAndMeasure(page, touch, [lit[0]], { hold: ins.win[1] + 15, gap: 40, win: ins.win, fmin: type === 'bass' ? 28 : 40, fmax: ins.tab === 'xylo' ? 4200 : 2600 });
             if (!(m.f > 0)) errs.push(`beat ${grp.b}: touching the glowing target made no sound`);
             else {
@@ -493,12 +658,99 @@ async function trainRows(browser, base, workers, tabs) {
         const what = { melody: 'notes', bass: 'notes', chords: 'strums', drums: 'beats', tabla: 'matras and strokes' }[type];
         return row('songs', ins.tab, !errs.length, (errs.length ? errs.slice(0, 3).join('; ') + ' · ' : '') +
           `train (Wait, "${tr.title}"): ${done} of ${groups.length} ${what}: the right ` +
-          ({ melody: 'key, hole or spot glowed and was named; touching it played that note (measured, worst ' + worst.toFixed(1) + ' cents)',
-            bass: 'string and fret glowed and was named; touching it played that note (measured, worst ' + worst.toFixed(1) + ' cents)',
+          ({ melody: 'key, hole or spot glowed and was named; a wrong key first shook and the song waited (' + wrongs + ' times); touching the right one played that note (measured, worst ' + worst.toFixed(1) + ' cents)',
+            bass: 'string and fret glowed and was named; a wrong spot first shook and the song waited (' + wrongs + ' times); touching the right one played that note (measured, worst ' + worst.toFixed(1) + ' cents)',
             chords: 'chord button and strum pad glowed, named with the arrow; choosing it and strumming', drums: 'pads glowed; hitting them together',
             tabla: 'zones glowed, named by their bol; striking them' })[type] +
-          ` moved the song on; finished with ${end.res || 'no score'}, best score saved`, { steps: done });
+          ` moved the song on; finished with ${end.res || 'no score'}, best score saved`, { part: 'train', steps: done, wrongs });
       } catch (e) { return row('songs', ins.tab, false, 'train: ' + e.message.split('\n')[0]); } finally { await cur.context.close(); }
+    }
+  }));
+  return pool(browser, base, tasks, workers);
+}
+
+/* align: the falling bars, the glow and the badges stay on their keys at every screen size */
+const VIEWPORTS = [[568, 320], [667, 375], [800, 380], [915, 412], [1280, 720]];
+// In the page: one look at the Rhythm strip and the instrument
+function alignNow() {
+  const S = window.PocketBandTest.songs, sg = S.state(), strip = document.getElementById('sgStrip').getBoundingClientRect(), errs = [];
+  const view = [...document.querySelectorAll('.stage .view')].find((v) => v.offsetParent), V = view.getBoundingClientRect();
+  const top = (() => { const inner = view.firstElementChild ? view.firstElementChild.getBoundingClientRect() : V; return Math.max(V.top, inner.top); })();
+  if (Math.abs(top - strip.bottom) > 12) errs.push(`the hit-line is ${(top - strip.bottom).toFixed(0)} px above the instrument`);
+  const byI = {}; sg.plan.ev.forEach((e) => { byI[e.i] = e; });
+  let worst = 0, painted = 0;
+  const cv = document.getElementById('sgStripCv'), g = cv.getContext('2d'), k = cv.width / strip.width;
+  sg.bars.forEach((b) => {
+    const e = byI[b.i], c = S.point(e.tg), w = e.tg.el ? e.tg.el.getBoundingClientRect().width : 26, off = Math.abs(b.left + b.x - c.x);
+    worst = Math.max(worst, off);
+    if (off > 1) errs.push(`bar ${b.i + 1} is ${off.toFixed(1)} px off its ${e.lab} (drawn at ${(b.left + b.x).toFixed(0)}, key at ${c.x.toFixed(0)}, scroll ${view.scrollLeft}/${view.scrollWidth - view.clientWidth}, frame age ${(performance.now() - sg.barsAt).toFixed(0)} ms)`);
+    if (b.w > w + 0.5) errs.push(`bar ${b.i + 1} is wider (${b.w.toFixed(0)} px) than its key (${w.toFixed(0)} px)`);
+    // and the bar really is painted there, in its key's colour (just above its lower edge, off its label)
+    const y = b.y - 3, x = b.x + b.w / 2 - 4;
+    if (y > 2 && y < strip.height - 44 && x > 0 && x < strip.width) { // (clear of the feedback words over the hit-line)
+      const p = g.getImageData(Math.round(x * k), Math.round(y * k), 1, 1).data, m = /(\d+)\D+(\d+)\D+(\d+)/.exec(e.tg.col ? e.tg.col.fill : '');
+      if (m && Math.max(Math.abs(p[0] - m[1]), Math.abs(p[1] - m[2]), Math.abs(p[2] - m[3])) > 40) errs.push(`bar ${b.i + 1}: the strip shows rgb(${p[0]},${p[1]},${p[2]}) where its ${e.tg.col.fill} bar should be`);
+      else painted++;
+    }
+  });
+  // a keyboard's keys stay in order while they glow (a glowing key must not jump out of its place)
+  const keys = [...view.querySelectorAll('[data-midi]')].filter((k) => k.closest('.manual') === view.querySelector('[data-midi]').closest('.manual'));
+  const xs = keys.map((k) => [+k.dataset.midi, k.getBoundingClientRect()]).sort((a, b) => a[0] - b[0]);
+  for (let j = 1; j < xs.length; j++) if (xs[j][1].left + xs[j][1].width / 2 <= xs[j - 1][1].left + xs[j - 1][1].width / 2) { errs.push(`key ${xs[j][0]} is out of place (left of ${xs[j - 1][0]})`); break; }
+  // what glows is the next note due (and is on screen)
+  sg.glow.forEach((tg) => {
+    if (!tg.el) return;
+    const r = tg.el.getBoundingClientRect();
+    if (r.right < V.left - 1 || r.left > V.right + 1) errs.push('a glowing key is scrolled out of view');
+  });
+  return { bars: sg.bars.length, painted, worst, errs, glow: sg.glow.length, strip: strip.height };
+}
+function badgeNow() {
+  const S = window.PocketBandTest.songs, sg = S.state(), tag = document.getElementById('sgTag'), errs = [];
+  if (!sg.glow.length) return { errs: ['nothing glows in Wait'] };
+  const tg = sg.glow[0], t = tag.getBoundingClientRect(), cx = t.left + t.width / 2;
+  if (!tag.classList.contains('show')) errs.push('no badge');
+  if (tg.el) { const r = tg.el.getBoundingClientRect(); if (cx < r.left - 1 || cx > r.right + 1) errs.push(`the badge (x ${cx.toFixed(0)}) is off its key (${r.left.toFixed(0)}-${r.right.toFixed(0)})`); }
+  else { const c = S.point(tg); if (Math.abs(cx - c.x) > 2 && cx > 30 && cx < innerWidth - 30) errs.push('the badge is off its spot'); }
+  return { errs, label: tag.textContent };
+}
+async function alignRows(browser, base, workers, tabs) {
+  const lib = loadTracks();
+  const melodic = pickList(tabs).filter((i) => typeOf(i.tab) === 'melody' || typeOf(i.tab) === 'bass');
+  const tasks = melodic.map((ins) => ({
+    tab: ins.tab, check: 'songs', fresh: true,
+    run: async () => {
+      const id = typeOf(ins.tab) === 'bass' ? 'bs-canon' : ins.tab === 'piano' ? 'danube' : 'ode', errs = [], seen = [];
+      let bars = 0, painted = 0, worst = 0, scrolled = false;
+      for (const [w, h] of VIEWPORTS) {
+        const cur = await openWithHooks(browser, base, ins.tab, 'try { localStorage.setItem("pb-trainhint", "1"); } catch (e) {}', { width: w, height: h });
+        try {
+          await cur.page.evaluate(async (id) => {
+            const P = window.PocketBandTest, S = P.songs, lib = await S.load();
+            P.init(); S.open(lib.find((t) => t.id === id), 'train', 'rhythm');
+          }, id);
+          for (let k = 0; k < 7; k++) {
+            await sleep(450);
+            const a = await cur.page.evaluate(alignNow);
+            bars += a.bars; painted += a.painted; worst = Math.max(worst, a.worst);
+            a.errs.forEach((e) => errs.push(`${w}x${h}: ${e}`));
+          }
+          scrolled = scrolled || await cur.page.evaluate(() => { const v = document.querySelector('.view.zoomed'); return !!v && v.scrollWidth > v.clientWidth + 1; });
+          // Wait: the big badge sits on the glowing key
+          await cur.page.selectOption('#sgMode', 'wait');
+          await sleep(150);
+          const b = await cur.page.evaluate(badgeNow);
+          b.errs.forEach((e) => errs.push(`${w}x${h} Wait: ${e}`));
+          seen.push(`${w}x${h}`);
+        } catch (e) { errs.push(`${w}x${h}: ${e.message.split('\n')[0]}`); } finally { await cur.context.close(); }
+        if (errs.length > 4) break;
+      }
+      if (!bars) errs.push('no bars fell');
+      else if (painted < bars / 3) errs.push(`only ${painted} of ${bars} bars could be found painted on the strip`);
+      return row('songs', ins.tab, !errs.length, (errs.length ? [...new Set(errs)].slice(0, 3).join('; ') + ' · ' : '') +
+        `align (Rhythm, "${lib.find((t) => t.id === id).title}", ${seen.join(', ')}): ${bars} falling bars checked, each centred on its target within ${worst.toFixed(1)} px and no wider (${painted} read back from the strip's pixels in their key's colour); ` +
+        `the hit-line sits on the instrument; what glows is on screen; the Wait badge sits on its key` + (scrolled ? '; the zoomed keyboard scrolled sideways on the narrow screens and stayed aligned' : ''),
+        { part: 'align', bars, worstPx: +worst.toFixed(2) });
     }
   }));
   return pool(browser, base, tasks, workers);
@@ -564,6 +816,7 @@ async function storageRows(browser, base) {
     await tapSel(page, touch, '#songs');
     await page.waitForSelector('.sgitem[data-id="mary"]');
     await tapSel(page, touch, '.sgitem[data-id="mary"] [data-go="train"]');
+    await hintOk(page, touch);
     for (let i = 0; i < 30; i++) {
       const g = await page.evaluate(glowNow);
       if (!g || !g.targets) break;
@@ -580,8 +833,9 @@ async function storageRows(browser, base) {
 export default async function songs({ browser, base, workers, tabs, progress }) {
   const rows = [];
   rows.push(...trackRows());
-  for (const [name, fn] of [['fit', () => fitRows(browser, base, workers, tabs)], ['autoplay', () => autoplayRows(browser, base, workers, tabs)],
-    ['timing', () => timingRows(browser, base, tabs)], ['train', () => trainRows(browser, base, workers, tabs)],
+  for (const [name, fn] of [['fit', () => fitRows(browser, base, workers, tabs)], ['transpose', () => transposeRows(browser, base, workers, tabs)],
+    ['autoplay', () => autoplayRows(browser, base, workers, tabs)],
+    ['timing', () => timingRows(browser, base, tabs)], ['train', () => trainRows(browser, base, workers, tabs)], ['align', () => alignRows(browser, base, workers, tabs)],
     ['stop', () => stopRows(browser, base, workers, tabs)], ['storage', () => storageRows(browser, base)]]) {
     if (process.env.SONGS_PARTS && !process.env.SONGS_PARTS.split(',').includes(name)) continue;
     if (progress) progress('songs: ' + name);

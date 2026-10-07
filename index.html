@@ -546,6 +546,7 @@ body:not(.song) .sgover { display: none; }
 .sgnext { box-shadow: inset 0 0 0 5px var(--key-on), 0 0 18px 5px var(--key-on) !important; animation: sgpulse .9s ease-in-out infinite alternate; position: relative; z-index: 3; }
 .sgsoon:not(.sgnext) { box-shadow: inset 0 0 0 3px color-mix(in srgb, var(--key-on) 45%, transparent) !important; }
 .bkey.sgnext, .mkey.sharp.sgnext { z-index: 4; }
+.bkey.sgnext { position: absolute; } /* a black key keeps its place on the keyboard while it glows */
 .key.sgnext { background: linear-gradient(color-mix(in srgb, var(--key-on) 30%, var(--key)), var(--key) 70%); }
 .tabla .z.sgnext { stroke: var(--key-on); stroke-width: 6; box-shadow: none !important; }
 @keyframes sgpulse { from { filter: brightness(1); } to { filter: brightness(1.18); } }
@@ -4915,7 +4916,8 @@ body:not(.song) .sgover { display: none; }
       // whole octaves only: the octave where most of the song sits in the instrument's range (or on its layout),
       // the written one when that is as good
       var R = SONG_RANGE[tab] || [36, 96], fixed = !SONG_ROWS[tab] && tab !== 'piano' && tab !== 'synth' && tab !== 'organ', set = fixed ? layoutSet(tab) : null, bestO = 0, bestN = -1;
-      [0, 1, -1, 2, -2, 3, -3].forEach(function (o) {
+      // (a new Scale or Remap keeps the octave it had, so the song's notes don't jump)
+      (sg.keepOct !== undefined ? [sg.keepOct] : [0, 1, -1, 2, -2, 3, -3]).forEach(function (o) {
         var n = 0;
         ms.forEach(function (m) { var k = m + 12 * o; if (fixed ? set[k] : k >= R[0] && k <= R[1]) n++; });
         if (n > bestN) { bestN = n; bestO = o; }
@@ -5251,7 +5253,7 @@ body:not(.song) .sgover { display: none; }
     sg.raf = 0;
     var R = overRect(), g = fitCanvas(sgLane, R), lane = stripOn(), S = lane ? sgStrip.getBoundingClientRect() : null, gs = lane ? fitCanvas(sgStripCv, S) : null;
     var timed = sg.on && !sg.paused && sg.mode === 'train' && sg.level !== 'wait' && ctx;
-    sg.bars = [];
+    sg.bars = []; sg.barsAt = performance.now();
     if (lane) { // the hit-line, where each bar lands as its note comes due
       var hitY = S.height - 2;
       gs.fillStyle = getComputedStyle(document.body).getPropertyValue('--key-on') || '#f2b134';
@@ -5645,7 +5647,7 @@ body:not(.song) .sgover { display: none; }
   }
   function songTranspose(tp) { sg.tp = clamp(tp, -6, 6); songRefit(); }
   // The Scale menu moved: the song keeps its notes unless the player picks Remap
-  function songSetScale(sc) { sg.scale = sc === sg.tr.mode ? null : sc; if (!sg.scale) sg.remap = false; songRefit(); }
+  function songSetScale(sc) { sg.scale = sc === sg.tr.mode ? null : sc; if (!sg.scale) sg.remap = false; songRefit(true); }
   function songReset() { sg.tp = 0; sg.scale = null; sg.remap = false; songRefit(); }
   // The zoomed keyboard's scroll slider (shown when the song is wider than the screen)
   function songPanSync() {
@@ -5686,11 +5688,13 @@ body:not(.song) .sgover { display: none; }
     songPanSync();
   }
   // The key or scale changed while a song is open: fit it again
-  function songRefit() {
+  // sameOct: only the Scale or Remap changed, so the song stays in the octave it was in
+  function songRefit(sameOct) {
     if (!sg.tr || sg.tab !== state.tab) return;
     var was = sg.on;
     songHalt();
-    sg.plan = fitTrack(sg.tr, sg.tab);
+    if (sameOct && sg.plan) sg.keepOct = sg.plan.oct;
+    try { sg.plan = fitTrack(sg.tr, sg.tab); } finally { delete sg.keepOct; }
     songHeader(sg.tab);
     songKeyUi();
     $('sgWarn').textContent = sg.plan.warn; $('sgWarn').hidden = !sg.plan.warn;
@@ -5778,8 +5782,8 @@ body:not(.song) .sgover { display: none; }
     $('sgTpDown').onclick = function () { songTranspose(sg.tp - 1); };
     $('sgTpUp').onclick = function () { songTranspose(sg.tp + 1); };
     $('sgReset').onclick = songReset;
-    $('sgKeep').onclick = function () { if (sg.remap) { sg.remap = false; songRefit(); } };
-    $('sgRemap').onclick = function () { if (!sg.remap) { sg.remap = true; songRefit(); } };
+    $('sgKeep').onclick = function () { if (sg.remap) { sg.remap = false; songRefit(true); } };
+    $('sgRemap').onclick = function () { if (!sg.remap) { sg.remap = true; songRefit(true); } };
     $('sgLabels').addEventListener('click', function (e) { var b = e.target.closest('[data-lab]'); if (b) { setLabels(b.dataset.lab); songKeyUi(); } });
     $('sgPan').oninput = function () { $('piano').parentNode.scrollLeft = +this.value; };
     $('piano').parentNode.addEventListener('scroll', function () { rects = {}; songRetag(); songPanSync(); sgLaneKick(); }, { passive: true });
@@ -5844,7 +5848,9 @@ body:not(.song) .sgover { display: none; }
       songs: { load: loadSongs, lib: function () { return songLib; }, fit: fitTrack, open: songOpen, close: songClose, start: songStart,
                halt: songHalt, state: function () { return sg; }, fire: songFire, heard: songHeard, target: songTarget, layoutSet: layoutSet,
                type: songType, suits: songSuits, spb: spb, setSched: function (t) { SCHED = t; }, transpose: songTranspose,
-               setKey: songSetKey, setScale: songSetScale, reset: songReset, notes: songNotes, remap: remapNote, hintDone: songHintDone },
+               setKey: songSetKey, setScale: songSetScale, reset: songReset, notes: songNotes, remap: remapNote, hintDone: songHintDone,
+               // where a target is on the screen (client pixels): its centre, top, width and height
+               point: function (tg) { return tgCentre(tg, { left: 0, top: 0 }); } },
       // A fresh audio context for each render: forget every node made for the last one
       reset: function () {
         silenceAll();
