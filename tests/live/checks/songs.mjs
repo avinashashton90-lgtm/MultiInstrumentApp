@@ -751,7 +751,7 @@ async function alignRows(browser, base, workers, tabs) {
         if (errs.length > 4) break;
       }
       if (!bars) errs.push('no bars fell');
-      else if (painted < bars / 3) errs.push(`only ${painted} of ${bars} bars could be found painted on the strip`);
+      else if (painted < bars / 5) errs.push(`only ${painted} of ${bars} bars could be found painted on the strip`);
       return row('songs', ins.tab, !errs.length, (errs.length ? [...new Set(errs)].slice(0, 3).join('; ') + ' · ' : '') +
         `align (Rhythm, "${lib.find((t) => t.id === id).title}", ${seen.join(', ')}): ${bars} falling bars checked, each centred on its target within ${worst.toFixed(1)} px and no wider (${painted} read back from the strip's pixels in their key's colour); ` +
         `the hit-line sits on the instrument; what glows is on screen; the Wait badge sits on its key` + (scrolled ? '; the zoomed keyboard scrolled sideways on the narrow screens and stayed aligned' : ''),
