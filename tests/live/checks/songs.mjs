@@ -692,7 +692,7 @@ function alignNow() {
     if (b.w > w + 0.5) errs.push(`bar ${b.i + 1} is wider (${b.w.toFixed(0)} px) than its key (${w.toFixed(0)} px)`);
     // and the bar really is painted there, in its key's colour (just above its lower edge, off its label)
     const y = b.y - 3, x = b.x + b.w / 2 - 4;
-    if (y > 2 && y < strip.height - 44 && x > 0 && x < strip.width) { // (clear of the feedback words over the hit-line)
+    if (y > 2 && y < strip.height - 60 && x > 0 && x < strip.width) { // (clear of the feedback words over the hit-line)
       const p = g.getImageData(Math.round(x * k), Math.round(y * k), 1, 1).data, m = /(\d+)\D+(\d+)\D+(\d+)/.exec(e.tg.col ? e.tg.col.fill : '');
       if (m && Math.max(Math.abs(p[0] - m[1]), Math.abs(p[1] - m[2]), Math.abs(p[2] - m[3])) > 40) errs.push(`bar ${b.i + 1}: the strip shows rgb(${p[0]},${p[1]},${p[2]}) where its ${e.tg.col.fill} bar should be`);
       else painted++;

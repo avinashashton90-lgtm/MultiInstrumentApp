@@ -3051,7 +3051,7 @@ body:not(.song) .sgover { display: none; }
   // Pitch for a finger at fx (0-1 across the fingerboard) on string i; snapped to the scale when asked
   function bowPitch(i, fx) {
     var C = BOWCFG[bw.tab], s = clamp(fx * (BOW_SPAN + 1) - 0.5, 0, BOW_SPAN), m = C.open[i] + s;
-    if (!bw.snap) return m;
+    if (!bw.snap || (sg.tr && sg.tab === bw.tab)) return m;   // a song wants the exact fret, like Scale lock
     var st = TONAL[bw.tab];
     return T.snap(m, st.key, st.scale, C.open[i], C.open[i] + BOW_SPAN);
   }
@@ -3936,7 +3936,7 @@ body:not(.song) .sgover { display: none; }
   }
   function ebNote(str, x) {
     var f = clamp(Math.floor(x / eb.rect.width * (EB_FRETS + 1)), 0, EB_FRETS), m = EB_OPEN[str] + f, st = TONAL.ebass;
-    return eb.snap ? T.snap(m, st.key, st.scale, EB_OPEN[str], EB_OPEN[str] + EB_FRETS) : m;
+    return eb.snap && !(sg.tr && sg.tab === 'ebass') ? T.snap(m, st.key, st.scale, EB_OPEN[str], EB_OPEN[str] + EB_FRETS) : m;
   }
   function ebLight() {
     var on = {};
