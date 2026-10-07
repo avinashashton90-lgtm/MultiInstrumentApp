@@ -254,6 +254,9 @@ iframe.app { position: fixed; left: -10000px; top: 0; width: 900px; height: 420p
           P.open(r.tab); P.reset();
           w.__pbSeconds = PRE + SECS + 1.5; w.__pbSeed = 1;
           S.state().count = false;
+          // the dry sound, as the live check measures it: a long note's reverb tail would pull the next note's pitch
+          ['rev', 'irev'].forEach(function (id) { var el = w.document.getElementById(id); if (el) { el.value = 0; el.dispatchEvent(new w.Event('input')); } });
+          if (P.bw) P.bw.vib = false; if (P.sx) P.sx.vib = false;
           P.init(); P.setVolume(1);
           var res = { name: r.name, problems: [] }, list = lib.filter(function (t) { return S.suits(t, r.tab); }), missing = 0, events = 0;
           list.forEach(function (t) { S.open(t, 'train', 'wait'); missing += S.state().plan.missing; events += S.state().plan.ev.length; S.close(); });
@@ -269,17 +272,20 @@ iframe.app { position: fixed; left: -10000px; top: 0; width: 900px; height: 420p
           sg.plan.tune = [];
           var steps = ev.map(function (e) { return [PRE + e.b * spb, function () { S.fire(e, PRE + e.b * spb); }]; });
           return w.__pbRender(steps).then(function (buf) {
-            var x = mono(buf), sr = buf.sampleRate, worst = 0, bad = 0, seen = {};
+            var x = mono(buf), sr = buf.sampleRate, worst = 0, bad = 0, seen = {}, badAt = [];
             var rms = function (a, b) { var s2 = 0; a = Math.max(0, Math.round(a)); b = Math.round(b); for (var k = a; k < b; k++) s2 += x[k] * x[k]; return Math.sqrt(s2 / Math.max(1, b - a)); };
             ev.forEach(function (e) {
               var t = PRE + e.b * spb;
               if (e.k === 'note') {
                 var xy = r.tab === 'xylo', a = Math.round((t + (xy ? 0.01 : Math.min(0.25, e.d * spb * 0.25))) * sr), b = Math.round((t + (xy ? 0.12 : Math.max(0.2, Math.min(0.6, e.d * spb * 0.85)))) * sr), fs = []; // a bar rings briefly
-                for (var q = 0; q < 3; q++) { var f = pitch(x, sr, Math.round(a + q * (b - a) / 3), Math.round(a + (q + 1) * (b - a) / 3) + 1500, type === 'bass' ? 28 : 45, 2600); if (f > 0) fs.push(f); }
+                // four stretches, the middle two averaged (as the live check does): a stretch can catch the horn's
+                // slur from the last note or a bowed chorus leaning sharp or flat
+                for (var q = 0; q < 4; q++) { var f = pitch(x, sr, Math.round(a + q * (b - a) / 4), Math.round(a + (q + 1) * (b - a) / 4) + 1500, type === 'bass' ? 28 : 45, 2600); if (f > 0) fs.push(Math.log2(f)); }
                 fs.sort(function (p, q2) { return p - q2; });
-                var c = fs.length ? 100 * (69 + 12 * Math.log2(fs[Math.floor(fs.length / 2)] / 440) - e.m) : 999;
+                var mid = fs.length > 2 ? fs.slice(1, -1) : fs;
+                var c = mid.length ? 100 * (69 + 12 * (mid.reduce(function (p, q2) { return p + q2; }, 0) / mid.length - Math.log2(440)) - e.m) : 999;
                 worst = Math.max(worst, Math.abs(c));
-                if (!(Math.abs(c) <= 5)) bad++;
+                if (!(Math.abs(c) <= 5)) { bad++; badAt.push('MIDI ' + e.m + ' at beat ' + e.b + ': ' + (c === 999 ? 'no pitch' : c.toFixed(0) + ' cents')); }
               } else if (!seen[t.toFixed(4)]) { // a hit: the sound jumps at its moment; a strum (whose strings follow one another) sounds
                 seen[t.toFixed(4)] = 1;
                 if (e.k === 'chord') { if (!(db(rms((t + 0.01) * sr, (t + 0.1) * sr)) > -40)) bad++; }
@@ -288,7 +294,7 @@ iframe.app { position: fixed; left: -10000px; top: 0; width: 900px; height: 420p
             });
             var n = ev.filter(function (e) { return e.k === 'note'; }).length;
             res.measured = n ? n + ' notes, worst ' + worst.toFixed(1) + ' cents' : Object.keys(seen).length + ' ' + (type === 'chords' ? 'strums sounding' : 'hits on time');
-            if (bad) res.problems.push(bad + (n ? ' notes out of tune' : ' strums or hits not heard at their time'));
+            if (bad) res.problems.push(bad + (n ? ' notes out of tune (' + badAt.slice(0, 3).join(', ') + ')' : ' strums or hits not heard at their time'));
             res.pass = !res.problems.length;
             songResults.push(res);
             var row = document.createElement('tr');
