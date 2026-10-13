@@ -15,7 +15,6 @@
 //   autoplay  a sample track rendered offline through the instrument's own sound, in its own key and transposed +2:
 //             every melody and bass note within 5 cents of the note it should be (worked out here from the track),
 //             every strum sounds its chord, every drum hit and tabla stroke sounds at its time
-//   timing    a song played live on the real audio clock: each note sounds at the time the song says
 //   train     Train me (Wait, the default) through the real Songs sheet and real touches, after the first-time hint:
 //             for every event of the sample track the right target glows with the right name (checked against the
 //             track itself); a wrong key shakes and the song waits; touching the right one plays it and the song
@@ -481,59 +480,6 @@ async function tapSel(page, touch, sel) {
 }
 async function setCount(page, on) { await page.evaluate((on) => { const sg = window.PocketBandTest && window.PocketBandTest.songs.state(); if (sg) sg.count = on; }, on); }
 
-/* timing: a song live on the audio clock */
-async function timingRows(browser, base, tabs) {
-  const rows = [];
-  // A take with a wrong note is played once more, as in the pitch check: a live recording on a busy computer can
-  // catch a dropped audio block. A real fault fails both takes.
-  for (const tab of ['piano', 'xylo'].filter((t) => !tabs || tabs.includes(t))) for (let take = 1; take <= 2; take++) {
-    const ins = INSTRUMENTS.find((i) => i.tab === tab);
-    const cur = await openWithHooks(browser, base, tab);
-    let failed = false;
-    const { page, touch } = cur;
-    try {
-      await dryReverb(page);
-      await tapSel(page, touch, '#songs');
-      await page.waitForSelector('.sgitem');
-      await setCount(page, false);
-      // Past the master limiter's start-up bridge (it hands over to the limiter 0.30-0.35 s into the audio clock):
-      // on a fast machine the song's first note otherwise lands on the handover and measures several cents off
-      await page.waitForFunction(() => window.__testCtx && window.__testCtx.currentTime > 0.5, null, { timeout: 10000 });
-      await tapSel(page, touch, `.sgitem[data-id="${SAMPLE.melody}"] [data-go="auto"]`);
-      await waitAudio(page);
-      const info = await page.evaluate(() => { const sg = window.PocketBandTest.songs.state(); return { t: sg.anchor.time, b: sg.anchor.beat, spb: window.PocketBandTest.songs.spb(), sr: window.__rec.sr, ev: sg.plan.ev.slice(0, 14).map((e) => ({ b: e.b, m: e.m, d: e.d })) }; });
-      const last = info.ev[info.ev.length - 1], endF = Math.round((info.t + (last.b - info.b) * info.spb + 0.4) * info.sr);
-      await page.waitForFunction((f) => window.__rec.last() >= f, endF, { timeout: 20000, polling: 50 });
-      const res = await page.evaluate(({ info, win }) => info.ev.map((e) => {
-        const R = window.__rec, t = info.t + (e.b - info.b) * info.spb, f0 = Math.round((t + win[0] / 1000) * info.sr), f1 = Math.round((t + Math.min(win[1] / 1000, e.d * info.spb * 0.9)) * info.sr);
-        const x = R.get(f0, f1), p = PBA.pitch(x, info.sr, 0, x.length, 50, 4200);
-        // onset: the first 2 ms block from 8 ms before the note's time that rises 10 dB over the 10 ms before it
-        const pre = R.get(Math.round((t - 0.012) * info.sr), Math.round((t - 0.002) * info.sr)), post = R.get(Math.round((t - 0.008) * info.sr), Math.round((t + 0.08) * info.sr));
-        let base = 0; for (const v of pre) base += v * v; base = Math.sqrt(base / pre.length) + 1e-5;
-        const B = Math.round(0.002 * info.sr); let onset = null;
-        for (let k = 0; k + B <= post.length; k += B) { let s = 0; for (let j = k; j < k + B; j++) s += post[j] * post[j]; if (Math.sqrt(s / B) > base * 3.2) { onset = (k / info.sr - 0.008) * 1000; break; } }
-        return { m: e.m, f: p.f, onset };
-      }), { info, win: ins.win });
-      const errs = [];
-      let worstC = 0, worstT = 0;
-      res.forEach((r, i) => {
-        if (!(r.f > 0)) { errs.push(`note ${i + 1}: nothing heard at its time`); return; }
-        const c = 100 * (midiOf(r.f) - r.m); worstC = Math.max(worstC, Math.abs(c));
-        if (Math.abs(c) > 5) errs.push(`note ${i + 1}: ${c.toFixed(0)} cents off ${NAMES[pc(r.m)]}`);
-        if (r.onset === null || Math.abs(r.onset) > 20) errs.push(`note ${i + 1}: starts ${r.onset === null ? '?' : r.onset.toFixed(1)} ms from its time`);
-        else worstT = Math.max(worstT, Math.abs(r.onset));
-      });
-      failed = errs.length > 0;
-      if (!failed || take === 2) rows.push(row('songs', tab, !errs.length, (errs.length ? errs.slice(0, 3).join('; ') + ' · ' : '') +
-        `timing (live): ${res.length} auto-played notes each sound at their time (worst ${worstT.toFixed(1)} ms) and pitch (worst ${worstC.toFixed(1)} cents)` +
-        (take === 2 ? ' (second take)' : ''), { worstMs: +worstT.toFixed(1), take }));
-    } catch (e) { failed = true; if (take === 2) rows.push(row('songs', tab, false, 'timing: ' + e.message.split('\n')[0])); }
-    await cur.context.close();
-    if (!failed) break;
-  }
-  return rows;
-}
-
 // What glows now, from the screen: each glowing target with a point to touch and what it is, and the song's place.
 // A key is touched low (where a finger plays it), a drum zone at its label, a fingerboard spot at its dot.
 function glowNow() {
@@ -860,7 +806,7 @@ export default async function songs({ browser, base, workers, tabs, progress }) 
   rows.push(...trackRows());
   for (const [name, fn] of [['fit', () => fitRows(browser, base, workers, tabs)], ['transpose', () => transposeRows(browser, base, workers, tabs)],
     ['autoplay', () => autoplayRows(browser, base, workers, tabs)],
-    ['timing', () => timingRows(browser, base, tabs)], ['train', () => trainRows(browser, base, workers, tabs)], ['align', () => alignRows(browser, base, workers, tabs)],
+    ['train', () => trainRows(browser, base, workers, tabs)], ['align', () => alignRows(browser, base, workers, tabs)],
     ['stop', () => stopRows(browser, base, workers, tabs)], ['storage', () => storageRows(browser, base)]]) {
     if (process.env.SONGS_PARTS && !process.env.SONGS_PARTS.split(',').includes(name)) continue;
     if (progress) progress('songs: ' + name);

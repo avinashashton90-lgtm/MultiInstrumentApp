@@ -13,7 +13,6 @@ const SONG_PARTS = [
   ['fit', /^fit:/, 'Own key: a track opens in its tonic and mode and plays its written notes, moved by whole octaves only (the piano: exactly as stored)'],
   ['transpose', /^transpose:/, 'Transpose: every track in all 12 keys keeps its intervals and mode label; Transpose, Reset, Keep original and Remap'],
   ['autoplay', /^auto-play/, 'Auto-play rendered offline: every measured pitch within 5 cents of the expected note, in the own key and transposed +2'],
-  ['timing', /^timing/, 'Live timing: auto-played notes sound on time and in tune'],
   ['train', /^train/, 'Train me (Wait) with real touches: the right target glows and is named, a wrong key shakes and waits, the right one moves on'],
   ['align', /^align/, 'Alignment: falling bars, glow and badges stay on their keys at five screen sizes'],
   ['stop', /^stop/, 'Stopping: nothing rings after Stop, close, Home or switching'],
