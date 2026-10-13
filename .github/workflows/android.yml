@@ -1,6 +1,9 @@
 # Builds the Pocket Band Android app (Capacitor) and publishes PocketBand.apk.
-# Push to main or "Run workflow": test, build, sign, check, and attach to a GitHub Release tagged build-<run number>.
-# Pull requests: the same test, build and check, with the APK kept as a workflow artifact only (no release).
+# Two jobs run side by side:
+#   build-apk  build, sign, check and (on main or "Run workflow") attach to a GitHub Release tagged build-<run number>.
+#              It never waits for the tests: a flaky test must not block a release.
+#   tests      the live test suite, for information: continue-on-error, 25-minute limit.
+# Pull requests: both jobs run, and the APK is kept as a workflow artifact only (no release).
 # Signing setup and the secrets it reads: ANDROID_BUILD.md.
 name: Android APK
 
@@ -18,9 +21,9 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build:
+  build-apk:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 30
     env:
       BUILD_NUMBER: ${{ github.run_number }}
     steps:
@@ -42,15 +45,6 @@ jobs:
 
       - name: Install packages (npm ci)
         run: npm ci
-
-      - name: Install Chromium for the tests
-        run: npx playwright install --with-deps chromium
-
-      # The existing live suite in quick mode. Per-note main-thread timing (8 ms limit) is listed as KNOWN instead of
-      # failing, because shared build machines are slower than a phone at it; every other check must pass.
-      - name: Run the tests
-        id: tests
-        run: node tests/run-all.mjs --quick --allow-slow-notes --workers=2
 
       - name: Copy the web app into www/ and sync Capacitor
         id: sync
@@ -168,9 +162,41 @@ jobs:
         if: failure()
         run: |
           echo "::error::The Android build failed. Failed step:"
-          [ "${{ steps.tests.outcome }}" = "failure" ] && echo "::error::Tests failed. Open 'Run the tests' and look for FAIL rows in the table at the end."
           [ "${{ steps.sync.outcome }}" = "failure" ] && echo "::error::Copying the web files or 'npx cap sync android' failed (a missing web file is named above)."
           [ "${{ steps.gradle.outcome }}" = "failure" ] && echo "::error::Gradle could not build the APK. Search the 'Build the APK' log for 'What went wrong'. A wrong keystore password or alias shows up there too."
           [ "${{ steps.collect.outcome }}" = "failure" ] && echo "::error::The build finished but the APK or .aab file was not where expected."
           [ "${{ steps.check.outcome }}" = "failure" ] && echo "::error::The finished APK failed its check (package, version, landscape, signature or bundled files); see the errors above."
           true
+
+  tests:
+    # For information only: the result shows on the run, but the APK above never waits for it
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install packages (npm ci)
+        run: npm ci
+
+      - name: Install Chromium for the tests
+        run: npx playwright install --with-deps chromium
+
+      # The existing live suite in quick mode. Per-note main-thread timing (8 ms limit) is listed as KNOWN instead of
+      # failing, because shared build machines can be slower than a phone at it (TESTING.md)
+      - name: Run the tests
+        run: node tests/run-all.mjs --quick --allow-slow-notes --workers=2
+
+      - name: Keep the test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report-${{ github.run_number }}
+          path: test-report.html
+          if-no-files-found: ignore

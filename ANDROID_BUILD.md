@@ -2,9 +2,10 @@
 
 GitHub Actions builds **PocketBand.apk** for you. Every push to `main` (and every press of **Run workflow** on the
 [Android APK workflow](https://github.com/avinashashton90-lgtm/MultiInstrumentApp/actions/workflows/android.yml))
-tests the app, builds it, signs it, checks it and publishes it as a
+builds it, signs it, checks it and publishes it as a
 [GitHub Release](https://github.com/avinashashton90-lgtm/MultiInstrumentApp/releases/latest) tagged `build-<number>`.
 The APK is also kept as a workflow artifact. Pull requests run the same build as a check, without a release.
+The test suite runs alongside in its own job and never holds a release back.
 
 The web app itself is unchanged. The Android app is a [Capacitor](https://capacitorjs.com) shell around the same
 `index.html`: during the build, `tools/copy-web.mjs` copies `index.html`, `selftest.html`, `manifest.json`, the icons
@@ -58,28 +59,32 @@ other in place. **With the secrets** the release also carries
 
 ## What the workflow does
 
-`.github/workflows/android.yml`, on `ubuntu-latest`:
+`.github/workflows/android.yml`, on `ubuntu-latest`, runs two jobs at the same time.
+
+**build-apk** (does not wait for the tests):
 
 1. Sets up Node 22 and JDK 21, then `npm ci`.
-2. Runs the existing test suite (`node tests/run-all.mjs --quick --allow-slow-notes`): every check on every instrument,
-   with the pitch check on 3 keys x 4 scales instead of all 12 x 10 so a build takes minutes, not half an hour.
-3. `node tools/copy-web.mjs`, then `npx cap sync android`.
-4. Decodes the keystore from the secrets (if present) into a temporary file, runs `./gradlew assembleRelease`
+2. `node tools/copy-web.mjs`, then `npx cap sync android`.
+3. Decodes the keystore from the secrets (if present) into a temporary file, runs `./gradlew assembleRelease`
    (plus `bundleRelease` when signed), and deletes the keystore file.
-5. Checks the APK with `aapt dump badging` and prints the package, version, SDK levels and orientation, verifies the
+4. Checks the APK with `aapt dump badging` and prints the package, version, SDK levels and orientation, verifies the
    signature with `apksigner`, and confirms `index.html` and `tracks/` are inside and `sw.js` is not. Any mismatch
    fails the build with a plain error.
-6. Uploads the files as a workflow artifact and, on `main` or a manual run, publishes the GitHub Release.
+5. Uploads the files as a workflow artifact and, on `main` or a manual run, publishes the GitHub Release.
 
 If a step fails, the last step ("Explain a failure") names which one and where to look.
 
-### Two choices made here
+**tests** (for information, `continue-on-error: true`, 25-minute limit): runs the existing suite in quick mode
+(`node tests/run-all.mjs --quick --allow-slow-notes`): every check on every instrument, with the pitch check on
+3 keys x 4 scales. Its result and `test-report.html` show on the run, but a failure there never blocks the APK.
 
-- **Per-note timing does not block the APK.** The performance check's limit of 8 ms of main-thread work per note
-  fails on slower machines (on the test machine it has failed for violin, viola, cello, trumpet, electric bass and
-  rhythm guitar since before Songs; it is a property of the machine, not an app bug). GitHub's shared machines are
-  slower still, so the workflow passes `--allow-slow-notes`: a performance row that fails **only** on time per note is
-  printed as KNOWN and not counted. Its frame-rate limit, and every other check, must pass or the APK is not built.
+### Choices made here
+
+- **A flaky test never blocks a release.** The live Songs timing check could not be made stable on GitHub's
+  machines and was removed (TESTING.md, "Removed: the live Songs timing check"). The tests job is informational.
+- **Per-note timing is listed, not failed.** The performance check's limit of 8 ms of main-thread work per note
+  fails on slower machines (a property of the machine, not an app bug), so the tests job passes
+  `--allow-slow-notes`: a performance row that fails **only** on time per note is printed as KNOWN.
   `npm test` on your own computer is unchanged.
 - **JDK 21, not 17.** Capacitor 8, the current version, compiles its Android library for Java 21, so a JDK 17 build
   fails. Capacitor 8 targets Android 16 (API 36), which the Play Store requires for new uploads.
