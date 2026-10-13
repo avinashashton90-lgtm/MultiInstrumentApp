@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-// Builds the free song library in tracks/*.json and the list in TRACKS.md from the readable sources below.
+// Builds the song library in tracks/*.json and the list in TRACKS.md: the verified tracks converted from the scores in
+// tools/sources.json (see tools/midi-to-track.mjs), and the generated ones from the definitions below.
 //   node tools/make-tracks.mjs
 // Every track is either public domain (traditional, or a composer who died long ago) or written for Pocket Band.
 // Melodies are written bar by bar ("|" between bars); the script checks that every bar adds up to the time
@@ -11,6 +12,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { SOURCES, convertSource } from './midi-to-track.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const STEP = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
@@ -199,7 +201,7 @@ export function buildMelody(src) {
   const chords = src.chords ? src.chords.split('|').map((c) => c.trim()) : null;
   if (chords && chords.length !== bars) throw new Error(`${src.id}: ${chords.length} chord bars for ${bars} melody bars`);
   const t = {
-    id: src.id, type: src.type || 'melody', title: src.title, by: src.by, src: /^Original/.test(src.status) ? 'Original' : 'Public domain',
+    id: src.id, type: src.type || 'melody', title: src.title, by: src.by, src: /^Original/.test(src.status) ? 'Original' : 'Public domain', status: statusOf(src.id),
     tempo: src.tempo, time: src.time, key: src.key, ...tonal(src, notes, src.id), level: src.level, tags: src.tags, bars, notes
   };
   if (chords) t.chords = chords;
@@ -227,7 +229,7 @@ export function buildChordSong(src) {
   const m = MEL[src.from], t = buildMelody(m);
   const per = barBeats(m.time), steps = src.strum.length, strum = [];
   t.chords.forEach((bar, bi) => { if (bar === '-') return; for (let k = 0; k < steps; k++) if (src.strum[k] !== '-') strum.push([r3(bi * per + k * per / steps), src.strum[k]]); });
-  return { ...t, id: 'ch-' + m.id, type: 'chords', level: src.level, strum };
+  return { ...t, id: 'ch-' + m.id, type: 'chords', level: src.level, strum, status: statusOf(m.id) };
 }
 
 /* ---------------- Bass lines (electric bass) ---------------- */
@@ -274,7 +276,7 @@ export function buildBass(src) {
   });
   // a held note can't run past the next one
   // the bass line is in the song's key and mode (its chord thirds may step outside the mode, as the chords do)
-  return { id: 'bs-' + m.id, type: 'bass', title: mel.title, by: mel.by, src: mel.src, tempo: mel.tempo, time: mel.time, key: mel.key,
+  return { id: 'bs-' + m.id, type: 'bass', title: mel.title, by: mel.by, src: mel.src, status: statusOf(m.id), tempo: mel.tempo, time: mel.time, key: mel.key,
     tonic: mel.tonic, mode: mel.mode, level: src.level, tags: mel.tags, bars: mel.bars, notes, chords: mel.chords, tune: mel.notes };
 }
 
@@ -315,7 +317,7 @@ export function buildGroove(g) {
   });
   hits.push([0, 'crash', 110]);
   hits.sort((a, b) => a[0] - b[0] || a[1].localeCompare(b[1]));
-  return { id: 'dr-' + g.id, type: 'drums', title: g.title, by: 'Pocket Band (original)', src: 'Original', tempo: g.tempo, time: [4, 4], tonic: null, mode: 'none',
+  return { id: 'dr-' + g.id, type: 'drums', title: g.title, by: 'Pocket Band (original)', src: 'Original', status: 'generated', tempo: g.tempo, time: [4, 4], tonic: null, mode: 'none',
     level: g.level, tags: g.id === 'march' ? ['Kids', 'Folk'] : g.id === 'bossa' || g.id === 'reggae' || g.id === 'shuffle' ? ['Folk'] : ['Kids'], bars: 4, hits };
 }
 
@@ -352,60 +354,186 @@ export function buildTaal(g) {
       hits.push([r3(cyc * n + k + j / parts.length), p, k === 0 && j === 0 ? 112 : j ? 80 : 96]);
     });
   });
-  return { id: 'tl-' + g.id, type: 'tabla', title: g.title, by: 'Traditional (theka)', src: 'Public domain', tempo: g.tempo, time: [n, 4], tonic: null, mode: 'none',
+  return { id: 'tl-' + g.id, type: 'tabla', title: g.title, by: 'Traditional (theka)', src: 'Public domain', status: 'generated', tempo: g.tempo, time: [n, 4], tonic: null, mode: 'none',
     level: g.level, tags: ['Indian'], bars: 2, vibhag: g.vibhag, tali: g.tali, hits };
 }
 
+/* ---------------- Status: verified, generated, unverified ---------------- */
+// verified: converted from an encoded score (tools/sources.json, tools/midi-to-track.mjs) and checked against it by
+//   tools/verify-tracks.mjs.
+// generated: built from a definition in this file, so the definition is the track: a raag's aroha and avaroha, the
+//   alankar exercise, a taal's theka, a drum groove, or a tune written for Pocket Band.
+// unverified: a real song typed in from memory. These are kept (tracks/unverified.json) but the app never lists them.
+const GENERATED = new Set(['alankar', 'bilawal', 'bhoopali', 'yaman', 'sunny', 'fivefinger', 'waltz', 'rainy', 'ragawalk']);
+const statusOf = (melId) => GENERATED.has(melId) ? 'generated' : 'unverified';
+
+/* ---------------- Verified tracks, converted from the scores ---------------- */
+const SRC = SOURCES.sources;
+export function licenceShort(l) {
+  if (/^public domain$/i.test(l)) return 'Public domain';
+  const m = /attribution(-sharealike)?\s*([0-9.]+)/i.exec(l);
+  return m ? 'CC BY' + (m[1] ? '-SA' : '') + ' ' + m[2] : l;
+}
+function credit(s) {
+  return { composer: s.composer, died: s.died, licence: s.licence, source: 'Mutopia Project, piece ' + s.mutopia + ': ' + s.excerpt,
+    url: 'https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=' + s.mutopia, file: SOURCES.repo + '/tree/' + SOURCES.commit + '/ftp/' + s.path,
+    converted: SOURCES.converted, tempo: s.tempoWhy || (s.tempo ? 'set (the score has no tempo marking)' : 'from the score') };
+}
+export function buildVerified(s) {
+  const c = convertSource(s);
+  const t = { id: s.id, type: 'melody', title: s.title, by: s.by, src: licenceShort(s.licence), status: 'verified', tempo: c.tempo, time: c.time,
+    key: c.key, tonic: c.tonic, mode: c.mode, level: s.level, tags: s.tags, bars: c.bars, notes: c.notes, chords: c.chords, sections: c.sections };
+  if (c.low.length) t.low = c.low;
+  if (s.for) Object.defineProperty(t, 'pin', { value: s.for, enumerable: false });
+  t.credit = credit(s);
+  Object.defineProperty(t, 'keyChords', { value: c.keyChords, enumerable: false });
+  t.from = { file: c.map.file, melody: c.map.melody, bass: c.map.bass, srcBeat: c.map.srcBeat, lead: c.map.lead, grace: c.map.grace };
+  if (c.map.end !== undefined) t.from.end = c.map.end;
+  return t;
+}
+function strumOf(t, pattern) {
+  const per = barBeats(t.time), steps = pattern.length, strum = [];
+  if (steps > 2 * per) throw new Error(`${t.id}: the strum pattern has ${steps} strokes a bar; ${t.time.join('/')} takes at most ${2 * per} (eighth notes)`);
+  t.chords.forEach((bar, bi) => { if (bar === '-') return; for (let k = 0; k < steps; k++) if (pattern[k] !== '-') strum.push([r3(bi * per + k * per / steps), pattern[k]]); });
+  return strum;
+}
+// A verified melody's harmony as the key's own seven chords (the guitar's chord buttons): each half bar gets the
+// chord of the key that best covers the score's notes there. The tune comes along for the backing.
+export function buildVerifiedChords(s, mel) {
+  const { low, ...t } = mel;
+  t.chords = mel.keyChords;
+  return { ...t, id: 'ch-' + s.id, type: 'chords', strum: strumOf(t, s.chordSong) };
+}
+// A verified melody's own bass line, from the score's lowest part; the tune comes along
+export function buildVerifiedBass(s, mel) {
+  const { low, notes, sections, ...t } = mel;
+  return { ...t, id: 'bs-' + s.id, type: 'bass', notes: low, tune: notes, sections };
+}
+
+/* ---------------- Which melodies each instrument offers ---------------- */
+// Every melodic instrument offers 5 to 10 tracks that fit it: all the notes inside its range after a whole-octave
+// move, nothing too fast for a wind player (level 3), and on the diatonic harmonica only tunes that stay inside a
+// major scale. A mix: up to 3 folk, hymn and children's tunes, 4 classical, 1 Indian and 1 original, rotated per
+// instrument so they don't all offer the same ten, then the fitting track offered on the fewest instruments so far.
+export const RANGE = { piano: [21, 108], organ: [36, 96], synth: [24, 96], flute: [60, 96], harmonica: [60, 96], horn: [41, 77],
+  trumpet: [54, 84], sax: [49, 81], xylo: [60, 96], violin: [55, 93], viola: [48, 83], cello: [36, 71] };
+const WIND = new Set(['flute', 'horn', 'trumpet', 'sax', 'harmonica']);
+const catOf = (t) => t.tags.includes('Indian') ? 'indian' : /Pocket Band/.test(t.by) ? 'original' : t.tags.includes('Classical') ? 'classical' : 'folk';
+const QUOTA = { folk: 3, classical: 4, indian: 1, original: 1 };
+function fitsRange(t, R) {
+  const ms = t.notes.map((n) => n[2]), lo = Math.min(...ms), hi = Math.max(...ms);
+  for (let o = -4; o <= 4; o++) if (lo + 12 * o >= R[0] && hi + 12 * o <= R[1]) return true;
+  return false;
+}
+export function assignInstruments(melodies) {
+  const shown = melodies.filter((t) => t.status !== 'unverified');
+  shown.forEach((t) => { t.inst = []; });
+  Object.keys(RANGE).forEach((tab, ti) => {
+    const ok = shown.filter((t) => fitsRange(t, RANGE[tab]) && !(WIND.has(tab) && t.level >= 3) &&
+      !(tab === 'harmonica' && (!['major', 'bilawal', 'bhoopali'].includes(t.mode) || outside(t.notes, t.tonic, 'major').length)));
+    const pick = ok.filter((t) => (t.pin || []).includes(tab)); // tracks a score asks to be offered on this instrument
+    for (const cat of Object.keys(QUOTA)) {
+      const c = ok.filter((t) => catOf(t) === cat), rot = c.length ? (ti * 2) % c.length : 0;
+      c.slice(rot).concat(c.slice(0, rot)).filter((t) => !pick.includes(t)).slice(0, Math.max(0, QUOTA[cat] - pick.filter((t) => catOf(t) === cat).length))
+        .forEach((t) => { if (pick.length < 10) pick.push(t); });
+    }
+    // the rest: the fitting tracks offered on the fewest instruments so far, so every track has a home
+    ok.filter((t) => !pick.includes(t)).sort((a, b) => a.inst.length - b.inst.length).slice(0, 10 - pick.length).forEach((t) => pick.push(t));
+    if (pick.length < 5) throw new Error(`${tab}: only ${pick.length} songs fit it`);
+    pick.forEach((t) => t.inst.push(tab));
+  });
+}
+
 /* ---------------- Writing it out ---------------- */
+const FLAT_MAJ = [5, 10, 3, 8, 1, 6], FLAT_MIN = [2, 7, 0, 5, 10, 3];
+function noteName(m, t) {
+  const flat = t.tonic !== null && (t.mode === 'minor' || t.mode === 'harmonic' || t.mode === 'melodic' || t.mode === 'dorian' ? FLAT_MIN : FLAT_MAJ).includes(t.tonic);
+  return (flat ? ['C', 'D♭', 'D', 'E♭', 'E', 'F', 'G♭', 'G', 'A♭', 'A', 'B♭', 'B'] : ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'])[m % 12] + (Math.floor(m / 12) - 1);
+}
+const first16 = (t) => t.notes ? t.notes.slice(0, 16).map((n) => noteName(n[2], t)).join(' ') : '–';
 const KIND = { melodies: 'Melodies (every melodic instrument)', chords: 'Chord songs (guitar and rhythm guitar)', bass: 'Bass lines (electric bass)',
   drums: 'Drum grooves (drums and electric drum pad)', tabla: 'Taals (tabla, dual and single)' };
 const fmtLen = (t) => { const s = Math.round(t.bars * t.time[0] * 4 / t.time[1] * 60 / t.tempo); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
-function tracksMd(rows) {
-  const out = ['# Songs: the free track library', '',
-    'Every track the Songs button offers. All are free to use: either public domain (traditional, or by a composer who',
-    'died long ago, with the source noted) or original, written for Pocket Band. There are no modern, film or copyrighted songs.',
-    '"Needs ear check" marks a melody written down from memory that a musician should play through once to confirm.', '',
-    'The tracks live in `tracks/*.json` and are generated by `node tools/make-tracks.mjs` from the note lists in that file;',
-    'edit there and re-run it (it also rewrites this list). The service worker caches them, so they work offline.', '',
-    '**Format.** Each track: `id`, `type`, `title`, `by` (composer or "Traditional"), `src` (Public domain or Original),',
-    '`tempo` (beats a minute, a beat is a quarter note), `time` ([beats, unit]), `key` (the tonic spelled as a name),',
-    '`tonic` (the same as a pitch class, C = 0 to B = 11), `mode` (major, minor, dorian, bhoopali and so on: the ids of the',
-    'app\'s Scale menu), `level` (difficulty 1-3),',
-    '`tags`, `bars`, and depending on the type: `notes` as `[startBeat, durationBeats, midi, velocity]`, `chords` (one',
-    'string a bar, chords split across the bar by spaces), `strum` (down and up strokes), `hits` as `[startBeat, pad, velocity]`',
-    'or `bols` (tabla strokes a beat), and `sargam` (Sa Re Ga labels for Indian melodies). Drum grooves and taals are',
-    'unpitched: `tonic` is null and `mode` is "none".', '',
-    '**Key and mode.** Picking a song sets the instrument\'s Key and Scale to the song\'s own tonic and mode and plays the',
-    'written notes exactly (moved by whole octaves only, to suit the instrument). The build checks that every pitched track',
-    'has a known mode and ends on its tonic. "Outside the mode" lists the notes a tune borrows from outside its mode (a',
-    'raised leading note in a minor tune, say); they are part of the tune, and the app adds them to the instrument\'s layout', 'while the song is open.', ''];
+const keyOf = (t) => t.tonic !== null ? NOTE_NAMES[t.tonic] + ' ' + MODE_NAMES[t.mode] : '– (unpitched)';
+const INST_NAMES = { piano: 'Piano', organ: 'Organ', synth: 'Synth', flute: 'Flute', harmonica: 'Harmonica', horn: 'Horn', trumpet: 'Trumpet', sax: 'Sax',
+  xylo: 'Xylophone', violin: 'Violin', viola: 'Viola', cello: 'Cello' };
+function tracksMd(out, hidden) {
+  const L = [];
+  L.push('# Songs: the track library', '',
+    'Every track the Songs button offers, where it comes from and how it was checked. Round E replaced the songs that had',
+    'been typed in from memory with tracks converted from encoded scores, and hid the rest.', '',
+    '**Status.** `verified`: converted from an encoded score (a LilyPond file from the [Mutopia Project](https://www.mutopiaproject.org),',
+    'rendered to MIDI) by `tools/midi-to-track.mjs`, then checked by `tools/verify-tracks.mjs`: every note against the source MIDI',
+    '(pitch exact, onset within a 16th of a beat), and an offline render of the track whose pitches are detected again and',
+    'compared. `generated`: built from a definition in `tools/make-tracks.mjs` (a raag\'s aroha and avaroha, the alankar',
+    'exercise, a taal\'s theka, a drum groove, or a tune written for Pocket Band), so the definition is the track.',
+    '`unverified`: typed in from memory; kept in `tracks/unverified.json` but hidden from the song picker.', '',
+    '**Licences.** Only public domain, CC BY and CC BY-SA scores are used; `tools/render-sources.py` reads each score\'s own',
+    'licence line and stops on anything else. CC BY and CC BY-SA scores are credited here and in the app (Settings → Credits).',
+    'The track data converted from a CC BY-SA score is shared under the same licence.', '',
+    '**Rebuilding.** `python3 tools/render-sources.py <Mutopia checkout>` copies the scores into `sources/` and renders their MIDI;',
+    '`node tools/make-tracks.mjs` converts them and writes `tracks/*.json` and this file; `node tools/verify-tracks.mjs` checks',
+    'every verified track (the build fails if a track and its source disagree).', '',
+    '**Easy and Full.** Every verified melody carries the score\'s own bass line (`low`) and the chords its harmony spells',
+    '(`chords`). Easy is the melody alone; Full adds the bass line, as notes to play on the keyboards and as backing elsewhere.',
+    'Sections (`sections`, 4 to 8 bars) end where the tune breathes.', '',
+    '**Format.** Each track: `id`, `type`, `title`, `by`, `src` (the licence), `status`, `tempo` (quarter notes a minute), `time`,',
+    '`key`, `tonic` (pitch class), `mode`, `level` (1-3), `tags`, `bars`, `sections`, `inst` (the melodic instruments that offer it),',
+    'and by type: `notes` `[startBeat, beats, midi, velocity]`, `low` (bass line, same form), `chords` (one string a bar),',
+    '`strum`, `hits`, `bols`, `tune`. Verified tracks add `credit` (composer, death year, licence, source, URL, conversion',
+    'date) and `from` (the source MIDI file, its parts and the beat the track starts at, for the verifier).', '');
+  L.push('## Verified tracks and their sources', '', `Converted on ${SOURCES.converted} from Mutopia (${SOURCES.repo}, commit ${SOURCES.commit.slice(0, 10)}).`, '',
+    '| Track | Composer | Died | Excerpt | Licence | Source | Tempo |', '|---|---|---|---|---|---|---|');
+  out.melodies.filter((t) => t.status === 'verified').forEach((t) => {
+    const s = SRC.find((x) => x.id === t.id);
+    L.push(`| ${t.title} | ${s.composer} | ${s.died || '–'} | ${s.excerpt} | ${t.src} | [Mutopia ${s.mutopia}](${t.credit.url}) | ${t.credit.tempo} |`);
+  });
+  L.push('');
   for (const file of Object.keys(KIND)) {
-    const list = rows.filter((r) => r.file === file);
-    if (!list.length) continue;
-    out.push('## ' + KIND[file], '', '| Track | By | Key | Outside the mode | Time | Tempo | Length | Level | Tags | Source | Check |', '|---|---|---|---|---|---|---|---|---|---|---|');
-    for (const { t, s: s0 } of list) {
-      const s = s0.from ? MEL[s0.from] : s0.status ? s0 : { status: t.src === 'Original' ? 'Original, written for Pocket Band' : 'Public domain: traditional theka' };
-      const pitched = t.tonic !== null, key = pitched ? NOTE_NAMES[t.tonic] + ' ' + MODE_NAMES[t.mode] : '– (unpitched)';
-      const odd = pitched ? outside(t.notes, t.tonic, t.mode, (s0.from ? MEL[s0.from] : s0).mel).join(', ') || '–' : '–';
-      out.push(`| ${t.title} | ${t.by} | ${key} | ${odd} | ${t.time.join('/')} | ${t.tempo} | ${fmtLen(t)} | ${'★'.repeat(t.level)} | ${t.tags.join(', ')} | ${s.status} | ${s.check ? 'Needs ear check' : ''} |`);
-    }
-    out.push('');
+    L.push('## ' + KIND[file], '', '| Track | Status | By | Key | Time | Tempo | Length | Level | ' + (file === 'melodies' ? 'Instruments | ' : '') + 'First 16 notes |',
+      '|---|---|---|---|---|---|---|---|' + (file === 'melodies' ? '---|' : '') + '---|');
+    out[file].forEach((t) => {
+      L.push(`| ${t.title} | ${t.status} | ${t.by} | ${keyOf(t)} | ${t.time.join('/')} | ${t.tempo} | ${fmtLen(t)} | ${'★'.repeat(t.level)} | ` +
+        (file === 'melodies' ? (t.inst || []).map((i) => INST_NAMES[i]).join(', ') + ' | ' : '') + `${t.type === 'drums' || t.type === 'tabla' ? '–' : first16(t)} |`);
+    });
+    L.push('');
   }
-  return out.join('\n');
+  L.push('## Unverified (hidden)', '', 'Typed in from memory before round E. They stay in `tracks/unverified.json` and are never listed in the app.', '',
+    '| Track | Type | By |', '|---|---|---|');
+  hidden.forEach((t) => L.push(`| ${t.title} | ${t.type} | ${t.by} |`));
+  L.push('', '## Not found', '', 'No accurate source with a free licence was found for these, so they are left out:', '');
+  SOURCES.notFound.forEach((n) => L.push(`- **${n.title}**: ${n.why}`));
+  L.push('');
+  return L.join('\n');
 }
 
 export const LIBRARY = { melodies: MELODIES, chords: CHORD_SONGS, bass: BASS_SONGS, drums: GROOVES, tabla: TAALS };
 export const BUILD = { melodies: buildMelody, chords: buildChordSong, bass: buildBass, drums: buildGroove, tabla: buildTaal };
-const SOURCES = LIBRARY;
+
+export function buildAll() {
+  const old = {};
+  for (const [file, list] of Object.entries(LIBRARY)) old[file] = list.map((s) => BUILD[file](s));
+  const verified = SRC.map(buildVerified);
+  const byId = Object.fromEntries(verified.map((t) => [t.id, t]));
+  const out = {
+    melodies: verified.concat(old.melodies.filter((t) => t.status === 'generated')),
+    chords: SRC.filter((s) => s.chordSong).map((s) => buildVerifiedChords(s, byId[s.id])).concat(old.chords.filter((t) => t.status === 'generated')),
+    bass: SRC.filter((s) => s.bassSong).map((s) => buildVerifiedBass(s, byId[s.id])).concat(old.bass.filter((t) => t.status === 'generated')),
+    drums: old.drums, tabla: old.tabla
+  };
+  const hidden = [].concat(old.melodies, old.chords, old.bass).filter((t) => t.status === 'unverified').map((t) => ({ ...t, id: 'uv-' + t.id, hidden: true }));
+  assignInstruments(out.melodies);
+  ['chords', 'bass'].forEach((f) => { if (out[f].length < 5 || out[f].length > 10) throw new Error(`${f}: ${out[f].length} tracks, the instrument should offer 5 to 10`); });
+  return { out, hidden };
+}
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  const out = {}, rows = [];
-  for (const [file, list] of Object.entries(SOURCES)) {
-    out[file] = list.map((s) => BUILD[file](s));
-    out[file].forEach((t, i) => rows.push({ t, s: list[i], file }));
-    fs.writeFileSync(path.join(ROOT, 'tracks', file + '.json'), JSON.stringify(out[file]).replace(/\],\[/g, '],\n['));
-  }
+  const { out, hidden } = buildAll();
+  const write = (name, list) => fs.writeFileSync(path.join(ROOT, 'tracks', name + '.json'), JSON.stringify(list).replace(/\],\[/g, '],\n['));
+  for (const [file, list] of Object.entries(out)) write(file, list);
+  write('unverified', hidden);
   const size = Object.keys(out).reduce((a, f) => a + fs.statSync(path.join(ROOT, 'tracks', f + '.json')).size, 0);
-  fs.writeFileSync(path.join(ROOT, 'TRACKS.md'), tracksMd(rows));
-  console.log(`${rows.length} tracks, ${(size / 1024).toFixed(1)} KB in tracks/; TRACKS.md written`);
+  fs.writeFileSync(path.join(ROOT, 'TRACKS.md'), tracksMd(out, hidden));
+  const n = Object.values(out).reduce((a, l) => a + l.length, 0);
+  console.log(`${n} tracks shown (${out.melodies.filter((t) => t.status === 'verified').length} verified melodies), ${hidden.length} hidden; ${(size / 1024).toFixed(1)} KB in tracks/; TRACKS.md written`);
 }

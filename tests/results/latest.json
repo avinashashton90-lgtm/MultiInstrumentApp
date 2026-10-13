@@ -1,7 +1,7 @@
 {
- "when": "2026-10-05 07:15 UTC",
- "version": "6",
- "quick": false,
+ "when": "2026-10-13 12:39 UTC",
+ "version": "9",
+ "quick": true,
  "results": [
   {
    "check": "load",
@@ -167,7 +167,7 @@
    "check": "load",
    "tab": "selftest",
    "pass": true,
-   "detail": "Self-test page: automatic check 19/19 passed, sound check plays, report copies as text",
+   "detail": "Self-test page: automatic check 19/19 passed, songs check 19/19 passed, sound check plays, report copies as text",
    "metrics": {},
    "title": "Load, console, gallery and Home"
   },
@@ -175,14 +175,14 @@
    "check": "pitch",
    "tab": "piano",
    "pass": true,
-   "detail": "120 key/scale cases, 1560 notes, worst 2.4 cents, every case distinct (5 played twice after a glitch)",
+   "detail": "12 key/scale cases, 156 notes, worst 1.8 cents, every case distinct",
    "metrics": {
-    "cases": 120,
+    "cases": 12,
     "failed": 0,
-    "notes": 1560,
-    "worstCents": 2.38,
+    "notes": 156,
+    "worstCents": 1.83,
     "clashes": 0,
-    "retried": 5
+    "retried": 0
    },
    "title": "Pitch: 12 keys x every scale through the real controls"
   },
@@ -190,12 +190,12 @@
    "check": "pitch",
    "tab": "guitar",
    "pass": true,
-   "detail": "120 key/scale cases, 630 notes, worst 1.1 cents, every case distinct",
+   "detail": "12 key/scale cases, 64 notes, worst 1.0 cents, every case distinct",
    "metrics": {
-    "cases": 120,
+    "cases": 12,
     "failed": 0,
-    "notes": 630,
-    "worstCents": 1.08,
+    "notes": 64,
+    "worstCents": 1.04,
     "clashes": 0,
     "retried": 0
    },
@@ -205,12 +205,12 @@
    "check": "pitch",
    "tab": "flute",
    "pass": true,
-   "detail": "120 key/scale cases, 960 notes, worst 3.7 cents, every case distinct",
+   "detail": "12 key/scale cases, 108 notes, worst 3.7 cents, every case distinct",
    "metrics": {
-    "cases": 120,
+    "cases": 12,
     "failed": 0,
-    "notes": 960,
-    "worstCents": 3.69,
+    "notes": 108,
+    "worstCents": 3.67,
     "clashes": 0,
     "retried": 0
    },
@@ -220,14 +220,14 @@
    "check": "pitch",
    "tab": "harmonica",
    "pass": true,
-   "detail": "120 key/scale cases, 1440 notes, worst 1.8 cents, every case distinct",
+   "detail": "12 key/scale cases, 144 notes, worst 1.8 cents, every case distinct (1 played twice after a glitch)",
    "metrics": {
-    "cases": 120,
+    "cases": 12,
     "failed": 0,
-    "notes": 1440,
+    "notes": 144,
     "worstCents": 1.8,
     "clashes": 0,
-    "retried": 0
+    "retried": 1
    },
    "title": "Pitch: 12 keys x every scale through the real controls"
   },
@@ -235,12 +235,12 @@
    "check": "pitch",
    "tab": "violin",
    "pass": true,
-   "detail": "120 key/scale cases, 980 notes, worst 0.9 cents, every case distinct",
+   "detail": "12 key/scale cases, 112 notes, worst 0.9 cents, every case distinct",
    "metrics": {
-    "cases": 120,
+    "cases": 12,
     "failed": 0,
-    "notes": 980,
-    "worstCents": 0.95,
+    "notes": 112,
+    "worstCents": 0.93,
     "clashes": 0,
     "retried": 0
    },
@@ -250,12 +250,12 @@
    "check": "pitch",
    "tab": "cello",
    "pass": true,
-   "detail": "120 key/scale cases, 980 notes, worst 3.6 cents, every case distinct",
+   "detail": "12 key/scale cases, 112 notes, worst 2.9 cents, every case distinct",
    "metrics": {
-    "cases": 120,
+    "cases": 12,
     "failed": 0,
-    "notes": 980,
-    "worstCents": 3.59,
+    "notes": 112,
+    "worstCents": 2.92,
     "clashes": 0,
     "retried": 0
    },
@@ -265,12 +265,12 @@
    "check": "pitch",
    "tab": "horn",
    "pass": true,
-   "detail": "120 key/scale cases, 960 notes, worst 1.3 cents, every case distinct",
+   "detail": "12 key/scale cases, 108 notes, worst 1.3 cents, every case distinct",
    "metrics": {
-    "cases": 120,
+    "cases": 12,
     "failed": 0,
-    "notes": 960,
-    "worstCents": 1.31,
+    "notes": 108,
+    "worstCents": 1.26,
     "clashes": 0,
     "retried": 0
    },
@@ -280,12 +280,12 @@
    "check": "pitch",
    "tab": "trumpet",
    "pass": true,
-   "detail": "120 key/scale cases, 960 notes, worst 3.1 cents, every case distinct",
+   "detail": "12 key/scale cases, 108 notes, worst 1.7 cents, every case distinct",
    "metrics": {
-    "cases": 120,
+    "cases": 12,
     "failed": 0,
-    "notes": 960,
-    "worstCents": 3.08,
+    "notes": 108,
+    "worstCents": 1.73,
     "clashes": 0,
     "retried": 0
    },
@@ -295,12 +295,12 @@
    "check": "pitch",
    "tab": "viola",
    "pass": true,
-   "detail": "120 key/scale cases, 980 notes, worst 3.9 cents, every case distinct",
+   "detail": "12 key/scale cases, 112 notes, worst 3.9 cents, every case distinct",
    "metrics": {
-    "cases": 120,
+    "cases": 12,
     "failed": 0,
-    "notes": 980,
-    "worstCents": 3.91,
+    "notes": 112,
+    "worstCents": 3.85,
     "clashes": 0,
     "retried": 0
    },
@@ -310,12 +310,12 @@
    "check": "pitch",
    "tab": "organ",
    "pass": true,
-   "detail": "120 key/scale cases, 1560 notes, worst 1.1 cents, every case distinct",
+   "detail": "12 key/scale cases, 156 notes, worst 1.1 cents, every case distinct",
    "metrics": {
-    "cases": 120,
+    "cases": 12,
     "failed": 0,
-    "notes": 1560,
-    "worstCents": 1.15,
+    "notes": 156,
+    "worstCents": 1.13,
     "clashes": 0,
     "retried": 0
    },
@@ -325,14 +325,14 @@
    "check": "pitch",
    "tab": "sax",
    "pass": true,
-   "detail": "120 key/scale cases, 960 notes, worst 2.7 cents, every case distinct (1 played twice after a glitch)",
+   "detail": "12 key/scale cases, 108 notes, worst 2.3 cents, every case distinct",
    "metrics": {
-    "cases": 120,
+    "cases": 12,
     "failed": 0,
-    "notes": 960,
-    "worstCents": 2.73,
+    "notes": 108,
+    "worstCents": 2.26,
     "clashes": 0,
-    "retried": 1
+    "retried": 0
    },
    "title": "Pitch: 12 keys x every scale through the real controls"
   },
@@ -340,12 +340,12 @@
    "check": "pitch",
    "tab": "xylo",
    "pass": true,
-   "detail": "120 key/scale cases, 960 notes, worst 1.1 cents, every case distinct",
+   "detail": "12 key/scale cases, 108 notes, worst 0.4 cents, every case distinct",
    "metrics": {
-    "cases": 120,
+    "cases": 12,
     "failed": 0,
-    "notes": 960,
-    "worstCents": 1.1,
+    "notes": 108,
+    "worstCents": 0.45,
     "clashes": 0,
     "retried": 0
    },
@@ -355,12 +355,12 @@
    "check": "pitch",
    "tab": "synth",
    "pass": true,
-   "detail": "120 key/scale cases, 1560 notes, worst 3.2 cents, every case distinct",
+   "detail": "12 key/scale cases, 156 notes, worst 3.1 cents, every case distinct",
    "metrics": {
-    "cases": 120,
+    "cases": 12,
     "failed": 0,
-    "notes": 1560,
-    "worstCents": 3.18,
+    "notes": 156,
+    "worstCents": 3.06,
     "clashes": 0,
     "retried": 0
    },
@@ -370,12 +370,12 @@
    "check": "pitch",
    "tab": "ebass",
    "pass": true,
-   "detail": "120 key/scale cases, 910 notes, worst 0.7 cents, every case distinct",
+   "detail": "12 key/scale cases, 104 notes, worst 0.9 cents, every case distinct",
    "metrics": {
-    "cases": 120,
+    "cases": 12,
     "failed": 0,
-    "notes": 910,
-    "worstCents": 0.71,
+    "notes": 104,
+    "worstCents": 0.87,
     "clashes": 0,
     "retried": 0
    },
@@ -385,11 +385,11 @@
    "check": "pitch",
    "tab": "rhythm",
    "pass": true,
-   "detail": "120 key/scale cases, every strum played the key's chord, every case distinct",
+   "detail": "12 key/scale cases, every strum played the key's chord, every case distinct",
    "metrics": {
-    "cases": 120,
+    "cases": 12,
     "failed": 0,
-    "notes": 120,
+    "notes": 12,
     "worstCents": 0,
     "clashes": 0,
     "retried": 0
@@ -398,34 +398,17 @@
   },
   {
    "check": "loudness",
-   "tab": "guitar",
-   "pass": true,
-   "detail": "peak -1.1 dBFS, RMS -18.5 dBFS, 0 clipped",
-   "metrics": {
-    "peak": -1.1,
-    "rms": -18.46,
-    "clip": 0,
-    "notes": [
-     -17.8,
-     -17.9,
-     -20.1
-    ]
-   },
-   "title": "Loudness and clipping"
-  },
-  {
-   "check": "loudness",
    "tab": "piano",
    "pass": true,
-   "detail": "peak -1.1 dBFS, RMS -11.1 dBFS, 0 clipped",
+   "detail": "peak -1.1 dBFS, RMS -11.3 dBFS, 0 clipped",
    "metrics": {
     "peak": -1.1,
-    "rms": -11.05,
+    "rms": -11.31,
     "clip": 0,
     "notes": [
-     -10.3,
+     -11,
      -13.2,
-     -10.3
+     -10.2
     ]
    },
    "title": "Loudness and clipping"
@@ -434,15 +417,49 @@
    "check": "loudness",
    "tab": "drums",
    "pass": true,
-   "detail": "peak -1.3 dBFS, RMS -15.0 dBFS, 0 clipped",
+   "detail": "peak -1.2 dBFS, RMS -14.9 dBFS, 0 clipped",
    "metrics": {
-    "peak": -1.35,
-    "rms": -15.03,
+    "peak": -1.2,
+    "rms": -14.88,
     "clip": 0,
     "notes": [
-     -15,
-     -13.4,
-     -17.7
+     -15.5,
+     -12.7,
+     -17.9
+    ]
+   },
+   "title": "Loudness and clipping"
+  },
+  {
+   "check": "loudness",
+   "tab": "guitar",
+   "pass": true,
+   "detail": "peak -1.2 dBFS, RMS -19.4 dBFS, 0 clipped",
+   "metrics": {
+    "peak": -1.22,
+    "rms": -19.4,
+    "clip": 0,
+    "notes": [
+     -17.4,
+     -21,
+     -20.9
+    ]
+   },
+   "title": "Loudness and clipping"
+  },
+  {
+   "check": "loudness",
+   "tab": "flute",
+   "pass": true,
+   "detail": "peak -3.3 dBFS, RMS -7.0 dBFS, 0 clipped",
+   "metrics": {
+    "peak": -3.33,
+    "rms": -7.03,
+    "clip": 0,
+    "notes": [
+     -6.8,
+     -7,
+     -7.2
     ]
    },
    "title": "Loudness and clipping"
@@ -451,15 +468,15 @@
    "check": "loudness",
    "tab": "tabla2",
    "pass": true,
-   "detail": "peak -1.3 dBFS, RMS -13.9 dBFS, 0 clipped",
+   "detail": "peak -2.0 dBFS, RMS -14.7 dBFS, 0 clipped",
    "metrics": {
-    "peak": -1.29,
-    "rms": -13.89,
+    "peak": -2.03,
+    "rms": -14.73,
     "clip": 0,
     "notes": [
-     -12.3,
-     -16.5,
-     -13.9
+     -12.7,
+     -17.1,
+     -15.5
     ]
    },
    "title": "Loudness and clipping"
@@ -468,32 +485,15 @@
    "check": "loudness",
    "tab": "tabla1",
    "pass": true,
-   "detail": "peak -1.8 dBFS, RMS -15.1 dBFS, 0 clipped",
+   "detail": "peak -1.9 dBFS, RMS -15.4 dBFS, 0 clipped",
    "metrics": {
-    "peak": -1.85,
-    "rms": -15.05,
+    "peak": -1.87,
+    "rms": -15.38,
     "clip": 0,
     "notes": [
-     -12.7,
-     -14,
-     -66.9
-    ]
-   },
-   "title": "Loudness and clipping"
-  },
-  {
-   "check": "loudness",
-   "tab": "flute",
-   "pass": true,
-   "detail": "peak -2.9 dBFS, RMS -7.0 dBFS, 0 clipped",
-   "metrics": {
-    "peak": -2.93,
-    "rms": -6.96,
-    "clip": 0,
-    "notes": [
-     -6.9,
-     -7.2,
-     -6.9
+     -12.6,
+     -15,
+     -68.6
     ]
    },
    "title": "Loudness and clipping"
@@ -502,32 +502,15 @@
    "check": "loudness",
    "tab": "epad",
    "pass": true,
-   "detail": "peak -1.0 dBFS, RMS -13.6 dBFS, 0 clipped",
+   "detail": "peak -1.0 dBFS, RMS -13.5 dBFS, 0 clipped",
    "metrics": {
     "peak": -1.05,
-    "rms": -13.56,
+    "rms": -13.47,
     "clip": 0,
     "notes": [
      -13.3,
-     -12.9,
-     -14.7
-    ]
-   },
-   "title": "Loudness and clipping"
-  },
-  {
-   "check": "loudness",
-   "tab": "violin",
-   "pass": true,
-   "detail": "peak -12.5 dBFS, RMS -27.8 dBFS, 0 clipped",
-   "metrics": {
-    "peak": -12.51,
-    "rms": -27.76,
-    "clip": 0,
-    "notes": [
-     -28.2,
-     -27.2,
-     -27.9
+     -12.6,
+     -14.8
     ]
    },
    "title": "Loudness and clipping"
@@ -536,15 +519,32 @@
    "check": "loudness",
    "tab": "harmonica",
    "pass": true,
-   "detail": "peak -2.9 dBFS, RMS -13.7 dBFS, 0 clipped",
+   "detail": "peak -3.1 dBFS, RMS -13.7 dBFS, 0 clipped",
    "metrics": {
-    "peak": -2.87,
-    "rms": -13.7,
+    "peak": -3.14,
+    "rms": -13.69,
     "clip": 0,
     "notes": [
-     -16.2,
-     -14,
+     -15.8,
+     -14.2,
      -11.9
+    ]
+   },
+   "title": "Loudness and clipping"
+  },
+  {
+   "check": "loudness",
+   "tab": "violin",
+   "pass": true,
+   "detail": "peak -12.2 dBFS, RMS -27.3 dBFS, 0 clipped",
+   "metrics": {
+    "peak": -12.24,
+    "rms": -27.3,
+    "clip": 0,
+    "notes": [
+     -27.8,
+     -26.1,
+     -28.3
     ]
    },
    "title": "Loudness and clipping"
@@ -553,15 +553,15 @@
    "check": "loudness",
    "tab": "cello",
    "pass": true,
-   "detail": "peak -12.7 dBFS, RMS -23.9 dBFS, 0 clipped",
+   "detail": "peak -9.5 dBFS, RMS -18.8 dBFS, 0 clipped",
    "metrics": {
-    "peak": -12.74,
-    "rms": -23.89,
+    "peak": -9.49,
+    "rms": -18.76,
     "clip": 0,
     "notes": [
-     -23.6,
-     -24.9,
-     -23.3
+     -18.1,
+     -18.3,
+     -20.1
     ]
    },
    "title": "Loudness and clipping"
@@ -570,15 +570,15 @@
    "check": "loudness",
    "tab": "horn",
    "pass": true,
-   "detail": "peak -8.5 dBFS, RMS -16.4 dBFS, 0 clipped",
+   "detail": "peak -8.4 dBFS, RMS -16.4 dBFS, 0 clipped",
    "metrics": {
-    "peak": -8.48,
-    "rms": -16.45,
+    "peak": -8.36,
+    "rms": -16.36,
     "clip": 0,
     "notes": [
-     -17.6,
-     -14.4,
-     -18.4
+     -17.1,
+     -14.2,
+     -19.4
     ]
    },
    "title": "Loudness and clipping"
@@ -587,15 +587,15 @@
    "check": "loudness",
    "tab": "trumpet",
    "pass": true,
-   "detail": "peak -7.9 dBFS, RMS -17.2 dBFS, 0 clipped",
+   "detail": "peak -7.8 dBFS, RMS -16.8 dBFS, 0 clipped",
    "metrics": {
-    "peak": -7.89,
-    "rms": -17.18,
+    "peak": -7.78,
+    "rms": -16.77,
     "clip": 0,
     "notes": [
-     -17.6,
-     -17.3,
-     -16.7
+     -16.4,
+     -17.5,
+     -16.5
     ]
    },
    "title": "Loudness and clipping"
@@ -604,32 +604,15 @@
    "check": "loudness",
    "tab": "viola",
    "pass": true,
-   "detail": "peak -13.5 dBFS, RMS -25.4 dBFS, 0 clipped",
+   "detail": "peak -14.2 dBFS, RMS -26.7 dBFS, 0 clipped",
    "metrics": {
-    "peak": -13.51,
-    "rms": -25.42,
+    "peak": -14.22,
+    "rms": -26.72,
     "clip": 0,
     "notes": [
-     -26.8,
-     -23.8,
-     -26.3
-    ]
-   },
-   "title": "Loudness and clipping"
-  },
-  {
-   "check": "loudness",
-   "tab": "sax",
-   "pass": true,
-   "detail": "peak -9.3 dBFS, RMS -18.0 dBFS, 0 clipped",
-   "metrics": {
-    "peak": -9.35,
-    "rms": -17.97,
-    "clip": 0,
-    "notes": [
-     -17.7,
-     -21.6,
-     -16.2
+     -27.5,
+     -26.2,
+     -26.6
     ]
    },
    "title": "Loudness and clipping"
@@ -638,15 +621,32 @@
    "check": "loudness",
    "tab": "organ",
    "pass": true,
-   "detail": "peak -7.9 dBFS, RMS -15.7 dBFS, 0 clipped",
+   "detail": "peak -7.5 dBFS, RMS -15.6 dBFS, 0 clipped",
    "metrics": {
-    "peak": -7.87,
-    "rms": -15.72,
+    "peak": -7.55,
+    "rms": -15.63,
     "clip": 0,
     "notes": [
-     -16.1,
-     -16.4,
-     -14.9
+     -16.2,
+     -15,
+     -15.7
+    ]
+   },
+   "title": "Loudness and clipping"
+  },
+  {
+   "check": "loudness",
+   "tab": "sax",
+   "pass": true,
+   "detail": "peak -8.0 dBFS, RMS -17.1 dBFS, 0 clipped",
+   "metrics": {
+    "peak": -8.03,
+    "rms": -17.07,
+    "clip": 0,
+    "notes": [
+     -16.2,
+     -22,
+     -15.4
     ]
    },
    "title": "Loudness and clipping"
@@ -655,15 +655,15 @@
    "check": "loudness",
    "tab": "xylo",
    "pass": true,
-   "detail": "peak -1.5 dBFS, RMS -11.0 dBFS, 0 clipped",
+   "detail": "peak -1.5 dBFS, RMS -11.3 dBFS, 0 clipped",
    "metrics": {
-    "peak": -1.53,
-    "rms": -11.04,
+    "peak": -1.47,
+    "rms": -11.29,
     "clip": 0,
     "notes": [
-     -11.2,
-     -10.6,
-     -11.3
+     -11.4,
+     -11.1,
+     -11.4
     ]
    },
    "title": "Loudness and clipping"
@@ -672,15 +672,15 @@
    "check": "loudness",
    "tab": "synth",
    "pass": true,
-   "detail": "peak -2.2 dBFS, RMS -12.1 dBFS, 0 clipped",
+   "detail": "peak -2.4 dBFS, RMS -12.2 dBFS, 0 clipped",
    "metrics": {
-    "peak": -2.2,
-    "rms": -12.13,
+    "peak": -2.38,
+    "rms": -12.23,
     "clip": 0,
     "notes": [
-     -12.6,
-     -11.4,
-     -12.6
+     -12.3,
+     -12.2,
+     -12.2
     ]
    },
    "title": "Loudness and clipping"
@@ -689,15 +689,15 @@
    "check": "loudness",
    "tab": "ebass",
    "pass": true,
-   "detail": "peak -2.6 dBFS, RMS -18.6 dBFS, 0 clipped",
+   "detail": "peak -2.5 dBFS, RMS -17.6 dBFS, 0 clipped",
    "metrics": {
-    "peak": -2.59,
-    "rms": -18.6,
+    "peak": -2.55,
+    "rms": -17.59,
     "clip": 0,
     "notes": [
-     -17.7,
-     -19,
-     -19.3
+     -17.4,
+     -15.8,
+     -21.2
     ]
    },
    "title": "Loudness and clipping"
@@ -706,44 +706,18 @@
    "check": "loudness",
    "tab": "rhythm",
    "pass": true,
-   "detail": "peak -1.3 dBFS, RMS -17.3 dBFS, 0 clipped",
+   "detail": "peak -1.0 dBFS, RMS -16.9 dBFS, 0 clipped",
    "metrics": {
-    "peak": -1.28,
-    "rms": -17.25,
+    "peak": -1.05,
+    "rms": -16.92,
     "clip": 0,
     "notes": [
-     -17.3,
-     -16.9,
-     -17.6
+     -16.6,
+     -17.2,
+     -17
     ]
    },
    "title": "Loudness and clipping"
-  },
-  {
-   "check": "stuck",
-   "tab": "guitar",
-   "pass": true,
-   "detail": "silent within 1 s after lift (silence), cancel (silence), background (silence), no fingers (silence)",
-   "metrics": {
-    "lift": -200,
-    "cancel": -200,
-    "background": -200,
-    "no fingers": -200
-   },
-   "title": "Stuck notes: lift, cancel, tab switch, no fingers"
-  },
-  {
-   "check": "stuck",
-   "tab": "flute",
-   "pass": true,
-   "detail": "silent within 1 s after lift (silence), cancel (silence), background (silence), no fingers (silence)",
-   "metrics": {
-    "lift": -200,
-    "cancel": -200,
-    "background": -200,
-    "no fingers": -200
-   },
-   "title": "Stuck notes: lift, cancel, tab switch, no fingers"
   },
   {
    "check": "stuck",
@@ -760,6 +734,32 @@
   },
   {
    "check": "stuck",
+   "tab": "guitar",
+   "pass": true,
+   "detail": "silent within 1 s after lift (silence), cancel (silence), background (silence), no fingers (silence)",
+   "metrics": {
+    "lift": -200,
+    "cancel": -200,
+    "background": -200,
+    "no fingers": -200
+   },
+   "title": "Stuck notes: lift, cancel, tab switch, no fingers"
+  },
+  {
+   "check": "stuck",
+   "tab": "flute",
+   "pass": true,
+   "detail": "silent within 1 s after lift (silence), cancel (silence), background (silence), no fingers (silence)",
+   "metrics": {
+    "lift": -200,
+    "cancel": -200,
+    "background": -200,
+    "no fingers": -200
+   },
+   "title": "Stuck notes: lift, cancel, tab switch, no fingers"
+  },
+  {
+   "check": "stuck",
    "tab": "violin",
    "pass": true,
    "detail": "silent within 1 s after lift (silence), cancel (silence), background (silence), no fingers (silence)",
@@ -838,19 +838,6 @@
   },
   {
    "check": "stuck",
-   "tab": "sax",
-   "pass": true,
-   "detail": "silent within 1 s after lift (silence), cancel (silence), background (silence), no fingers (silence)",
-   "metrics": {
-    "lift": -200,
-    "cancel": -200,
-    "background": -200,
-    "no fingers": -200
-   },
-   "title": "Stuck notes: lift, cancel, tab switch, no fingers"
-  },
-  {
-   "check": "stuck",
    "tab": "organ",
    "pass": true,
    "detail": "silent within 1 s after lift (silence), cancel (silence), background (silence), no fingers (silence)",
@@ -864,7 +851,33 @@
   },
   {
    "check": "stuck",
+   "tab": "sax",
+   "pass": true,
+   "detail": "silent within 1 s after lift (silence), cancel (silence), background (silence), no fingers (silence)",
+   "metrics": {
+    "lift": -200,
+    "cancel": -200,
+    "background": -200,
+    "no fingers": -200
+   },
+   "title": "Stuck notes: lift, cancel, tab switch, no fingers"
+  },
+  {
+   "check": "stuck",
    "tab": "xylo",
+   "pass": true,
+   "detail": "silent within 1 s after lift (silence), cancel (silence), background (silence), no fingers (silence)",
+   "metrics": {
+    "lift": -200,
+    "cancel": -200,
+    "background": -200,
+    "no fingers": -200
+   },
+   "title": "Stuck notes: lift, cancel, tab switch, no fingers"
+  },
+  {
+   "check": "stuck",
+   "tab": "ebass",
    "pass": true,
    "detail": "silent within 1 s after lift (silence), cancel (silence), background (silence), no fingers (silence)",
    "metrics": {
@@ -900,32 +913,6 @@
     "no fingers": -200
    },
    "title": "Stuck notes: lift, cancel, tab switch, no fingers"
-  },
-  {
-   "check": "stuck",
-   "tab": "ebass",
-   "pass": true,
-   "detail": "silent within 1 s after lift (silence), cancel (silence), background (silence), no fingers (silence)",
-   "metrics": {
-    "lift": -200,
-    "cancel": -200,
-    "background": -200,
-    "no fingers": -200
-   },
-   "title": "Stuck notes: lift, cancel, tab switch, no fingers"
-  },
-  {
-   "check": "polyphony",
-   "tab": "guitar",
-   "pass": true,
-   "detail": "5 fingers: 5 voices, 40 fingers: at most 6 of 14, peak -1.0 dBFS, 0 clipped, after lifting: 0 voices",
-   "metrics": {
-    "five": 5,
-    "forty": 6,
-    "limit": 14,
-    "left": 0
-   },
-   "title": "Note limit and multi-touch (5 and 40 fingers)"
   },
   {
    "check": "polyphony",
@@ -935,6 +922,19 @@
    "metrics": {
     "five": 3,
     "forty": 14,
+    "limit": 14,
+    "left": 0
+   },
+   "title": "Note limit and multi-touch (5 and 40 fingers)"
+  },
+  {
+   "check": "polyphony",
+   "tab": "guitar",
+   "pass": true,
+   "detail": "5 fingers: 5 voices, 40 fingers: at most 6 of 14, peak -1.0 dBFS, 0 clipped, after lifting: 0 voices",
+   "metrics": {
+    "five": 5,
+    "forty": 6,
     "limit": 14,
     "left": 0
    },
@@ -957,20 +957,7 @@
    "check": "polyphony",
    "tab": "flute",
    "pass": true,
-   "detail": "5 fingers: 1 voices, 40 fingers: at most 1 of 14, peak -1.2 dBFS, 0 clipped, after lifting: 0 voices",
-   "metrics": {
-    "five": 1,
-    "forty": 1,
-    "limit": 14,
-    "left": 0
-   },
-   "title": "Note limit and multi-touch (5 and 40 fingers)"
-  },
-  {
-   "check": "polyphony",
-   "tab": "tabla1",
-   "pass": true,
-   "detail": "5 fingers: 1 voices, 40 fingers: at most 1 of 14, peak -1.0 dBFS, 0 clipped, after lifting: 0 voices",
+   "detail": "5 fingers: 1 voices, 40 fingers: at most 1 of 14, peak -1.1 dBFS, 0 clipped, after lifting: 0 voices",
    "metrics": {
     "five": 1,
     "forty": 1,
@@ -987,6 +974,19 @@
    "metrics": {
     "five": 2,
     "forty": 2,
+    "limit": 14,
+    "left": 0
+   },
+   "title": "Note limit and multi-touch (5 and 40 fingers)"
+  },
+  {
+   "check": "polyphony",
+   "tab": "tabla1",
+   "pass": true,
+   "detail": "5 fingers: 1 voices, 40 fingers: at most 1 of 14, peak -1.0 dBFS, 0 clipped, after lifting: 0 voices",
+   "metrics": {
+    "five": 1,
+    "forty": 1,
     "limit": 14,
     "left": 0
    },
@@ -1022,7 +1022,7 @@
    "check": "polyphony",
    "tab": "violin",
    "pass": true,
-   "detail": "5 fingers: 5 voices, 40 fingers: at most 5 of 14, peak -7.8 dBFS, 0 clipped, after lifting: 0 voices",
+   "detail": "5 fingers: 5 voices, 40 fingers: at most 5 of 14, peak -6.2 dBFS, 0 clipped, after lifting: 0 voices",
    "metrics": {
     "five": 5,
     "forty": 5,
@@ -1035,7 +1035,7 @@
    "check": "polyphony",
    "tab": "cello",
    "pass": true,
-   "detail": "5 fingers: 5 voices, 40 fingers: at most 5 of 14, peak -12.4 dBFS, 0 clipped, after lifting: 0 voices",
+   "detail": "5 fingers: 5 voices, 40 fingers: at most 5 of 14, peak -11.6 dBFS, 0 clipped, after lifting: 0 voices",
    "metrics": {
     "five": 5,
     "forty": 5,
@@ -1048,7 +1048,7 @@
    "check": "polyphony",
    "tab": "horn",
    "pass": true,
-   "detail": "5 fingers: 1 voices, 40 fingers: at most 1 of 14, peak -6.1 dBFS, 0 clipped, after lifting: 0 voices",
+   "detail": "5 fingers: 1 voices, 40 fingers: at most 1 of 14, peak -5.6 dBFS, 0 clipped, after lifting: 0 voices",
    "metrics": {
     "five": 1,
     "forty": 1,
@@ -1061,7 +1061,7 @@
    "check": "polyphony",
    "tab": "trumpet",
    "pass": true,
-   "detail": "5 fingers: 1 voices, 40 fingers: at most 1 of 14, peak -4.5 dBFS, 0 clipped, after lifting: 0 voices",
+   "detail": "5 fingers: 1 voices, 40 fingers: at most 1 of 14, peak -4.2 dBFS, 0 clipped, after lifting: 0 voices",
    "metrics": {
     "five": 1,
     "forty": 1,
@@ -1074,7 +1074,7 @@
    "check": "polyphony",
    "tab": "viola",
    "pass": true,
-   "detail": "5 fingers: 5 voices, 40 fingers: at most 5 of 14, peak -14.6 dBFS, 0 clipped, after lifting: 0 voices",
+   "detail": "5 fingers: 5 voices, 40 fingers: at most 5 of 14, peak -9.1 dBFS, 0 clipped, after lifting: 0 voices",
    "metrics": {
     "five": 5,
     "forty": 5,
@@ -1100,7 +1100,7 @@
    "check": "polyphony",
    "tab": "sax",
    "pass": true,
-   "detail": "5 fingers: 1 voices, 40 fingers: at most 1 of 14, peak -7.1 dBFS, 0 clipped, after lifting: 0 voices",
+   "detail": "5 fingers: 1 voices, 40 fingers: at most 1 of 14, peak -6.4 dBFS, 0 clipped, after lifting: 0 voices",
    "metrics": {
     "five": 1,
     "forty": 1,
@@ -1165,7 +1165,7 @@
    "check": "strum",
    "tab": "guitar",
    "pass": true,
-   "detail": "chord notes 4, 8 strums at 4/s ▼▲▼▲▼▲▼▲, each rose 14+ dB, down -11.7 dB, up 3.5 dB softer with the low strings 26 dB weaker, low strings first on every down, high strings first on every up, pads ▼▲ strum both ways",
+   "detail": "chord notes 5, 8 strums at 4/s ▼▲▼▲▼▲▼▲, each rose 15+ dB, down -11.1 dB, up 3.5 dB softer with the low strings 23 dB weaker, low strings first on every down, high strings first on every up, pads ▼▲ strum both ways",
    "metrics": {},
    "title": "Strumming at 4 strums a second"
   },
@@ -1173,15 +1173,23 @@
    "check": "strum",
    "tab": "rhythm",
    "pass": true,
-   "detail": "chord notes 3, 8 strums at 4/s ▼▲▼▲▼▲▼▲, each rose 13+ dB, down -17.8 dB, up 3.9 dB softer with the low strings 31 dB weaker, low strings first on every down, high strings first on every up, pads ▼▲ strum both ways",
+   "detail": "chord notes 3, 8 strums at 4/s ▼▲▼▲▼▲▼▲, each rose 18+ dB, down -18.4 dB, up 4.6 dB softer with the low strings 23 dB weaker, low strings first on every down, high strings first on every up, pads ▼▲ strum both ways",
    "metrics": {},
    "title": "Strumming at 4 strums a second"
   },
   {
    "check": "bowing",
+   "tab": "violin",
+   "pass": true,
+   "detail": "bow across the strings: G D A E, double stop D+A both sound (-1.5, -5 dB), finger on G + bow plays G",
+   "metrics": {},
+   "title": "Bowing across strings and double stops"
+  },
+  {
+   "check": "bowing",
    "tab": "viola",
    "pass": true,
-   "detail": "bow across the strings: C G D A, double stop G+D both sound (0, -9.1 dB), finger on C + bow plays C",
+   "detail": "bow across the strings: C G D A, double stop G+D both sound (-0.9, -3.2 dB), finger on C + bow plays C",
    "metrics": {},
    "title": "Bowing across strings and double stops"
   },
@@ -1189,15 +1197,7 @@
    "check": "bowing",
    "tab": "cello",
    "pass": true,
-   "detail": "bow across the strings: C G D A, double stop G+D both sound (0, -3.7 dB), finger on C + bow plays C",
-   "metrics": {},
-   "title": "Bowing across strings and double stops"
-  },
-  {
-   "check": "bowing",
-   "tab": "violin",
-   "pass": true,
-   "detail": "bow across the strings: G D A E, double stop D+A both sound (0, -3.3 dB), finger on G + bow plays G",
+   "detail": "bow across the strings: C G D A, double stop G+D both sound (0, -16.5 dB), finger on C + bow plays C",
    "metrics": {},
    "title": "Bowing across strings and double stops"
   },
@@ -1205,16 +1205,16 @@
    "check": "brass",
    "tab": "sax",
    "pass": true,
-   "detail": "centroid soft/medium/full 749 / 1047 / 1510 Hz, largest jump 1.1 x neighbours, worst 8 kHz burst 3.9 dB, peak -5.5 dBFS, 0 clipped",
+   "detail": "centroid soft/medium/full 801 / 971 / 1355 Hz, largest jump 1.2 x neighbours, worst 8 kHz burst 4.1 dB, peak -5.4 dBFS, 0 clipped",
    "metrics": {
     "centroid": [
-     749,
-     1047,
-     1510
+     801,
+     971,
+     1355
     ],
-    "jump": 1.1,
-    "burst": 3.9,
-    "peak": -5.46,
+    "jump": 1.2,
+    "burst": 4.1,
+    "peak": -5.41,
     "clip": 0
    },
    "title": "Brass and reeds: brightness with breath, no crackle"
@@ -1223,16 +1223,16 @@
    "check": "brass",
    "tab": "trumpet",
    "pass": true,
-   "detail": "centroid soft/medium/full 1134 / 1601 / 2235 Hz, largest jump 1.1 x neighbours, worst 8 kHz burst 3.3 dB, peak -2.9 dBFS, 0 clipped",
+   "detail": "centroid soft/medium/full 1091 / 1570 / 2207 Hz, largest jump 1.1 x neighbours, worst 8 kHz burst 3.6 dB, peak -2.5 dBFS, 0 clipped",
    "metrics": {
     "centroid": [
-     1134,
-     1601,
-     2235
+     1091,
+     1570,
+     2207
     ],
-    "jump": 1.11,
-    "burst": 3.3,
-    "peak": -2.93,
+    "jump": 1.07,
+    "burst": 3.6,
+    "peak": -2.53,
     "clip": 0
    },
    "title": "Brass and reeds: brightness with breath, no crackle"
@@ -1241,16 +1241,16 @@
    "check": "brass",
    "tab": "horn",
    "pass": true,
-   "detail": "centroid soft/medium/full 398 / 509 / 881 Hz, largest jump 1.3 x neighbours, worst 8 kHz burst 4.9 dB, peak -5.3 dBFS, 0 clipped",
+   "detail": "centroid soft/medium/full 395 / 523 / 959 Hz, largest jump 1.2 x neighbours, worst 8 kHz burst 4.6 dB, peak -4.9 dBFS, 0 clipped",
    "metrics": {
     "centroid": [
-     398,
-     509,
-     881
+     395,
+     523,
+     959
     ],
-    "jump": 1.28,
-    "burst": 4.9,
-    "peak": -5.34,
+    "jump": 1.19,
+    "burst": 4.6,
+    "peak": -4.87,
     "clip": 0
    },
    "title": "Brass and reeds: brightness with breath, no crackle"
@@ -1281,14 +1281,6 @@
   },
   {
    "check": "record",
-   "tab": "trumpet",
-   "pass": true,
-   "detail": "recorded 3 notes and played back the same (B♭ D F) at the same times",
-   "metrics": {},
-   "title": "Record and playback"
-  },
-  {
-   "check": "record",
    "tab": "horn",
    "pass": true,
    "detail": "recorded 3 notes and played back the same (F A C) at the same times",
@@ -1305,17 +1297,9 @@
   },
   {
    "check": "record",
-   "tab": "organ",
+   "tab": "trumpet",
    "pass": true,
-   "detail": "recorded 3 notes and played back the same (C D E) at the same times",
-   "metrics": {},
-   "title": "Record and playback"
-  },
-  {
-   "check": "record",
-   "tab": "sax",
-   "pass": true,
-   "detail": "recorded 3 notes and played back the same (E♭ G B♭) at the same times",
+   "detail": "recorded 3 notes and played back the same (B♭ D F) at the same times",
    "metrics": {},
    "title": "Record and playback"
   },
@@ -1329,9 +1313,17 @@
   },
   {
    "check": "record",
-   "tab": "xylo",
+   "tab": "sax",
    "pass": true,
-   "detail": "recorded 3 notes and played back the same (C E G) at the same times",
+   "detail": "recorded 3 notes and played back the same (E♭ G B♭) at the same times",
+   "metrics": {},
+   "title": "Record and playback"
+  },
+  {
+   "check": "record",
+   "tab": "organ",
+   "pass": true,
+   "detail": "recorded 3 notes and played back the same (C D E) at the same times",
    "metrics": {},
    "title": "Record and playback"
   },
@@ -1340,6 +1332,14 @@
    "tab": "synth",
    "pass": true,
    "detail": "recorded 3 notes and played back the same (A B C) at the same times",
+   "metrics": {},
+   "title": "Record and playback"
+  },
+  {
+   "check": "record",
+   "tab": "xylo",
+   "pass": true,
+   "detail": "recorded 3 notes and played back the same (C E G) at the same times",
    "metrics": {},
    "title": "Record and playback"
   },
@@ -1355,15 +1355,1550 @@
    "check": "record",
    "tab": "rhythm",
    "pass": true,
-   "detail": "recorded 3 strums and played back the same (match 0.94 match 0.95 match 0.94) at the same times",
+   "detail": "recorded 3 strums and played back the same (match 0.94 match 0.96 match 0.93) at the same times",
    "metrics": {},
    "title": "Record and playback"
+  },
+  {
+   "check": "songs",
+   "tab": "-",
+   "pass": true,
+   "detail": "track files: 81 tracks (41 melody, 10 chords, 10 bass, 10 drums, 10 tabla), 146.4 KB, all cached by the service worker; every bar adds up, no overlaps; every pitched track has its tonic and mode (major, minor, bilawal, bhoopali, yaman, blues) and a generated tune ends on the tonic; lengths, tempos, chords, pads and bols valid, all listed in TRACKS.md",
+   "metrics": {
+    "tracks": 81,
+    "kb": 146.4,
+    "bad": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "guitar",
+   "pass": true,
+   "detail": "fit: 10 tracks, each opening in its own key and mode (Key, Scale and \"Song key\" label); every one of the 793 strums has its place",
+   "metrics": {
+    "part": "fit",
+    "tracks": 10,
+    "missing": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "drums",
+   "pass": true,
+   "detail": "fit: 10 tracks; every one of the 639 hits has its place",
+   "metrics": {
+    "part": "fit",
+    "tracks": 10,
+    "missing": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "piano",
+   "pass": true,
+   "detail": "fit: 10 tracks, each opening in its own key and mode (Key, Scale and \"Song key\" label), every note the written one exactly (native key = the stored track); every one of the 459 notes has its place",
+   "metrics": {
+    "part": "fit",
+    "tracks": 10,
+    "missing": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "flute",
+   "pass": true,
+   "detail": "fit: 10 tracks, each opening in its own key and mode (Key, Scale and \"Song key\" label), every note the written one moved by whole octaves only (9 at 0, 1 at +3 octaves; 9 exactly as stored); every one of the 490 notes has its place",
+   "metrics": {
+    "part": "fit",
+    "tracks": 10,
+    "missing": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "tabla2",
+   "pass": true,
+   "detail": "fit: 10 tracks; every one of the 366 strokes has its place",
+   "metrics": {
+    "part": "fit",
+    "tracks": 10,
+    "missing": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "tabla1",
+   "pass": true,
+   "detail": "fit: 10 tracks; every one of the 366 strokes has its place",
+   "metrics": {
+    "part": "fit",
+    "tracks": 10,
+    "missing": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "harmonica",
+   "pass": true,
+   "detail": "fit: 10 tracks, each opening in its own key and mode (Key, Scale and \"Song key\" label), every note the written one moved by whole octaves only (3 at 0, 6 at +1, 1 at +3 octaves; 3 exactly as stored); every one of the 394 notes has its place",
+   "metrics": {
+    "part": "fit",
+    "tracks": 10,
+    "missing": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "epad",
+   "pass": true,
+   "detail": "fit: 10 tracks; every one of the 639 hits has its place",
+   "metrics": {
+    "part": "fit",
+    "tracks": 10,
+    "missing": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "violin",
+   "pass": true,
+   "detail": "fit: 10 tracks, each opening in its own key and mode (Key, Scale and \"Song key\" label), every note the written one moved by whole octaves only (10 at 0 octaves; 10 exactly as stored); every one of the 408 notes has its place",
+   "metrics": {
+    "part": "fit",
+    "tracks": 10,
+    "missing": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "cello",
+   "pass": true,
+   "detail": "fit: 10 tracks, each opening in its own key and mode (Key, Scale and \"Song key\" label), every note the written one moved by whole octaves only (2 at 0, 1 at +1, 7 at -1 octaves; 2 exactly as stored); every one of the 418 notes has its place",
+   "metrics": {
+    "part": "fit",
+    "tracks": 10,
+    "missing": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "trumpet",
+   "pass": true,
+   "detail": "fit: 10 tracks, each opening in its own key and mode (Key, Scale and \"Song key\" label), every note the written one moved by whole octaves only (9 at 0, 1 at +1 octaves; 9 exactly as stored); every one of the 347 notes has its place",
+   "metrics": {
+    "part": "fit",
+    "tracks": 10,
+    "missing": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "horn",
+   "pass": true,
+   "detail": "fit: 10 tracks, each opening in its own key and mode (Key, Scale and \"Song key\" label), every note the written one moved by whole octaves only (7 at 0, 3 at -1 octaves; 7 exactly as stored); every one of the 415 notes has its place",
+   "metrics": {
+    "part": "fit",
+    "tracks": 10,
+    "missing": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "viola",
+   "pass": true,
+   "detail": "fit: 10 tracks, each opening in its own key and mode (Key, Scale and \"Song key\" label), every note the written one moved by whole octaves only (10 at 0 octaves; 10 exactly as stored); every one of the 446 notes has its place",
+   "metrics": {
+    "part": "fit",
+    "tracks": 10,
+    "missing": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "organ",
+   "pass": true,
+   "detail": "fit: 10 tracks, each opening in its own key and mode (Key, Scale and \"Song key\" label), every note the written one moved by whole octaves only (10 at 0 octaves; 10 exactly as stored); every one of the 386 notes has its place",
+   "metrics": {
+    "part": "fit",
+    "tracks": 10,
+    "missing": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "sax",
+   "pass": true,
+   "detail": "fit: 10 tracks, each opening in its own key and mode (Key, Scale and \"Song key\" label), every note the written one moved by whole octaves only (9 at 0, 1 at -1 octaves; 9 exactly as stored); every one of the 419 notes has its place",
+   "metrics": {
+    "part": "fit",
+    "tracks": 10,
+    "missing": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "xylo",
+   "pass": true,
+   "detail": "fit: 10 tracks, each opening in its own key and mode (Key, Scale and \"Song key\" label), every note the written one moved by whole octaves only (8 at 0, 2 at +1 octaves; 8 exactly as stored); every one of the 400 notes has its place",
+   "metrics": {
+    "part": "fit",
+    "tracks": 10,
+    "missing": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "synth",
+   "pass": true,
+   "detail": "fit: 10 tracks, each opening in its own key and mode (Key, Scale and \"Song key\" label), every note the written one moved by whole octaves only (10 at 0 octaves; 10 exactly as stored); every one of the 485 notes has its place",
+   "metrics": {
+    "part": "fit",
+    "tracks": 10,
+    "missing": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "ebass",
+   "pass": true,
+   "detail": "fit: 10 tracks, each opening in its own key and mode (Key, Scale and \"Song key\" label), every note the written one moved by whole octaves only (4 at 0, 6 at -1 octaves; 4 exactly as stored); every one of the 489 notes has its place",
+   "metrics": {
+    "part": "fit",
+    "tracks": 10,
+    "missing": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "rhythm",
+   "pass": true,
+   "detail": "fit: 10 tracks, each opening in its own key and mode (Key, Scale and \"Song key\" label); every one of the 793 strums has its place",
+   "metrics": {
+    "part": "fit",
+    "tracks": 10,
+    "missing": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "piano",
+   "pass": true,
+   "detail": "transpose: 10 tracks x 12 keys (120 fits) through the Key menu: every interval kept, every note moved by the key's semitones plus whole octaves, mode label kept, \"Transposed ±n\" shown; Transpose + stops at +6, Reset returns to the song key; a new Scale keeps the notes until Remap moves each to the same step of the new mode",
+   "metrics": {
+    "part": "transpose",
+    "tracks": 10,
+    "fits": 120
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "flute",
+   "pass": true,
+   "detail": "transpose: 10 tracks x 12 keys (120 fits) through the Key menu: every interval kept, every note moved by the key's semitones plus whole octaves, mode label kept, \"Transposed ±n\" shown; Transpose + stops at +6, Reset returns to the song key; a new Scale keeps the notes until Remap moves each to the same step of the new mode",
+   "metrics": {
+    "part": "transpose",
+    "tracks": 10,
+    "fits": 120
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "guitar",
+   "pass": true,
+   "detail": "transpose: 10 tracks x 12 keys (120 fits) through the Key menu: every interval kept, every note moved by the key's semitones plus whole octaves, mode label kept, \"Transposed ±n\" shown; Transpose + stops at +6, Reset returns to the song key; a new Scale keeps the notes until Remap (chord songs keep their chords)",
+   "metrics": {
+    "part": "transpose",
+    "tracks": 10,
+    "fits": 120
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "cello",
+   "pass": true,
+   "detail": "transpose: 10 tracks x 12 keys (120 fits) through the Key menu: every interval kept, every note moved by the key's semitones plus whole octaves, mode label kept, \"Transposed ±n\" shown; Transpose + stops at +6, Reset returns to the song key; a new Scale keeps the notes until Remap moves each to the same step of the new mode",
+   "metrics": {
+    "part": "transpose",
+    "tracks": 10,
+    "fits": 120
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "harmonica",
+   "pass": true,
+   "detail": "transpose: 10 tracks x 12 keys (120 fits) through the Key menu: every interval kept, every note moved by the key's semitones plus whole octaves, mode label kept, \"Transposed ±n\" shown; Transpose + stops at +6, Reset returns to the song key; a new Scale keeps the notes until Remap moves each to the same step of the new mode",
+   "metrics": {
+    "part": "transpose",
+    "tracks": 10,
+    "fits": 120
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "violin",
+   "pass": true,
+   "detail": "transpose: 10 tracks x 12 keys (120 fits) through the Key menu: every interval kept, every note moved by the key's semitones plus whole octaves, mode label kept, \"Transposed ±n\" shown; Transpose + stops at +6, Reset returns to the song key; a new Scale keeps the notes until Remap moves each to the same step of the new mode",
+   "metrics": {
+    "part": "transpose",
+    "tracks": 10,
+    "fits": 120
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "trumpet",
+   "pass": true,
+   "detail": "transpose: 10 tracks x 12 keys (120 fits) through the Key menu: every interval kept, every note moved by the key's semitones plus whole octaves, mode label kept, \"Transposed ±n\" shown; Transpose + stops at +6, Reset returns to the song key; a new Scale keeps the notes until Remap moves each to the same step of the new mode",
+   "metrics": {
+    "part": "transpose",
+    "tracks": 10,
+    "fits": 120
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "horn",
+   "pass": true,
+   "detail": "transpose: 10 tracks x 12 keys (120 fits) through the Key menu: every interval kept, every note moved by the key's semitones plus whole octaves, mode label kept, \"Transposed ±n\" shown; Transpose + stops at +6, Reset returns to the song key; a new Scale keeps the notes until Remap moves each to the same step of the new mode",
+   "metrics": {
+    "part": "transpose",
+    "tracks": 10,
+    "fits": 120
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "viola",
+   "pass": true,
+   "detail": "transpose: 10 tracks x 12 keys (120 fits) through the Key menu: every interval kept, every note moved by the key's semitones plus whole octaves, mode label kept, \"Transposed ±n\" shown; Transpose + stops at +6, Reset returns to the song key; a new Scale keeps the notes until Remap moves each to the same step of the new mode",
+   "metrics": {
+    "part": "transpose",
+    "tracks": 10,
+    "fits": 120
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "sax",
+   "pass": true,
+   "detail": "transpose: 10 tracks x 12 keys (120 fits) through the Key menu: every interval kept, every note moved by the key's semitones plus whole octaves, mode label kept, \"Transposed ±n\" shown; Transpose + stops at +6, Reset returns to the song key; a new Scale keeps the notes until Remap moves each to the same step of the new mode",
+   "metrics": {
+    "part": "transpose",
+    "tracks": 10,
+    "fits": 120
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "organ",
+   "pass": true,
+   "detail": "transpose: 10 tracks x 12 keys (120 fits) through the Key menu: every interval kept, every note moved by the key's semitones plus whole octaves, mode label kept, \"Transposed ±n\" shown; Transpose + stops at +6, Reset returns to the song key; a new Scale keeps the notes until Remap moves each to the same step of the new mode",
+   "metrics": {
+    "part": "transpose",
+    "tracks": 10,
+    "fits": 120
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "xylo",
+   "pass": true,
+   "detail": "transpose: 10 tracks x 12 keys (120 fits) through the Key menu: every interval kept, every note moved by the key's semitones plus whole octaves, mode label kept, \"Transposed ±n\" shown; Transpose + stops at +6, Reset returns to the song key; a new Scale keeps the notes until Remap moves each to the same step of the new mode",
+   "metrics": {
+    "part": "transpose",
+    "tracks": 10,
+    "fits": 120
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "synth",
+   "pass": true,
+   "detail": "transpose: 10 tracks x 12 keys (120 fits) through the Key menu: every interval kept, every note moved by the key's semitones plus whole octaves, mode label kept, \"Transposed ±n\" shown; Transpose + stops at +6, Reset returns to the song key; a new Scale keeps the notes until Remap moves each to the same step of the new mode",
+   "metrics": {
+    "part": "transpose",
+    "tracks": 10,
+    "fits": 120
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "ebass",
+   "pass": true,
+   "detail": "transpose: 10 tracks x 12 keys (120 fits) through the Key menu: every interval kept, every note moved by the key's semitones plus whole octaves, mode label kept, \"Transposed ±n\" shown; Transpose + stops at +6, Reset returns to the song key; a new Scale keeps the notes until Remap moves each to the same step of the new mode",
+   "metrics": {
+    "part": "transpose",
+    "tracks": 10,
+    "fits": 120
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "rhythm",
+   "pass": true,
+   "detail": "transpose: 10 tracks x 12 keys (120 fits) through the Key menu: every interval kept, every note moved by the key's semitones plus whole octaves, mode label kept, \"Transposed ±n\" shown; Transpose + stops at +6, Reset returns to the song key; a new Scale keeps the notes until Remap (chord songs keep their chords)",
+   "metrics": {
+    "part": "transpose",
+    "tracks": 10,
+    "fits": 120
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "drums",
+   "pass": true,
+   "detail": "auto-play (offline render of \"Rock beat\"): 36 hit times, each heard at its moment (smallest jump 7.1 dB), peak -1.0 dBFS",
+   "metrics": {
+    "part": "autoplay",
+    "errors": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "guitar",
+   "pass": true,
+   "detail": "auto-play (offline render of \"Twinkle Twinkle Little Star\" in C, its own key): 72 strums, each sounding every note of its chord (the chord's notes at least 61% of the sound), peak -1.0 dBFS",
+   "metrics": {
+    "part": "autoplay",
+    "errors": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "guitar",
+   "pass": true,
+   "detail": "auto-play (offline render of \"Twinkle Twinkle Little Star\" in D, transposed +2): 72 strums, each sounding every note of its chord (the chord's notes at least 72% of the sound), peak -1.0 dBFS",
+   "metrics": {
+    "part": "autoplay",
+    "errors": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "tabla2",
+   "pass": true,
+   "detail": "auto-play (offline render of \"Keherwa (8 matras)\"): 16 hit times, each heard at its moment (smallest jump 20.7 dB), peak -1.0 dBFS",
+   "metrics": {
+    "part": "autoplay",
+    "errors": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "piano",
+   "pass": true,
+   "detail": "auto-play (offline render of \"Twinkle Twinkle Little Star\" in C, its own key): 49 notes, each measured within 5 cents of the track's own note, worst 2.2 cents (3 notes under 0.2 s too short to measure; their planned notes are right), peak -1.0 dBFS",
+   "metrics": {
+    "part": "autoplay",
+    "errors": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "piano",
+   "pass": true,
+   "detail": "auto-play (offline render of \"Twinkle Twinkle Little Star\" in D, transposed +2): 49 notes, each measured within 5 cents of the track's own note + 2, worst 2.2 cents (3 notes under 0.2 s too short to measure; their planned notes are right), peak -1.0 dBFS",
+   "metrics": {
+    "part": "autoplay",
+    "errors": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "tabla1",
+   "pass": true,
+   "detail": "auto-play (offline render of \"Keherwa (8 matras)\"): 16 hit times, each heard at its moment (smallest jump 20.7 dB), peak -1.0 dBFS",
+   "metrics": {
+    "part": "autoplay",
+    "errors": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "epad",
+   "pass": true,
+   "detail": "auto-play (offline render of \"Rock beat\"): 36 hit times, each heard at its moment (smallest jump 6.4 dB), peak -1.0 dBFS",
+   "metrics": {
+    "part": "autoplay",
+    "errors": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "flute",
+   "pass": true,
+   "detail": "auto-play (offline render of \"Twinkle Twinkle Little Star\" in C, its own key): 49 notes, each measured within 5 cents of the track's own note, worst 3.8 cents (3 notes under 0.2 s too short to measure; their planned notes are right), peak -2.0 dBFS",
+   "metrics": {
+    "part": "autoplay",
+    "errors": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "flute",
+   "pass": true,
+   "detail": "auto-play (offline render of \"Twinkle Twinkle Little Star\" in D, transposed +2): 49 notes, each measured within 5 cents of the track's own note + 2, worst 3.8 cents (3 notes under 0.2 s too short to measure; their planned notes are right), peak -2.1 dBFS",
+   "metrics": {
+    "part": "autoplay",
+    "errors": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "harmonica",
+   "pass": true,
+   "detail": "auto-play (offline render of \"Twinkle Twinkle Little Star\" in C, its own key): 49 notes, each measured within 5 cents of the track's own note (+1 octave), worst 1.4 cents (3 notes under 0.2 s too short to measure; their planned notes are right), peak -2.4 dBFS",
+   "metrics": {
+    "part": "autoplay",
+    "errors": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "harmonica",
+   "pass": true,
+   "detail": "auto-play (offline render of \"Twinkle Twinkle Little Star\" in D, transposed +2): 49 notes, each measured within 5 cents of the track's own note + 2 (+1 octave), worst 1.5 cents (3 notes under 0.2 s too short to measure; their planned notes are right), peak -2.5 dBFS",
+   "metrics": {
+    "part": "autoplay",
+    "errors": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "violin",
+   "pass": true,
+   "detail": "auto-play (offline render of \"Twinkle Twinkle Little Star\" in C, its own key): 49 notes, each measured within 5 cents of the track's own note, worst 0.5 cents (3 notes under 0.2 s too short to measure; their planned notes are right), peak -1.8 dBFS",
+   "metrics": {
+    "part": "autoplay",
+    "errors": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "violin",
+   "pass": true,
+   "detail": "auto-play (offline render of \"Twinkle Twinkle Little Star\" in D, transposed +2): 49 notes, each measured within 5 cents of the track's own note + 2, worst 1.4 cents (3 notes under 0.2 s too short to measure; their planned notes are right), peak -2.0 dBFS",
+   "metrics": {
+    "part": "autoplay",
+    "errors": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "cello",
+   "pass": true,
+   "detail": "auto-play (offline render of \"Twinkle Twinkle Little Star\" in C, its own key): 49 notes, each measured within 5 cents of the track's own note, worst 3.9 cents (3 notes under 0.2 s too short to measure; their planned notes are right), peak -3.0 dBFS",
+   "metrics": {
+    "part": "autoplay",
+    "errors": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "cello",
+   "pass": true,
+   "detail": "auto-play (offline render of \"Twinkle Twinkle Little Star\" in D, transposed +2): 49 notes, each measured within 5 cents of the track's own note + 2, worst 4.1 cents (3 notes under 0.2 s too short to measure; their planned notes are right), peak -4.4 dBFS",
+   "metrics": {
+    "part": "autoplay",
+    "errors": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "viola",
+   "pass": true,
+   "detail": "auto-play (offline render of \"Twinkle Twinkle Little Star\" in C, its own key): 49 notes, each measured within 5 cents of the track's own note, worst 2.6 cents (3 notes under 0.2 s too short to measure; their planned notes are right), peak -1.8 dBFS",
+   "metrics": {
+    "part": "autoplay",
+    "errors": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "viola",
+   "pass": true,
+   "detail": "auto-play (offline render of \"Twinkle Twinkle Little Star\" in D, transposed +2): 49 notes, each measured within 5 cents of the track's own note + 2, worst 2.8 cents (3 notes under 0.2 s too short to measure; their planned notes are right), peak -2.0 dBFS",
+   "metrics": {
+    "part": "autoplay",
+    "errors": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "trumpet",
+   "pass": true,
+   "detail": "auto-play (offline render of \"Twinkle Twinkle Little Star\" in C, its own key): 49 notes, each measured within 5 cents of the track's own note, worst 1.6 cents (3 notes under 0.2 s too short to measure; their planned notes are right), peak -2.8 dBFS",
+   "metrics": {
+    "part": "autoplay",
+    "errors": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "trumpet",
+   "pass": true,
+   "detail": "auto-play (offline render of \"Twinkle Twinkle Little Star\" in D, transposed +2): 49 notes, each measured within 5 cents of the track's own note + 2, worst 1.2 cents (3 notes under 0.2 s too short to measure; their planned notes are right), peak -3.9 dBFS",
+   "metrics": {
+    "part": "autoplay",
+    "errors": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "horn",
+   "pass": true,
+   "detail": "auto-play (offline render of \"Twinkle Twinkle Little Star\" in C, its own key): 49 notes, each measured within 5 cents of the track's own note, worst 1.2 cents (3 notes under 0.2 s too short to measure; their planned notes are right), peak -4.6 dBFS",
+   "metrics": {
+    "part": "autoplay",
+    "errors": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "horn",
+   "pass": true,
+   "detail": "auto-play (offline render of \"Twinkle Twinkle Little Star\" in D, transposed +2): 49 notes, each measured within 5 cents of the track's own note + 2, worst 1.3 cents (3 notes under 0.2 s too short to measure; their planned notes are right), peak -4.6 dBFS",
+   "metrics": {
+    "part": "autoplay",
+    "errors": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "xylo",
+   "pass": true,
+   "detail": "auto-play (offline render of \"Twinkle Twinkle Little Star\" in C, its own key): 49 notes, each measured within 5 cents of the track's own note, worst 2.7 cents (3 notes under 0.2 s too short to measure; their planned notes are right), peak -1.0 dBFS",
+   "metrics": {
+    "part": "autoplay",
+    "errors": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "xylo",
+   "pass": true,
+   "detail": "auto-play (offline render of \"Twinkle Twinkle Little Star\" in D, transposed +2): 49 notes, each measured within 5 cents of the track's own note + 2, worst 2.7 cents (3 notes under 0.2 s too short to measure; their planned notes are right), peak -1.0 dBFS",
+   "metrics": {
+    "part": "autoplay",
+    "errors": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "organ",
+   "pass": true,
+   "detail": "auto-play (offline render of \"Twinkle Twinkle Little Star\" in C, its own key): 49 notes, each measured within 5 cents of the track's own note, worst 1.0 cents (3 notes under 0.2 s too short to measure; their planned notes are right), peak -8.6 dBFS",
+   "metrics": {
+    "part": "autoplay",
+    "errors": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "organ",
+   "pass": true,
+   "detail": "auto-play (offline render of \"Twinkle Twinkle Little Star\" in D, transposed +2): 49 notes, each measured within 5 cents of the track's own note + 2, worst 1.0 cents (3 notes under 0.2 s too short to measure; their planned notes are right), peak -8.8 dBFS",
+   "metrics": {
+    "part": "autoplay",
+    "errors": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "sax",
+   "pass": true,
+   "detail": "auto-play (offline render of \"Twinkle Twinkle Little Star\" in C, its own key): 49 notes, each measured within 5 cents of the track's own note, worst 2.1 cents (3 notes under 0.2 s too short to measure; their planned notes are right), peak -7.5 dBFS",
+   "metrics": {
+    "part": "autoplay",
+    "errors": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "sax",
+   "pass": true,
+   "detail": "auto-play (offline render of \"Twinkle Twinkle Little Star\" in D, transposed +2): 49 notes, each measured within 5 cents of the track's own note + 2, worst 1.6 cents (3 notes under 0.2 s too short to measure; their planned notes are right), peak -7.5 dBFS",
+   "metrics": {
+    "part": "autoplay",
+    "errors": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "synth",
+   "pass": true,
+   "detail": "auto-play (offline render of \"Twinkle Twinkle Little Star\" in C, its own key): 49 notes, each measured within 5 cents of the track's own note, worst 1.8 cents (3 notes under 0.2 s too short to measure; their planned notes are right), peak -1.2 dBFS",
+   "metrics": {
+    "part": "autoplay",
+    "errors": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "synth",
+   "pass": true,
+   "detail": "auto-play (offline render of \"Twinkle Twinkle Little Star\" in D, transposed +2): 49 notes, each measured within 5 cents of the track's own note + 2, worst 2.2 cents (3 notes under 0.2 s too short to measure; their planned notes are right), peak -1.2 dBFS",
+   "metrics": {
+    "part": "autoplay",
+    "errors": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "rhythm",
+   "pass": true,
+   "detail": "auto-play (offline render of \"Twinkle Twinkle Little Star\" in C, its own key): 72 strums, each sounding every note of its chord (the chord's notes at least 65% of the sound), peak -1.1 dBFS",
+   "metrics": {
+    "part": "autoplay",
+    "errors": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "rhythm",
+   "pass": true,
+   "detail": "auto-play (offline render of \"Twinkle Twinkle Little Star\" in D, transposed +2): 72 strums, each sounding every note of its chord (the chord's notes at least 69% of the sound), peak -1.1 dBFS",
+   "metrics": {
+    "part": "autoplay",
+    "errors": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "ebass",
+   "pass": true,
+   "detail": "auto-play (offline render of \"Twinkle Twinkle Little Star\" in C, its own key): 47 notes, each measured within 5 cents of the track's own note, worst 1.0 cents (1 notes under 0.2 s too short to measure; their planned notes are right), peak -2.0 dBFS",
+   "metrics": {
+    "part": "autoplay",
+    "errors": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "ebass",
+   "pass": true,
+   "detail": "auto-play (offline render of \"Twinkle Twinkle Little Star\" in D, transposed +2): 47 notes, each measured within 5 cents of the track's own note + 2, worst 0.7 cents (1 notes under 0.2 s too short to measure; their planned notes are right), peak -1.8 dBFS",
+   "metrics": {
+    "part": "autoplay",
+    "errors": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "piano",
+   "pass": true,
+   "detail": "timing (live): 14 auto-played notes each sound at their time (worst 14.0 ms) and pitch (worst 0.5 cents)",
+   "metrics": {
+    "worstMs": 14,
+    "take": 1
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "xylo",
+   "pass": true,
+   "detail": "timing (live): 14 auto-played notes each sound at their time (worst 10.0 ms) and pitch (worst 0.6 cents)",
+   "metrics": {
+    "worstMs": 10,
+    "take": 1
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "drums",
+   "pass": true,
+   "detail": "train (Wait, \"Rock beat\"): 36 of 36 beats: the right pads glowed; hitting them together moved the song on; finished with ★★★ 100%, best score saved",
+   "metrics": {
+    "part": "train",
+    "steps": 36,
+    "wrongs": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "piano",
+   "pass": true,
+   "detail": "train (Wait, \"Twinkle Twinkle Little Star\"): 49 of 49 notes: the right key, hole or spot glowed and was named; a wrong key first shook and the song waited (3 times); touching the right one played that note (measured, worst 10.2 cents) moved the song on; finished with ★★★ 94%, best score saved",
+   "metrics": {
+    "part": "train",
+    "steps": 49,
+    "wrongs": 3
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "guitar",
+   "pass": true,
+   "detail": "train (Wait, \"Twinkle Twinkle Little Star\"): 72 of 72 strums: the right chord button and strum pad glowed, named with the arrow; choosing it and strumming moved the song on; finished with ★★★ 100%, best score saved",
+   "metrics": {
+    "part": "train",
+    "steps": 72,
+    "wrongs": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "tabla2",
+   "pass": true,
+   "detail": "train (Wait, \"Keherwa (8 matras)\"): 16 of 16 matras and strokes: the right zones glowed, named by their bol; striking them moved the song on; finished with ★★★ 100%, best score saved",
+   "metrics": {
+    "part": "train",
+    "steps": 16,
+    "wrongs": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "tabla1",
+   "pass": true,
+   "detail": "train (Wait, \"Keherwa (8 matras)\"): 12 of 12 matras and strokes: the right zones glowed, named by their bol; striking them moved the song on; finished with ★★★ 100%, best score saved",
+   "metrics": {
+    "part": "train",
+    "steps": 12,
+    "wrongs": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "flute",
+   "pass": true,
+   "detail": "train (Wait, \"Twinkle Twinkle Little Star\"): 49 of 49 notes: the right key, hole or spot glowed and was named; a wrong key first shook and the song waited (0 times); touching the right one played that note (measured, worst 2.9 cents) moved the song on; finished with ★★★ 100%, best score saved",
+   "metrics": {
+    "part": "train",
+    "steps": 49,
+    "wrongs": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "epad",
+   "pass": true,
+   "detail": "train (Wait, \"Rock beat\"): 36 of 36 beats: the right pads glowed; hitting them together moved the song on; finished with ★★★ 100%, best score saved",
+   "metrics": {
+    "part": "train",
+    "steps": 36,
+    "wrongs": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "harmonica",
+   "pass": true,
+   "detail": "train (Wait, \"Twinkle Twinkle Little Star\"): 49 of 49 notes: the right key, hole or spot glowed and was named; a wrong key first shook and the song waited (0 times); touching the right one played that note (measured, worst 1.8 cents) moved the song on; finished with ★★★ 100%, best score saved",
+   "metrics": {
+    "part": "train",
+    "steps": 49,
+    "wrongs": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "violin",
+   "pass": true,
+   "detail": "train (Wait, \"Air on the G String\"): 45 of 45 notes: the right key, hole or spot glowed and was named; a wrong key first shook and the song waited (3 times); touching the right one played that note (measured, worst 0.6 cents) moved the song on; finished with ★★★ 93%, best score saved",
+   "metrics": {
+    "part": "train",
+    "steps": 45,
+    "wrongs": 3
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "cello",
+   "pass": true,
+   "detail": "train (Wait, \"Twinkle Twinkle Little Star\"): 49 of 49 notes: the right key, hole or spot glowed and was named; a wrong key first shook and the song waited (3 times); touching the right one played that note (measured, worst 5.8 cents) moved the song on; finished with ★★★ 94%, best score saved",
+   "metrics": {
+    "part": "train",
+    "steps": 49,
+    "wrongs": 3
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "horn",
+   "pass": true,
+   "detail": "train (Wait, \"Twinkle Twinkle Little Star\"): 49 of 49 notes: the right key, hole or spot glowed and was named; a wrong key first shook and the song waited (0 times); touching the right one played that note (measured, worst 1.1 cents) moved the song on; finished with ★★★ 100%, best score saved",
+   "metrics": {
+    "part": "train",
+    "steps": 49,
+    "wrongs": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "trumpet",
+   "pass": true,
+   "detail": "train (Wait, \"Greensleeves\"): 71 of 71 notes: the right key, hole or spot glowed and was named; a wrong key first shook and the song waited (0 times); touching the right one played that note (measured, worst 1.9 cents) moved the song on; finished with ★★★ 100%, best score saved",
+   "metrics": {
+    "part": "train",
+    "steps": 71,
+    "wrongs": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "organ",
+   "pass": true,
+   "detail": "train (Wait, \"Amazing Grace\"): 36 of 36 notes: the right key, hole or spot glowed and was named; a wrong key first shook and the song waited (3 times); touching the right one played that note (measured, worst 0.3 cents) moved the song on; finished with ★★★ 92%, best score saved",
+   "metrics": {
+    "part": "train",
+    "steps": 36,
+    "wrongs": 3
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "viola",
+   "pass": true,
+   "detail": "train (Wait, \"Twinkle Twinkle Little Star\"): 49 of 49 notes: the right key, hole or spot glowed and was named; a wrong key first shook and the song waited (3 times); touching the right one played that note (measured, worst 3.8 cents) moved the song on; finished with ★★★ 94%, best score saved",
+   "metrics": {
+    "part": "train",
+    "steps": 49,
+    "wrongs": 3
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "sax",
+   "pass": true,
+   "detail": "train (Wait, \"Silent Night (Stille Nacht)\"): 46 of 46 notes: the right key, hole or spot glowed and was named; a wrong key first shook and the song waited (0 times); touching the right one played that note (measured, worst 2.3 cents) moved the song on; finished with ★★★ 100%, best score saved",
+   "metrics": {
+    "part": "train",
+    "steps": 46,
+    "wrongs": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "xylo",
+   "pass": true,
+   "detail": "train (Wait, \"Twinkle Twinkle Little Star\"): 49 of 49 notes: the right key, hole or spot glowed and was named; a wrong key first shook and the song waited (0 times); touching the right one played that note (measured, worst 1.7 cents) moved the song on; finished with ★★★ 100%, best score saved",
+   "metrics": {
+    "part": "train",
+    "steps": 49,
+    "wrongs": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "synth",
+   "pass": true,
+   "detail": "train (Wait, \"Joy to the World\"): 57 of 57 notes: the right key, hole or spot glowed and was named; a wrong key first shook and the song waited (3 times); touching the right one played that note (measured, worst 2.8 cents) moved the song on; finished with ★★★ 95%, best score saved",
+   "metrics": {
+    "part": "train",
+    "steps": 57,
+    "wrongs": 3
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "ebass",
+   "pass": true,
+   "detail": "train (Wait, \"Twinkle Twinkle Little Star\"): 47 of 47 notes: the right string and fret glowed and was named; a wrong spot first shook and the song waited (3 times); touching the right one played that note (measured, worst 0.8 cents) moved the song on; finished with ★★★ 94%, best score saved",
+   "metrics": {
+    "part": "train",
+    "steps": 47,
+    "wrongs": 3
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "rhythm",
+   "pass": true,
+   "detail": "train (Wait, \"Twinkle Twinkle Little Star\"): 72 of 72 strums: the right chord button and strum pad glowed, named with the arrow; choosing it and strumming moved the song on; finished with ★★★ 100%, best score saved",
+   "metrics": {
+    "part": "train",
+    "steps": 72,
+    "wrongs": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "piano",
+   "pass": true,
+   "detail": "align (Rhythm, \"Silent Night (Stille Nacht)\", 568x320, 667x375, 800x380, 915x412, 1280x720): 175 falling bars checked, each centred on its target within 0.0 px and no wider (74 read back from the strip's pixels in their key's colour); the hit-line sits on the instrument; what glows is on screen; the Wait badge sits on its key; the zoomed keyboard scrolled sideways on the narrow screens and stayed aligned",
+   "metrics": {
+    "part": "align",
+    "bars": 175,
+    "worstPx": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "harmonica",
+   "pass": true,
+   "detail": "align (Rhythm, \"Amazing Grace\", 568x320, 667x375, 800x380, 915x412, 1280x720): 55 falling bars checked, each centred on its target within 0.0 px and no wider (27 read back from the strip's pixels in their key's colour); the hit-line sits on the instrument; what glows is on screen; the Wait badge sits on its key",
+   "metrics": {
+    "part": "align",
+    "bars": 55,
+    "worstPx": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "flute",
+   "pass": true,
+   "detail": "align (Rhythm, \"Ode to Joy\", 568x320, 667x375, 800x380, 915x412, 1280x720): 139 falling bars checked, each centred on its target within 0.0 px and no wider (59 read back from the strip's pixels in their key's colour); the hit-line sits on the instrument; what glows is on screen; the Wait badge sits on its key",
+   "metrics": {
+    "part": "align",
+    "bars": 139,
+    "worstPx": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "violin",
+   "pass": true,
+   "detail": "align (Rhythm, \"Spring (The Four Seasons)\", 568x320, 667x375, 800x380, 915x412, 1280x720): 95 falling bars checked, each centred on its target within 0.0 px and no wider (54 read back from the strip's pixels in their key's colour); the hit-line sits on the instrument; what glows is on screen; the Wait badge sits on its key",
+   "metrics": {
+    "part": "align",
+    "bars": 95,
+    "worstPx": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "horn",
+   "pass": true,
+   "detail": "align (Rhythm, \"Greensleeves\", 568x320, 667x375, 800x380, 915x412, 1280x720): 80 falling bars checked, each centred on its target within 0.0 px and no wider (47 read back from the strip's pixels in their key's colour); the hit-line sits on the instrument; what glows is on screen; the Wait badge sits on its key",
+   "metrics": {
+    "part": "align",
+    "bars": 80,
+    "worstPx": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "cello",
+   "pass": true,
+   "detail": "align (Rhythm, \"Greensleeves\", 568x320, 667x375, 800x380, 915x412, 1280x720): 80 falling bars checked, each centred on its target within 0.0 px and no wider (48 read back from the strip's pixels in their key's colour); the hit-line sits on the instrument; what glows is on screen; the Wait badge sits on its key",
+   "metrics": {
+    "part": "align",
+    "bars": 80,
+    "worstPx": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "trumpet",
+   "pass": true,
+   "detail": "align (Rhythm, \"Amazing Grace\", 568x320, 667x375, 800x380, 915x412, 1280x720): 55 falling bars checked, each centred on its target within 0.0 px and no wider (26 read back from the strip's pixels in their key's colour); the hit-line sits on the instrument; what glows is on screen; the Wait badge sits on its key",
+   "metrics": {
+    "part": "align",
+    "bars": 55,
+    "worstPx": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "viola",
+   "pass": true,
+   "detail": "align (Rhythm, \"Ode to Joy\", 568x320, 667x375, 800x380, 915x412, 1280x720): 139 falling bars checked, each centred on its target within 0.0 px and no wider (62 read back from the strip's pixels in their key's colour); the hit-line sits on the instrument; what glows is on screen; the Wait badge sits on its key",
+   "metrics": {
+    "part": "align",
+    "bars": 139,
+    "worstPx": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "organ",
+   "pass": true,
+   "detail": "align (Rhythm, \"Silent Night (Stille Nacht)\", 568x320, 667x375, 800x380, 915x412, 1280x720): 175 falling bars checked, each centred on its target within 0.0 px and no wider (74 read back from the strip's pixels in their key's colour); the hit-line sits on the instrument; what glows is on screen; the Wait badge sits on its key",
+   "metrics": {
+    "part": "align",
+    "bars": 175,
+    "worstPx": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "sax",
+   "pass": true,
+   "detail": "align (Rhythm, \"Joy to the World\", 568x320, 667x375, 800x380, 915x412, 1280x720): 157 falling bars checked, each centred on its target within 0.0 px and no wider (66 read back from the strip's pixels in their key's colour); the hit-line sits on the instrument; what glows is on screen; the Wait badge sits on its key",
+   "metrics": {
+    "part": "align",
+    "bars": 157,
+    "worstPx": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "xylo",
+   "pass": true,
+   "detail": "align (Rhythm, \"Auld Lang Syne\", 568x320, 667x375, 800x380, 915x412, 1280x720): 125 falling bars checked, each centred on its target within 0.0 px and no wider (71 read back from the strip's pixels in their key's colour); the hit-line sits on the instrument; what glows is on screen; the Wait badge sits on its key",
+   "metrics": {
+    "part": "align",
+    "bars": 125,
+    "worstPx": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "synth",
+   "pass": true,
+   "detail": "align (Rhythm, \"Auld Lang Syne\", 568x320, 667x375, 800x380, 915x412, 1280x720): 124 falling bars checked, each centred on its target within 0.0 px and no wider (70 read back from the strip's pixels in their key's colour); the hit-line sits on the instrument; what glows is on screen; the Wait badge sits on its key",
+   "metrics": {
+    "part": "align",
+    "bars": 124,
+    "worstPx": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "ebass",
+   "pass": true,
+   "detail": "align (Rhythm, \"Canon in D\", 568x320, 667x375, 800x380, 915x412, 1280x720): 105 falling bars checked, each centred on its target within 0.0 px and no wider (52 read back from the strip's pixels in their key's colour); the hit-line sits on the instrument; what glows is on screen; the Wait badge sits on its key",
+   "metrics": {
+    "part": "align",
+    "bars": 105,
+    "worstPx": 0
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "drums",
+   "pass": true,
+   "detail": "stop: silent within 1 s, no voices left after Stop, close the song, Home, switch instrument",
+   "metrics": {
+    "Stop": -200,
+    "close the song": -200,
+    "Home": -200,
+    "switch instrument": -200
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "guitar",
+   "pass": true,
+   "detail": "stop: silent within 1 s, no voices left after Stop, close the song, Home, switch instrument",
+   "metrics": {
+    "Stop": -200,
+    "close the song": -200,
+    "Home": -200,
+    "switch instrument": -200
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "piano",
+   "pass": true,
+   "detail": "stop: silent within 1 s, no voices left after Stop, close the song, Home, switch instrument",
+   "metrics": {
+    "Stop": -200,
+    "close the song": -200,
+    "Home": -200,
+    "switch instrument": -200
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "flute",
+   "pass": true,
+   "detail": "stop: silent within 1 s, no voices left after Stop, close the song, Home, switch instrument",
+   "metrics": {
+    "Stop": -200,
+    "close the song": -200,
+    "Home": -200,
+    "switch instrument": -200
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "tabla2",
+   "pass": true,
+   "detail": "stop: silent within 1 s, no voices left after Stop, close the song, Home, switch instrument",
+   "metrics": {
+    "Stop": -200,
+    "close the song": -200,
+    "Home": -200,
+    "switch instrument": -200
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "tabla1",
+   "pass": true,
+   "detail": "stop: silent within 1 s, no voices left after Stop, close the song, Home, switch instrument",
+   "metrics": {
+    "Stop": -200,
+    "close the song": -200,
+    "Home": -200,
+    "switch instrument": -200
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "epad",
+   "pass": true,
+   "detail": "stop: silent within 1 s, no voices left after Stop, close the song, Home, switch instrument",
+   "metrics": {
+    "Stop": -200,
+    "close the song": -200,
+    "Home": -200,
+    "switch instrument": -200
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "harmonica",
+   "pass": true,
+   "detail": "stop: silent within 1 s, no voices left after Stop, close the song, Home, switch instrument",
+   "metrics": {
+    "Stop": -200,
+    "close the song": -200,
+    "Home": -200,
+    "switch instrument": -200
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "violin",
+   "pass": true,
+   "detail": "stop: silent within 1 s, no voices left after Stop, close the song, Home, switch instrument",
+   "metrics": {
+    "Stop": -200,
+    "close the song": -200,
+    "Home": -200,
+    "switch instrument": -200
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "cello",
+   "pass": true,
+   "detail": "stop: silent within 1 s, no voices left after Stop, close the song, Home, switch instrument",
+   "metrics": {
+    "Stop": -200,
+    "close the song": -200,
+    "Home": -200,
+    "switch instrument": -200
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "horn",
+   "pass": true,
+   "detail": "stop: silent within 1 s, no voices left after Stop, close the song, Home, switch instrument",
+   "metrics": {
+    "Stop": -200,
+    "close the song": -200,
+    "Home": -200,
+    "switch instrument": -200
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "trumpet",
+   "pass": true,
+   "detail": "stop: silent within 1 s, no voices left after Stop, close the song, Home, switch instrument",
+   "metrics": {
+    "Stop": -200,
+    "close the song": -200,
+    "Home": -200,
+    "switch instrument": -200
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "viola",
+   "pass": true,
+   "detail": "stop: silent within 1 s, no voices left after Stop, close the song, Home, switch instrument",
+   "metrics": {
+    "Stop": -200,
+    "close the song": -200,
+    "Home": -200,
+    "switch instrument": -200
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "organ",
+   "pass": true,
+   "detail": "stop: silent within 1 s, no voices left after Stop, close the song, Home, switch instrument",
+   "metrics": {
+    "Stop": -200,
+    "close the song": -200,
+    "Home": -200,
+    "switch instrument": -200
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "sax",
+   "pass": true,
+   "detail": "stop: silent within 1 s, no voices left after Stop, close the song, Home, switch instrument",
+   "metrics": {
+    "Stop": -200,
+    "close the song": -200,
+    "Home": -200,
+    "switch instrument": -200
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "xylo",
+   "pass": true,
+   "detail": "stop: silent within 1 s, no voices left after Stop, close the song, Home, switch instrument",
+   "metrics": {
+    "Stop": -200,
+    "close the song": -200,
+    "Home": -200,
+    "switch instrument": -200
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "synth",
+   "pass": true,
+   "detail": "stop: silent within 1 s, no voices left after Stop, close the song, Home, switch instrument",
+   "metrics": {
+    "Stop": -200,
+    "close the song": -200,
+    "Home": -200,
+    "switch instrument": -200
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "ebass",
+   "pass": true,
+   "detail": "stop: silent within 1 s, no voices left after Stop, close the song, Home, switch instrument",
+   "metrics": {
+    "Stop": -200,
+    "close the song": -200,
+    "Home": -200,
+    "switch instrument": -200
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "rhythm",
+   "pass": true,
+   "detail": "stop: silent within 1 s, no voices left after Stop, close the song, Home, switch instrument",
+   "metrics": {
+    "Stop": -200,
+    "close the song": -200,
+    "Home": -200,
+    "switch instrument": -200
+   },
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "songs",
+   "tab": "-",
+   "pass": true,
+   "detail": "storage blocked: the sheet opens, a song trains to the end and scores, no errors",
+   "metrics": {},
+   "title": "Songs: tracks, fitting, auto-play, Train me, stopping"
+  },
+  {
+   "check": "library",
+   "tab": "-",
+   "pass": true,
+   "detail": "sources: 81 tracks shipped (49 verified from scores, 32 generated), 38 unverified kept hidden; credits, MIDI and scores present; TRACKS.md complete",
+   "metrics": {},
+   "title": "Song library: sources, verification, credits, Easy/Full, report, My songs"
+  },
+  {
+   "check": "library",
+   "tab": "-",
+   "pass": true,
+   "detail": "verify: notes: 32 verified tracks compared with their source MIDI (pitch exact, onset within 1/16 beat) · all verified tracks match their sources",
+   "metrics": {},
+   "title": "Song library: sources, verification, credits, Easy/Full, report, My songs"
+  },
+  {
+   "check": "library",
+   "tab": "-",
+   "pass": true,
+   "detail": "core: MIDI core in index.html matches tools/lib/midi-core.js",
+   "metrics": {},
+   "title": "Song library: sources, verification, credits, Easy/Full, report, My songs"
+  },
+  {
+   "check": "library",
+   "tab": "-",
+   "pass": true,
+   "detail": "offer: piano 10, drums 10, guitar 10, flute 10, tabla2 10, tabla1 10, epad 10, harmonica 10, violin 10, cello 10, horn 10, trumpet 10, viola 10, organ 10, sax 10, xylo 10, synth 10, ebass 10, rhythm 10",
+   "metrics": {},
+   "title": "Song library: sources, verification, credits, Easy/Full, report, My songs"
+  },
+  {
+   "check": "library",
+   "tab": "piano",
+   "pass": true,
+   "detail": "credits: 32 verified tracks credited with composer and licence",
+   "metrics": {},
+   "title": "Song library: sources, verification, credits, Easy/Full, report, My songs"
+  },
+  {
+   "check": "library",
+   "tab": "piano",
+   "pass": true,
+   "detail": "full: Easy 49 notes; Full 96 (tune and 47 bass notes, every one on a key)",
+   "metrics": {},
+   "title": "Song library: sources, verification, credits, Easy/Full, report, My songs"
+  },
+  {
+   "check": "library",
+   "tab": "piano",
+   "pass": true,
+   "detail": "sections: Whole song, Bars 1–4, Bars 5–8, Bars 9–12, Bars 13–16, Bars 17–20, Bars 21–24",
+   "metrics": {},
+   "title": "Song library: sources, verification, credits, Easy/Full, report, My songs"
+  },
+  {
+   "check": "library",
+   "tab": "piano",
+   "pass": true,
+   "detail": "report: Copied “twinkle, bar 2, beat 1”. Paste it into a message to us.",
+   "metrics": {},
+   "title": "Song library: sources, verification, credits, Easy/Full, report, My songs"
+  },
+  {
+   "check": "library",
+   "tab": "piano",
+   "pass": true,
+   "detail": "flute full: the flute plays the 49 tune notes and the 47 bass notes play as backing",
+   "metrics": {},
+   "title": "Song library: sources, verification, credits, Easy/Full, report, My songs"
+  },
+  {
+   "check": "library",
+   "tab": "piano",
+   "pass": true,
+   "detail": "my song: \"Test minuet\" converted (127 notes, the same tune and key as the library's), kept over a reload, played (127 events), deleted",
+   "metrics": {},
+   "title": "Song library: sources, verification, credits, Easy/Full, report, My songs"
   },
   {
    "check": "offline",
    "tab": "-",
    "pass": true,
-   "detail": "cache pocket-band-v6 holds 6 files, Settings shows v6, manifest OK (fullscreen, 3 icons), offline: opens, piano plays (-1 dBFS peak), Self-test page loads offline",
+   "detail": "cache pocket-band-v9 holds 11 files, Settings shows v9, manifest OK (fullscreen, 3 icons), offline: opens, piano plays (-1 dBFS peak), Self-test page loads offline",
    "metrics": {},
    "title": "Offline, manifest and service worker version"
   },
@@ -1371,10 +2906,10 @@
    "check": "perf",
    "tab": "piano",
    "pass": true,
-   "detail": "3.5 ms per note, 60 frames/s with 10 fingers (10 voices)",
+   "detail": "5.6 ms per note, 61 frames/s with 10 fingers (10 voices)",
    "metrics": {
-    "perNote": 3.52,
-    "fps": 60.1
+    "perNote": 5.56,
+    "fps": 60.8
    },
    "title": "Performance: CPU per note and frame rate"
   },
@@ -1382,20 +2917,20 @@
    "check": "perf",
    "tab": "drums",
    "pass": true,
-   "detail": "3.1 ms per note, 61 frames/s with 8 fingers (0 voices)",
+   "detail": "4.8 ms per note, 61 frames/s with 8 fingers (0 voices)",
    "metrics": {
-    "perNote": 3.08,
-    "fps": 60.6
+    "perNote": 4.79,
+    "fps": 60.7
    },
    "title": "Performance: CPU per note and frame rate"
   },
   {
    "check": "perf",
    "tab": "guitar",
-   "pass": true,
-   "detail": "5.7 ms per note, 61 frames/s with 6 fingers (6 voices)",
+   "pass": false,
+   "detail": "10.6 ms of main-thread work per note (limit 8) · 10.6 ms per note, 61 frames/s with 6 fingers (6 voices)",
    "metrics": {
-    "perNote": 5.69,
+    "perNote": 10.62,
     "fps": 60.6
    },
    "title": "Performance: CPU per note and frame rate"
@@ -1404,43 +2939,43 @@
    "check": "perf",
    "tab": "flute",
    "pass": true,
-   "detail": "5.0 ms per note, 61 frames/s with 8 fingers (1 voices)",
+   "detail": "7.1 ms per note, 61 frames/s with 8 fingers (1 voices)",
    "metrics": {
-    "perNote": 4.97,
-    "fps": 60.6
+    "perNote": 7.11,
+    "fps": 60.7
    },
    "title": "Performance: CPU per note and frame rate"
   },
   {
    "check": "perf",
    "tab": "tabla2",
-   "pass": true,
-   "detail": "5.7 ms per note, 61 frames/s with 4 fingers (0 voices)",
+   "pass": false,
+   "detail": "10.5 ms of main-thread work per note (limit 8) · 10.5 ms per note, 61 frames/s with 4 fingers (0 voices)",
    "metrics": {
-    "perNote": 5.69,
-    "fps": 60.6
+    "perNote": 10.46,
+    "fps": 60.8
    },
    "title": "Performance: CPU per note and frame rate"
   },
   {
    "check": "perf",
    "tab": "tabla1",
-   "pass": true,
-   "detail": "4.3 ms per note, 61 frames/s with 4 fingers (0 voices)",
+   "pass": false,
+   "detail": "9.1 ms of main-thread work per note (limit 8) · 9.1 ms per note, 60 frames/s with 4 fingers (0 voices)",
    "metrics": {
-    "perNote": 4.27,
-    "fps": 60.6
+    "perNote": 9.05,
+    "fps": 60.1
    },
    "title": "Performance: CPU per note and frame rate"
   },
   {
    "check": "perf",
    "tab": "epad",
-   "pass": true,
-   "detail": "5.2 ms per note, 61 frames/s with 10 fingers (0 voices)",
+   "pass": false,
+   "detail": "9.6 ms of main-thread work per note (limit 8) · 9.6 ms per note, 61 frames/s with 10 fingers (0 voices)",
    "metrics": {
-    "perNote": 5.24,
-    "fps": 60.7
+    "perNote": 9.62,
+    "fps": 60.9
    },
    "title": "Performance: CPU per note and frame rate"
   },
@@ -1448,32 +2983,32 @@
    "check": "perf",
    "tab": "harmonica",
    "pass": true,
-   "detail": "3.8 ms per note, 61 frames/s with 10 fingers (10 voices)",
+   "detail": "6.5 ms per note, 61 frames/s with 10 fingers (10 voices)",
    "metrics": {
-    "perNote": 3.8,
-    "fps": 60.6
+    "perNote": 6.47,
+    "fps": 60.7
    },
    "title": "Performance: CPU per note and frame rate"
   },
   {
    "check": "perf",
    "tab": "violin",
-   "pass": true,
-   "detail": "7.4 ms per note, 61 frames/s with 8 fingers (8 voices)",
+   "pass": false,
+   "detail": "13.3 ms of main-thread work per note (limit 8) · 13.3 ms per note, 60 frames/s with 8 fingers (8 voices)",
    "metrics": {
-    "perNote": 7.4,
-    "fps": 60.6
+    "perNote": 13.27,
+    "fps": 60.3
    },
    "title": "Performance: CPU per note and frame rate"
   },
   {
    "check": "perf",
    "tab": "cello",
-   "pass": true,
-   "detail": "7.5 ms per note, 61 frames/s with 8 fingers (8 voices)",
+   "pass": false,
+   "detail": "13.2 ms of main-thread work per note (limit 8) · 13.2 ms per note, 61 frames/s with 8 fingers (8 voices)",
    "metrics": {
-    "perNote": 7.52,
-    "fps": 60.6
+    "perNote": 13.25,
+    "fps": 60.8
    },
    "title": "Performance: CPU per note and frame rate"
   },
@@ -1481,32 +3016,32 @@
    "check": "perf",
    "tab": "horn",
    "pass": true,
-   "detail": "4.7 ms per note, 61 frames/s with 8 fingers (1 voices)",
+   "detail": "7.5 ms per note, 61 frames/s with 8 fingers (1 voices)",
    "metrics": {
-    "perNote": 4.67,
-    "fps": 60.6
+    "perNote": 7.51,
+    "fps": 60.7
    },
    "title": "Performance: CPU per note and frame rate"
   },
   {
    "check": "perf",
    "tab": "trumpet",
-   "pass": true,
-   "detail": "5.7 ms per note, 61 frames/s with 8 fingers (1 voices)",
+   "pass": false,
+   "detail": "9.2 ms of main-thread work per note (limit 8) · 9.2 ms per note, 61 frames/s with 8 fingers (1 voices)",
    "metrics": {
-    "perNote": 5.67,
-    "fps": 60.6
+    "perNote": 9.21,
+    "fps": 60.7
    },
    "title": "Performance: CPU per note and frame rate"
   },
   {
    "check": "perf",
    "tab": "viola",
-   "pass": true,
-   "detail": "7.6 ms per note, 61 frames/s with 8 fingers (8 voices)",
+   "pass": false,
+   "detail": "14.3 ms of main-thread work per note (limit 8) · 14.3 ms per note, 61 frames/s with 8 fingers (8 voices)",
    "metrics": {
-    "perNote": 7.64,
-    "fps": 60.6
+    "perNote": 14.29,
+    "fps": 61
    },
    "title": "Performance: CPU per note and frame rate"
   },
@@ -1514,9 +3049,9 @@
    "check": "perf",
    "tab": "organ",
    "pass": true,
-   "detail": "4.0 ms per note, 61 frames/s with 10 fingers (10 voices)",
+   "detail": "6.4 ms per note, 61 frames/s with 10 fingers (10 voices)",
    "metrics": {
-    "perNote": 3.96,
+    "perNote": 6.42,
     "fps": 60.7
    },
    "title": "Performance: CPU per note and frame rate"
@@ -1525,10 +3060,10 @@
    "check": "perf",
    "tab": "sax",
    "pass": true,
-   "detail": "4.9 ms per note, 61 frames/s with 8 fingers (1 voices)",
+   "detail": "7.4 ms per note, 61 frames/s with 8 fingers (1 voices)",
    "metrics": {
-    "perNote": 4.86,
-    "fps": 60.6
+    "perNote": 7.42,
+    "fps": 60.7
    },
    "title": "Performance: CPU per note and frame rate"
   },
@@ -1536,10 +3071,10 @@
    "check": "perf",
    "tab": "xylo",
    "pass": true,
-   "detail": "4.0 ms per note, 61 frames/s with 8 fingers (0 voices)",
+   "detail": "6.4 ms per note, 61 frames/s with 8 fingers (0 voices)",
    "metrics": {
-    "perNote": 3.97,
-    "fps": 60.6
+    "perNote": 6.41,
+    "fps": 60.8
    },
    "title": "Performance: CPU per note and frame rate"
   },
@@ -1547,32 +3082,32 @@
    "check": "perf",
    "tab": "synth",
    "pass": true,
-   "detail": "3.8 ms per note, 61 frames/s with 10 fingers (10 voices)",
+   "detail": "6.5 ms per note, 61 frames/s with 10 fingers (10 voices)",
    "metrics": {
-    "perNote": 3.83,
-    "fps": 60.6
-   },
-   "title": "Performance: CPU per note and frame rate"
-  },
-  {
-   "check": "perf",
-   "tab": "ebass",
-   "pass": true,
-   "detail": "7.4 ms per note, 61 frames/s with 6 fingers (1 voices)",
-   "metrics": {
-    "perNote": 7.35,
+    "perNote": 6.48,
     "fps": 60.7
    },
    "title": "Performance: CPU per note and frame rate"
   },
   {
    "check": "perf",
-   "tab": "rhythm",
-   "pass": true,
-   "detail": "7.8 ms per note, 61 frames/s with 1 fingers (1 voices)",
+   "tab": "ebass",
+   "pass": false,
+   "detail": "12.7 ms of main-thread work per note (limit 8) · 12.7 ms per note, 61 frames/s with 6 fingers (1 voices)",
    "metrics": {
-    "perNote": 7.8,
-    "fps": 60.6
+    "perNote": 12.73,
+    "fps": 60.8
+   },
+   "title": "Performance: CPU per note and frame rate"
+  },
+  {
+   "check": "perf",
+   "tab": "rhythm",
+   "pass": false,
+   "detail": "16.4 ms of main-thread work per note (limit 8) · 16.4 ms per note, 61 frames/s with 1 fingers (1 voices)",
+   "metrics": {
+    "perNote": 16.41,
+    "fps": 60.7
    },
    "title": "Performance: CPU per note and frame rate"
   }

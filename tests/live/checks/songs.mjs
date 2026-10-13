@@ -32,7 +32,7 @@ import { INSTRUMENTS } from '../instruments.mjs';
 import { NAMES, pc, midiOf, row, pool, dryReverb, setToggle } from '../common.mjs';
 
 export const TRACK_FILES = ['melodies', 'chords', 'bass', 'drums', 'tabla'];
-export const TAGS = ['Kids', 'Classical', 'Folk', 'Indian', 'Hymn'];
+export const TAGS = ['Kids', 'Classical', 'Folk', 'Indian', 'Hymn', 'My songs'];
 // Modes a track may be in, and what the app's key label calls them (written here from the definitions)
 const SCALE_IV = {
   major: [0, 2, 4, 5, 7, 9, 11], minor: [0, 2, 3, 5, 7, 8, 10], harmonic: [0, 2, 3, 5, 7, 8, 11], melodic: [0, 2, 3, 5, 7, 9, 11],
@@ -48,6 +48,13 @@ const pitchedType = (t) => t.type === 'melody' || t.type === 'bass' || t.type ==
 export const TYPE_OF = { guitar: 'chords', rhythm: 'chords', ebass: 'bass', drums: 'drums', epad: 'drums', tabla1: 'tabla', tabla2: 'tabla' };
 export const typeOf = (tab) => TYPE_OF[tab] || 'melody';
 export const SAMPLE = { melody: 'twinkle', chords: 'ch-twinkle', bass: 'bs-twinkle', drums: 'dr-rock', tabla: 'tl-keherwa' };
+// The sample a test plays on an instrument: the type's sample if the instrument offers it (each melodic instrument
+// offers its own 5-10 melodies), else the first track it offers; n > 0 picks the n-th other offered track
+export function sampleFor(lib, tab, n = 0) {
+  const type = typeOf(tab), offered = lib.filter((t) => t.type === type && (!t.inst || t.inst.includes(tab)));
+  const first = offered.find((t) => t.id === SAMPLE[type]) || offered[0];
+  return n ? offered.filter((t) => t !== first)[n - 1] : first;
+}
 const PADS = ['kick', 'snare', 'hatC', 'hatO', 'tomL', 'tomH', 'clap', 'crash'];
 const PAD_NAMES = { kick: ['Kick'], snare: ['Snare'], hatC: ['Closed hat'], hatO: ['Open hat'], clap: ['Clap'], crash: ['Crash'], tomL: ['Tom low', 'Tom'], tomH: ['Tom high', 'Tom'] };
 // Bols as tabla strokes (dayan: Na Tin Tun Te Ti; bayan: Ge Ke), as a tabla player reads them
@@ -109,8 +116,9 @@ function checkNotes(t, notes, e, label) {
 export function validateTrack(t) {
   const e = [], per = t.time && bpb(t), len = t.bars * per;
   if (!t.id || !t.title || !t.by) e.push('missing id, title or composer');
-  if (!['Public domain', 'Original'].includes(t.src)) e.push('source must be Public domain or Original');
-  if (!(t.tempo >= 40 && t.tempo <= 220)) e.push('tempo ' + t.tempo + ' outside 40-220');
+  if (!['Public domain', 'Original'].includes(t.src) && !/^CC BY(-SA)? [0-9.]+$/.test(t.src)) e.push('licence must be Public domain, Original, CC BY or CC BY-SA, not ' + t.src);
+  if (!['verified', 'generated'].includes(t.status)) e.push('status must be verified or generated, not ' + t.status);
+  if (!(t.tempo >= 24 && t.tempo <= 220)) e.push('tempo ' + t.tempo + ' outside 24-220'); // (Bach's Air is marked a quarter = 30)
   const beats = t.type === 'tabla' ? t.time[0] >= 2 && t.time[0] <= 16 : [2, 3, 4, 5, 6, 7].includes(t.time[0]);
   if (!Array.isArray(t.time) || !beats || ![2, 4, 8].includes(t.time[1])) e.push('bad time signature');
   if (![1, 2, 3].includes(t.level)) e.push('difficulty must be 1-3');
@@ -121,7 +129,8 @@ export function validateTrack(t) {
     else if (t.tonic !== keyPc(t.key)) e.push(`tonic ${t.tonic} is not the pitch class of ${t.key}`);
     if (!SCALE_IV[t.mode]) e.push('missing or unknown mode ' + t.mode);
     const tune = t.type === 'chords' ? t.notes : t.type === 'melody' ? t.notes : null;
-    if (tune && tune.length && pc(tune[tune.length - 1][2]) !== t.tonic) e.push(`the tune ends on ${NAMES[pc(tune[tune.length - 1][2])]}, not its tonic ${NAMES[t.tonic]}`);
+    // a generated tune ends on its tonic; a verified one is an excerpt of a score and ends where the excerpt does
+    if (t.status === 'generated' && tune && tune.length && pc(tune[tune.length - 1][2]) !== t.tonic) e.push(`the tune ends on ${NAMES[pc(tune[tune.length - 1][2])]}, not its tonic ${NAMES[t.tonic]}`);
   } else if (t.tonic !== null || t.mode !== 'none') e.push('an unpitched track needs tonic null and mode "none"');
   if (t.chords) {
     if (t.chords.length !== t.bars) e.push(`${t.chords.length} chord bars for ${t.bars} bars`);
@@ -131,7 +140,8 @@ export function validateTrack(t) {
     if (!t.notes || !t.notes.length) e.push('no notes');
     else {
       checkNotes(t, t.notes, e, 'note');
-      if (t.type === 'bass' && t.notes.some((n) => n[2] < 28 || n[2] > 60)) e.push('bass notes outside E1-C4');
+      // a bass line fits E1-C4, moved by whole octaves if need be (a score's bass is stored at its written pitch)
+      if (t.type === 'bass') { const lo = Math.min(...t.notes.map((n) => n[2])), hi = Math.max(...t.notes.map((n) => n[2])); if (![-2, -1, 0, 1].some((o) => lo + 12 * o >= 28 && hi + 12 * o <= 60)) e.push('bass notes do not fit E1-C4'); }
     }
     if (t.sargam && t.sargam.length !== t.notes.length) e.push('sargam labels do not match the notes');
   } else if (t.type === 'chords') {
@@ -179,7 +189,7 @@ function trackRows() {
   return [row('songs', '-', !bad.length && size < 2 * 1024 * 1024 && !notCached.length,
     (bad.length ? bad.slice(0, 4).join(' | ') + ' · ' : '') + `track files: ${all.length} tracks (${Object.entries(byType).map(([k, v]) => v + ' ' + k).join(', ')}), ` +
     `${(size / 1024).toFixed(1)} KB` + (notCached.length ? `; not cached by the service worker: ${notCached.join(', ')}` : ', all cached by the service worker') +
-    (bad.length ? '' : `; every bar adds up, no overlaps; every pitched track has its tonic and mode (${[...new Set(all.filter(pitchedType).map((t) => t.mode))].join(', ')}) and its tune ends on the tonic; lengths, tempos, chords, pads and bols valid, all listed in TRACKS.md`),
+    (bad.length ? '' : `; every bar adds up, no overlaps; every pitched track has its tonic and mode (${[...new Set(all.filter(pitchedType).map((t) => t.mode))].join(', ')}) and a generated tune ends on the tonic; lengths, tempos, chords, pads and bols valid, all listed in TRACKS.md`),
     { tracks: all.length, kb: +(size / 1024).toFixed(1), bad: bad.length })];
 }
 
@@ -395,7 +405,7 @@ async function autoplayRows(browser, base, workers, tabs) {
             for (let k = 0; k < 4; k++) { const p = PBA.pitch(m, SR, Math.round(a + k * (b - a) / 4), Math.round(a + (k + 1) * (b - a) / 4), type === 'bass' ? 28 : 50, 2600); if (p.f > 0) fs.push(Math.log2(p.f)); }
             fs.sort((p, q) => p - q);
             const mid = fs.length > 2 ? fs.slice(1, -1) : fs;
-            return { i: e.i, want: e.m, f: mid.length ? Math.pow(2, mid.reduce((p, q) => p + q, 0) / mid.length) : 0 };
+            return { i: e.i, want: e.m, f: mid.length ? Math.pow(2, mid.reduce((p, q) => p + q, 0) / mid.length) : 0, short: e.d * spb < 0.2 };
           }) };
           if (type === 'chords') return { key, peak, trKey: tr.key, strums: ev.map((e) => {
             // the strength of each of the 12 notes (any octave, E2 to C6) just after the strum
@@ -415,18 +425,20 @@ async function autoplayRows(browser, base, workers, tabs) {
         const errs = [], dB = (x) => 20 * Math.log10(x + 1e-12), shift = tp;
         let detail;
         if (r.notes) {
-          let worst = 0;
+          let worst = 0, short = 0;
           // expected: the written note plus the transpose, moved by one whole number of octaves for the whole song
           const oct = r.notes.length ? Math.round((r.notes[0].want - tr.notes[r.notes[0].i][2] - tp) / 12) : 0;
           r.notes.forEach((n) => {
             const want = tr.notes[n.i][2] + shift + 12 * oct;
             if (want !== n.want) errs.push(`note ${n.i + 1}: plans ${NAMES[pc(n.want)]}${Math.floor(n.want / 12) - 1}, the track says ${NAMES[pc(want)]}${Math.floor(want / 12) - 1}`);
+            // a note under 0.2 s (a 16th in a quick tune) is too short to measure on its own; its planned note is checked above
+            if (n.short) { short++; return; }
             if (!(n.f > 0)) { errs.push(`note ${n.i + 1}: no pitch`); return; }
             const c = 100 * (midiOf(n.f) - n.want);
             worst = Math.max(worst, Math.abs(c));
             if (Math.abs(c) > 5) errs.push(`note ${n.i + 1} (${NAMES[pc(n.want)]}): ${c.toFixed(1)} cents`);
           });
-          detail = `${r.notes.length} notes, each measured within 5 cents of the track's own note${tp ? ' + ' + tp : ''}${oct ? ' (' + (oct > 0 ? '+' : '') + oct + ' octave)' : ''}, worst ${worst.toFixed(1)} cents`;
+          detail = `${r.notes.length} notes, each measured within 5 cents of the track's own note${tp ? ' + ' + tp : ''}${oct ? ' (' + (oct > 0 ? '+' : '') + oct + ' octave)' : ''}, worst ${worst.toFixed(1)} cents${short ? ` (${short} notes under 0.2 s too short to measure; their planned notes are right)` : ''}`;
         } else if (r.strums) {
           const sh = shift > 6 ? shift - 12 : shift;
           let worstShare = 1;
@@ -585,7 +597,7 @@ async function trainRows(browser, base, workers, tabs) {
   const tasks = pickList(tabs).map((ins) => ({
     tab: ins.tab, check: 'songs', fresh: true,
     run: async () => {
-      const type = typeOf(ins.tab), tr = lib.find((t) => t.id === SAMPLE[type]);
+      const type = typeOf(ins.tab), tr = sampleFor(lib, ins.tab);
       const cur = await openWithHooks(browser, base, ins.tab);
       const { page, touch } = cur, errs = [];
       try {
@@ -725,7 +737,9 @@ async function alignRows(browser, base, workers, tabs) {
   const tasks = melodic.map((ins) => ({
     tab: ins.tab, check: 'songs', fresh: true,
     run: async () => {
-      const id = typeOf(ins.tab) === 'bass' ? 'bs-canon' : ins.tab === 'piano' ? 'danube' : 'ode', errs = [], seen = [];
+      // the piano takes its widest song (the zoomed keyboard is wider than the screen and has to scroll to the note)
+      const span = (t) => Math.max(...t.notes.map((n) => n[2])) - Math.min(...t.notes.map((n) => n[2]));
+      const id = typeOf(ins.tab) === 'bass' ? 'bs-canon' : ins.tab === 'piano' ? lib.filter((t) => t.type === 'melody' && t.inst && t.inst.includes('piano')).sort((a, b) => span(b) - span(a))[0].id : sampleFor(lib, ins.tab, 1).id, errs = [], seen = [];
       let bars = 0, painted = 0, worst = 0, scrolled = false;
       for (const [w, h] of VIEWPORTS) {
         const cur = await openWithHooks(browser, base, ins.tab, 'try { localStorage.setItem("pb-trainhint", "1"); } catch (e) {}', { width: w, height: h });
@@ -767,7 +781,9 @@ async function stopRows(browser, base, workers, tabs) {
   const tasks = pickList(tabs).map((ins) => ({
     tab: ins.tab, check: 'songs', fresh: true,
     run: async () => {
-      const type = typeOf(ins.tab), id = type === 'melody' ? 'ode' : lib.filter((t) => t.type === type)[1].id;
+      // a song that starts on its first beat, so it is sounding when it is stopped
+      const offered = lib.filter((t) => t.type === typeOf(ins.tab) && (!t.inst || t.inst.includes(ins.tab)) && (t.notes || t.hits || t.strum)[0][0] === 0);
+      const id = (offered[1] || offered[0]).id;
       const cur = await openWithHooks(browser, base, ins.tab);
       const { page, touch } = cur, res = {};
       try {
@@ -819,17 +835,18 @@ async function storageRows(browser, base) {
   const { page, touch, log } = cur, errs = [];
   try {
     await tapSel(page, touch, '#songs');
-    await page.waitForSelector('.sgitem[data-id="mary"]');
-    await tapSel(page, touch, '.sgitem[data-id="mary"] [data-go="train"]');
+    await page.waitForSelector('.sgitem[data-id="twinkle"]');
+    await tapSel(page, touch, '.sgitem[data-id="twinkle"] [data-go="train"]');
     await hintOk(page, touch);
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 120; i++) {
       const g = await page.evaluate(glowNow);
       if (!g || !g.targets) break;
       await touch.tap(g.targets[0].x, g.targets[0].y, 90); await sleep(50);
     }
     const res = await page.evaluate(() => document.getElementById('sgResult').textContent);
     if (!/★/.test(res)) errs.push(`no score shown ("${res}")`);
-    if (log.errors.length) errs.push('console errors: ' + log.errors.slice(0, 2).join(' / '));
+    const real = log.errors.filter((e) => !/fonts\.(googleapis|gstatic)\.com/.test(e)); // the web font is optional (no internet on a test machine)
+    if (real.length) errs.push('console errors: ' + real.slice(0, 2).join(' / '));
   } catch (e) { errs.push(e.message.split('\n')[0]); }
   await cur.context.close();
   return [row('songs', '-', !errs.length, (errs.length ? errs.join('; ') + ' · ' : '') + 'storage blocked: the sheet opens, a song trains to the end and scores, no errors')];

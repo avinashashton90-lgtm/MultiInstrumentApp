@@ -24,6 +24,7 @@ const CHECKS = [
   ['brass', 'Brass and reeds: brightness with breath, no crackle'],
   ['record', 'Record and playback'],
   ['songs', 'Songs: tracks, fitting, auto-play, Train me, stopping'],
+  ['library', 'Song library: sources, verification, credits, Easy/Full, report, My songs'],
   ['offline', 'Offline, manifest and service worker version'],
   ['perf', 'Performance: CPU per note and frame rate']
 ];
