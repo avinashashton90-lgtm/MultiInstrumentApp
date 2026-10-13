@@ -1,0 +1,176 @@
+# Builds the Pocket Band Android app (Capacitor) and publishes PocketBand.apk.
+# Push to main or "Run workflow": test, build, sign, check, and attach to a GitHub Release tagged build-<run number>.
+# Pull requests: the same test, build and check, with the APK kept as a workflow artifact only (no release).
+# Signing setup and the secrets it reads: ANDROID_BUILD.md.
+name: Android APK
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      BUILD_NUMBER: ${{ github.run_number }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # Capacitor 8's Android library is compiled for Java 21, so JDK 21 is used here (see ANDROID_BUILD.md)
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+
+      - name: Install packages (npm ci)
+        run: npm ci
+
+      - name: Install Chromium for the tests
+        run: npx playwright install --with-deps chromium
+
+      # The existing live suite in quick mode. Per-note main-thread timing (8 ms limit) is listed as KNOWN instead of
+      # failing, because shared build machines are slower than a phone at it; every other check must pass.
+      - name: Run the tests
+        id: tests
+        run: node tests/run-all.mjs --quick --allow-slow-notes --workers=2
+
+      - name: Copy the web app into www/ and sync Capacitor
+        id: sync
+        run: |
+          node tools/copy-web.mjs
+          npx cap sync android
+
+      - name: Read the signing key from GitHub Secrets
+        id: key
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          if [ -n "$ANDROID_KEYSTORE_BASE64" ] && [ -n "$ANDROID_KEYSTORE_PASSWORD" ] && [ -n "$ANDROID_KEY_ALIAS" ] && [ -n "$ANDROID_KEY_PASSWORD" ]; then
+            echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/pocketband.jks"
+            echo "ANDROID_KEYSTORE_FILE=$RUNNER_TEMP/pocketband.jks" >> "$GITHUB_ENV"
+            echo "signed=true" >> "$GITHUB_OUTPUT"
+            echo "Release key found: the APK will be signed with it, and a Play Store .aab will be built too."
+          else
+            echo "signed=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::Signing secrets are missing, so this APK is signed with a debug key. See ANDROID_BUILD.md to add them."
+          fi
+
+      - name: Build the APK (and the .aab when signed)
+        id: gradle
+        working-directory: android
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          chmod +x gradlew
+          tasks="assembleRelease"
+          if [ "${{ steps.key.outputs.signed }}" = "true" ]; then tasks="assembleRelease bundleRelease"; fi
+          ./gradlew $tasks --no-daemon --stacktrace
+
+      - name: Collect PocketBand.apk
+        id: collect
+        run: |
+          mkdir -p dist
+          apk=$(ls android/app/build/outputs/apk/release/*.apk | head -1)
+          if [ -z "$apk" ]; then echo "::error::Gradle finished but no release APK was found in android/app/build/outputs/apk/release"; exit 1; fi
+          cp "$apk" dist/PocketBand.apk
+          if [ "${{ steps.key.outputs.signed }}" = "true" ]; then
+            aab=$(ls android/app/build/outputs/bundle/release/*.aab | head -1)
+            if [ -z "$aab" ]; then echo "::error::The signed build ran but no .aab was found"; exit 1; fi
+            cp "$aab" dist/PocketBand.aab
+          fi
+          rm -f "$RUNNER_TEMP/pocketband.jks"
+          ls -l dist
+
+      - name: Check the APK (aapt dump badging)
+        id: check
+        run: |
+          bt=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
+          want_version=$(node -p "require('./package.json').version")
+          echo "Build tools: $bt"
+          badging=$("$bt/aapt" dump badging dist/PocketBand.apk)
+          echo "----- aapt dump badging (package, version, SDK, label, orientation) -----"
+          echo "$badging" | grep -E "^(package|sdkVersion|targetSdkVersion|application-label|launchable-activity|uses-implied-feature|uses-feature|native-code)" || true
+          orient=$("$bt/aapt" dump xmltree dist/PocketBand.apk AndroidManifest.xml | grep -i screenOrientation || true)
+          echo "Orientation in the manifest: $orient"
+          echo "----- signature -----"
+          "$bt/apksigner" verify --print-certs dist/PocketBand.apk | grep -E "Signer #1 certificate DN|SHA-256" || true
+          fail=0
+          echo "$badging" | grep -q "package: name='com.avinash.pocketband'" || { echo "::error::Package id is not com.avinash.pocketband"; fail=1; }
+          echo "$badging" | grep -q "versionName='$want_version'" || { echo "::error::versionName is not $want_version from package.json"; fail=1; }
+          echo "$badging" | grep -q "versionCode='$BUILD_NUMBER'" || { echo "::error::versionCode is not the build number $BUILD_NUMBER"; fail=1; }
+          echo "$badging" | grep -q "android.hardware.screen.landscape" || { echo "::error::The APK does not ask for landscape"; fail=1; }
+          "$bt/apksigner" verify dist/PocketBand.apk || { echo "::error::apksigner could not verify the APK signature"; fail=1; }
+          unzip -l dist/PocketBand.apk | grep -q "assets/public/index.html" || { echo "::error::index.html is not bundled inside the APK"; fail=1; }
+          unzip -l dist/PocketBand.apk | grep -q "assets/public/tracks/melodies.json" || { echo "::error::tracks/ is not bundled inside the APK"; fail=1; }
+          if unzip -l dist/PocketBand.apk | grep -q "assets/public/sw.js"; then echo "::error::sw.js should not be inside the APK"; fail=1; fi
+          [ $fail = 0 ] && echo "APK check passed: com.avinash.pocketband $want_version (build $BUILD_NUMBER), landscape, signed, web files bundled."
+          exit $fail
+
+      - name: Keep the APK as a workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PocketBand-build-${{ github.run_number }}
+          path: dist/*
+          if-no-files-found: error
+
+      - name: Write the release notes
+        if: github.event_name != 'pull_request'
+        run: |
+          v=$(node -p "require('./package.json').version")
+          {
+            echo "Pocket Band $v for Android, build ${{ github.run_number }} from commit ${GITHUB_SHA::7}."
+            echo
+            if [ "${{ steps.key.outputs.signed }}" = "true" ]; then
+              echo "Signed with the Pocket Band release key. PocketBand.aab is the Play Store upload."
+            else
+              echo "**Debug-signed:** the signing secrets were not set, so this APK is signed with a temporary debug key. It installs and works, but it cannot update an earlier install in place: uninstall the old app first. See ANDROID_BUILD.md."
+            fi
+            echo
+            echo "To install: download PocketBand.apk on the phone, open it, and allow installing from this source when Android asks."
+          } > release-notes.md
+          cat release-notes.md
+
+      - name: Publish the GitHub Release
+        if: github.event_name != 'pull_request'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.run_number }}
+          name: Pocket Band build ${{ github.run_number }}
+          body_path: release-notes.md
+          target_commitish: ${{ github.sha }}
+          make_latest: true
+          files: dist/*
+
+      - name: Explain a failure
+        if: failure()
+        run: |
+          echo "::error::The Android build failed. Failed step:"
+          [ "${{ steps.tests.outcome }}" = "failure" ] && echo "::error::Tests failed. Open 'Run the tests' and look for FAIL rows in the table at the end."
+          [ "${{ steps.sync.outcome }}" = "failure" ] && echo "::error::Copying the web files or 'npx cap sync android' failed (a missing web file is named above)."
+          [ "${{ steps.gradle.outcome }}" = "failure" ] && echo "::error::Gradle could not build the APK. Search the 'Build the APK' log for 'What went wrong'. A wrong keystore password or alias shows up there too."
+          [ "${{ steps.collect.outcome }}" = "failure" ] && echo "::error::The build finished but the APK or .aab file was not where expected."
+          [ "${{ steps.check.outcome }}" = "failure" ] && echo "::error::The finished APK failed its check (package, version, landscape, signature or bundled files); see the errors above."
+          true

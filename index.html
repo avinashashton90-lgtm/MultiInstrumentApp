@@ -5864,7 +5864,16 @@ body:not(.song) .sgover { display: none; }
   $('ver').textContent = 'v' + APP_VERSION;
   // Read-only numbers for the test suite and the self-test page: sounding voices and the note limit
   window.__pbStats = function () { var on = live.filter(function (v) { return !v.done; }); return { voices: on.length, ringing: on.filter(function (v) { return v.ring; }).length, max: MAX_VOICES, version: APP_VERSION, tab: state.tab }; };
-  if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+  // Android app only (Capacitor): its Back button asks this what to do. An open Songs sheet closes, an instrument
+  // goes Home like the Home button, and on Home the app offers to exit. The browser never calls it.
+  window.__pbBack = function () {
+    if (!$('songSheet').hidden) { songsSheet(false); return 'handled'; }
+    if (state.screen === 'play') { goHome(); return 'handled'; }
+    return 'exit';
+  };
+  // The Android app carries every file inside it, so it registers no service worker
+  var nativeApp = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+  if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol) && !nativeApp) {
     window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
     // A new version took over while the app was open on the home screen: reload once so it runs the new code
     var hadSw = !!navigator.serviceWorker.controller;
