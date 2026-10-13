@@ -164,6 +164,12 @@ async function featureRows(browser, base) {
       await page.fill('#myName', 'Test minuet');
       await tapSel(page, touch, '#myOk');
       await page.waitForSelector('.sgitem[data-id^="my-"]');
+      // The list shows the song before IndexedDB has stored it; on a fast machine a reload straight away can come first
+      await page.waitForFunction(() => new Promise((ok) => {
+        const r = indexedDB.open('pocketband-mysongs', 1);
+        r.onsuccess = () => { const q = r.result.transaction('songs').objectStore('songs').count(); q.onsuccess = () => { ok(q.result === 1); r.result.close(); }; };
+        r.onerror = () => ok(false);
+      }), null, { timeout: 5000 });
       await page.reload({ waitUntil: 'load' });
       await openFromGallery(page, touch, 'violin');
       await tapSel(page, touch, '#songs');
