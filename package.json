@@ -7,6 +7,8 @@
     "test": "node tests/run-all.mjs",
     "test:quick": "node tests/run-all.mjs --quick",
     "test:pitch": "node tests/run-all.mjs --only=pitch",
+    "tracks": "node tools/make-tracks.mjs && node tools/sync-core.mjs",
+    "test:tracks": "node tools/verify-tracks.mjs",
     "build:web": "node tools/copy-web.mjs",
     "cap:sync": "node tools/copy-web.mjs && npx cap sync android"
   },

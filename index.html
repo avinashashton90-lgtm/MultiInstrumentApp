@@ -595,6 +595,28 @@ body:not(.song) .sgover { display: none; }
 .sgbtns { display: flex; gap: 6px; flex: 0 0 auto; }
 .sgtrain { border-color: var(--accent); color: var(--accent); font-weight: 700; }
 .sgempty { padding: 18px 4px; color: var(--muted); }
+.sghead { padding: 10px 2px 2px; font-size: .8rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; list-style: none; }
+.sgadd { font-weight: 700; border-color: var(--accent); color: var(--accent); min-height: 40px; }
+.sgmine { font-size: .7rem; font-weight: 700; color: #fff; background: var(--accent); border-radius: 6px; padding: 1px 6px; vertical-align: 1px; }
+.sgdel { min-width: 40px; }
+.sgnote { margin: 6px 0; font-size: .82rem; color: var(--muted); }
+.sgcopied { color: var(--accent); font-weight: 700; min-height: 1.2em; }
+.sheet-small { width: min(520px, 100%); padding-bottom: 12px; }
+.myrow { display: flex; gap: 10px; align-items: center; margin: 8px 0; }
+.myrow label { flex: 0 0 64px; font-size: .85rem; }
+.myrow select, .myrow input { flex: 1 1 auto; min-width: 0; min-height: 40px; font: inherit; font-size: .9rem; padding: 4px 10px; border-radius: 10px; border: 2px solid var(--edge); background: var(--key); color: var(--ink); user-select: text; -webkit-user-select: text; touch-action: manipulation; }
+.repgrid { overflow-y: auto; touch-action: pan-y; overscroll-behavior: contain; flex: 1 1 auto; min-height: 0; padding-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
+.repbar { display: flex; gap: 4px; align-items: stretch; }
+.repbar b { flex: 0 0 58px; font-size: .8rem; display: flex; align-items: center; }
+.repbar button { flex: 1 1 0; min-width: 0; min-height: 44px; padding: 2px 4px; font-size: .72rem; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.15; }
+.repbar button small { color: var(--muted); font-size: .66rem; }
+.credlist { overflow-y: auto; touch-action: pan-y; overscroll-behavior: contain; flex: 1 1 auto; min-height: 0; padding-bottom: 14px; font-size: .84rem; user-select: text; -webkit-user-select: text; }
+.credlist h3 { font-size: .9rem; margin: 12px 0 4px; }
+.credlist p { margin: 4px 0; color: var(--muted); }
+.credlist ul { margin: 0; padding: 0; list-style: none; }
+.credlist li { padding: 6px 0; border-bottom: 1px solid var(--edge); }
+.credlist li span { color: var(--muted); display: block; font-size: .78rem; }
+.credlist a { color: var(--accent); }
 
 .rotate {
   position: fixed; inset: 0; z-index: 20; background: var(--bg); display: none;
@@ -779,7 +801,9 @@ body:not(.song) .sgover { display: none; }
   <button id="sgCount" aria-pressed="true">Count-in</button>
   <button id="sgMetro" aria-pressed="false">Metronome</button>
   <button id="sgBack" aria-pressed="false">Chord backing</button>
+  <button id="sgFull" aria-pressed="false" hidden>Full: tune and bass</button>
   <select id="sgSec" aria-label="Whole song or a section"></select>
+  <button id="sgReport">Report a wrong note</button>
 </div>
 <div class="sgstrip" id="sgStrip" hidden aria-hidden="true"><canvas id="sgStripCv"></canvas></div>
 
@@ -969,6 +993,7 @@ body:not(.song) .sgover { display: none; }
         <option value="14" selected>14</option>
         <option value="20">20</option>
       </select></div>
+    <div class="r"><span>Songs</span><button id="credits">Credits</button></div>
     <div class="r"><span>Check the app</span><a class="btnlink" id="selftest" href="selftest.html">Self-test</a></div>
     <div class="r"><span>Version</span><b class="kval" id="ver"></b></div>
   </div>
@@ -989,8 +1014,38 @@ body:not(.song) .sgover { display: none; }
     <div class="sheet-tools">
       <input id="sgSearch" type="search" placeholder="Search songs" aria-label="Search songs" autocomplete="off">
       <div class="chips" id="sgTags" role="group" aria-label="Show songs tagged"></div>
+      <button id="sgAdd" class="sgadd">＋ Add my song (.mid)</button>
+      <input type="file" id="sgFile" accept=".mid,.midi,audio/midi,audio/x-midi" hidden>
     </div>
     <ul class="sglist" id="sgList"></ul>
+  </div>
+</div>
+
+<div class="sheet" id="mySheet" role="dialog" aria-modal="true" aria-labelledby="myTitle" hidden>
+  <div class="sheet-in sheet-small">
+    <div class="sheet-head"><h2 id="myTitle">Add my song</h2><button id="myClose" aria-label="Cancel">✕</button></div>
+    <p class="sgnote" id="myInfo"></p>
+    <div class="myrow"><label for="myPart">Melody</label><select id="myPart"></select></div>
+    <div class="myrow"><label for="myName">Name</label><input id="myName" type="text" maxlength="60" autocomplete="off"></div>
+    <p class="sgnote" id="myPreview" aria-live="polite"></p>
+    <div class="myrow"><button id="myOk" class="sgplay">Add to My songs</button></div>
+    <p class="sgnote">Your song is kept on this device only. It is never uploaded or shared.</p>
+  </div>
+</div>
+
+<div class="sheet" id="repSheet" role="dialog" aria-modal="true" aria-labelledby="repTitle" hidden>
+  <div class="sheet-in">
+    <div class="sheet-head"><h2 id="repTitle">Report a wrong note</h2><button id="repClose" aria-label="Close">✕</button></div>
+    <p class="sgnote">Tap the bar and beat where the note sounds wrong. It copies the song, bar and beat so you can paste them into a message.</p>
+    <p class="sgnote sgcopied" id="repMsg" aria-live="polite"></p>
+    <div class="repgrid" id="repGrid"></div>
+  </div>
+</div>
+
+<div class="sheet" id="credSheet" role="dialog" aria-modal="true" aria-labelledby="credTitle" hidden>
+  <div class="sheet-in">
+    <div class="sheet-head"><h2 id="credTitle">Credits</h2><button id="credClose" aria-label="Close credits">✕</button></div>
+    <div class="credlist" id="credList"></div>
   </div>
 </div>
 
@@ -999,7 +1054,7 @@ body:not(.song) .sgover { display: none; }
   var AC = window.AudioContext || window.webkitAudioContext;
   var ctx, bus, master, limiter, makeup, wet, lfoDepth, noiseBuf, drive, conv, gch, eOut, hall;
   // App version: matches the service worker's cache name (sw.js), shown in Settings so a phone can be checked
-  var APP_VERSION = 8;
+  var APP_VERSION = 9;
   var MAKEUP = 1.26; // +2 dB after the limiter (Chrome's compressor adds its own make-up on top: see TESTING.md)
   var $ = function (id) { return document.getElementById(id); };
 
@@ -4288,6 +4343,9 @@ body:not(.song) .sgover { display: none; }
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     var tag = (e.target.tagName || '').toLowerCase();
     if (state.screen === 'home') { galleryKey(e); return; }
+    // the small sheets over the Songs sheet (Add my song, Report, Credits): Escape closes the top one, nothing plays
+    var over = ['mySheet', 'repSheet', 'credSheet'].filter(function (id) { return !$(id).hidden; })[0];
+    if (over) { if (e.key === 'Escape') { $(over).hidden = true; if (over === 'mySheet') myPending = null; } return; }
     if (e.repeat || tag === 'select' || tag === 'input') { if (e.key === 'Escape' && !$('songSheet').hidden) songsSheet(false); return; }
     if (!$('songSheet').hidden && e.key !== 'Escape') return;
     var k = e.key.toLowerCase();
@@ -4741,6 +4799,309 @@ body:not(.song) .sgover { display: none; }
 
   $('anyway').onclick = function () { document.body.classList.add('allow-portrait'); };
 
+  // MIDI-CORE-BEGIN
+  // The MIDI reader and track converter shared by the app ("Add my song") and the build tools (tools/midi-to-track.mjs).
+  // tools/sync-core.mjs pastes the same text into index.html between the MIDI-CORE markers; the tests check they match.
+  // No libraries: reads a Standard MIDI File (format 0 or 1) and turns one part of it into a Pocket Band track.
+  var MidiCore = (function () {
+    'use strict';
+    var NAMES_SHARP = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    var NAMES_FLAT = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
+    // Major-key tonic for each key signature (number of sharps, negative for flats)
+    var SF_MAJOR = { '-7': 'Cb', '-6': 'Gb', '-5': 'Db', '-4': 'Ab', '-3': 'Eb', '-2': 'Bb', '-1': 'F', 0: 'C', 1: 'G', 2: 'D', 3: 'A', 4: 'E', 5: 'B', 6: 'F#', 7: 'C#' };
+    var SF_MINOR = { '-7': 'Ab', '-6': 'Eb', '-5': 'Bb', '-4': 'F', '-3': 'C', '-2': 'G', '-1': 'D', 0: 'A', 1: 'E', 2: 'B', 3: 'F#', 4: 'C#', 5: 'G#', 6: 'D#', 7: 'A#' };
+    var STEP = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
+    // Krumhansl-Kessler key profiles
+    var KK_MAJ = [6.35, 2.23, 3.48, 2.33, 4.38, 4.09, 2.52, 5.19, 2.39, 3.66, 2.29, 2.88];
+    var KK_MIN = [6.33, 2.68, 3.52, 5.38, 2.60, 3.53, 2.54, 4.75, 3.98, 2.69, 3.34, 3.17];
+    var EPS = 1e-6;
+    function r4(x) { return Math.round(x * 10000) / 10000; }
+    function pcOf(name) { return (STEP[name[0]] + (name[1] === '#' ? 1 : name[1] === 'b' ? -1 : 0) + 12) % 12; }
+
+    /* ---------- Reading the file ---------- */
+    // bytes: Uint8Array. Returns { format, ppq, notes: [{ tr, ch, on, off, m, v }] in ticks, tempos: [[tick, usPerQuarter]],
+    // times: [[tick, num, den]], keys: [[tick, sharps, minor]], names: { track: name }, programs: { 'tr:ch': program } }
+    function parse(bytes) {
+      var p = 0;
+      function u8() { if (p >= bytes.length) throw new Error('The file ends too early'); return bytes[p++]; }
+      function u16() { return (u8() << 8) | u8(); }
+      function u32() { return ((u8() << 24) >>> 0) + (u8() << 16) + (u8() << 8) + u8(); }
+      function str(n) { var s = ''; for (var i = 0; i < n; i++) s += String.fromCharCode(u8()); return s; }
+      function vlq() { var v = 0, b, k = 0; do { b = u8(); v = (v << 7) | (b & 127); if (++k > 4) throw new Error('Bad length in the file'); } while (b & 128); return v; }
+      if (str(4) !== 'MThd') throw new Error('This is not a MIDI file');
+      var hlen = u32(), format = u16(), ntr = u16(), div = u16();
+      p += hlen - 6;
+      if (div & 0x8000) throw new Error('SMPTE timing is not supported');
+      var out = { format: format, ppq: div, notes: [], tempos: [], times: [], keys: [], names: {}, programs: {} };
+      for (var t = 0; t < ntr && p < bytes.length; t++) {
+        var id = str(4), len = u32(), end = p + len;
+        if (id !== 'MTrk') { p = end; t--; continue; }
+        var tick = 0, run = 0, open = {};
+        while (p < end) {
+          tick += vlq();
+          var st = bytes[p];
+          if (st & 0x80) { p++; if (st < 0xf0) run = st; } else st = run;
+          if (st === 0xff) {
+            var type = u8(), l = vlq(), at = p;
+            if (type === 0x51 && l === 3) out.tempos.push([tick, (bytes[p] << 16) | (bytes[p + 1] << 8) | bytes[p + 2]]);
+            else if (type === 0x58 && l >= 2) out.times.push([tick, bytes[p], Math.pow(2, bytes[p + 1])]);
+            else if (type === 0x59 && l >= 2) out.keys.push([tick, bytes[p] > 127 ? bytes[p] - 256 : bytes[p], bytes[p + 1]]);
+            else if (type === 0x03 && out.names[t] === undefined) out.names[t] = str(l);
+            p = at + l;
+          } else if (st === 0xf0 || st === 0xf7) { p += vlq(); }
+          else {
+            var hi = st & 0xf0, ch = st & 15, a = u8(), b = (hi === 0xc0 || hi === 0xd0) ? 0 : u8();
+            var key = ch + ':' + a;
+            if (hi === 0x90 && b > 0) (open[key] = open[key] || []).push({ tr: t, ch: ch, on: tick, m: a, v: b });
+            else if (hi === 0x80 || (hi === 0x90 && b === 0)) {
+              var q = open[key];
+              if (q && q.length) { var n = q.shift(); n.off = tick; if (n.off > n.on) out.notes.push(n); }
+            } else if (hi === 0xc0 && out.programs[t + ':' + ch] === undefined) out.programs[t + ':' + ch] = a;
+          }
+        }
+        Object.keys(open).forEach(function (k) { open[k].forEach(function (n) { n.off = tick; if (n.off > n.on) out.notes.push(n); }); });
+        p = end;
+      }
+      out.notes.sort(function (x, y) { return x.on - y.on || y.m - x.m; });
+      out.tempos.sort(function (x, y) { return x[0] - y[0]; });
+      out.times.sort(function (x, y) { return x[0] - y[0]; });
+      out.keys.sort(function (x, y) { return x[0] - y[0]; });
+      return out;
+    }
+
+    // The parts of a file: one per track and channel that has notes (drum channel 10 left out), with what a person
+    // choosing the melody needs to see
+    function parts(mid) {
+      var map = {}, list = [];
+      mid.notes.forEach(function (n) {
+        if (n.ch === 9) return;
+        var k = n.tr + ':' + n.ch, s = map[k];
+        if (!s) { s = map[k] = { key: k, tr: n.tr, ch: n.ch, name: mid.names[n.tr] || '', n: 0, lo: 127, hi: 0, sum: 0, chords: 0, first: n.on }; list.push(s); }
+        s.n++; s.lo = Math.min(s.lo, n.m); s.hi = Math.max(s.hi, n.m); s.sum += n.m;
+      });
+      list.forEach(function (s) {
+        s.mean = s.sum / s.n; delete s.sum;
+        var ons = {}; mid.notes.forEach(function (n) { if (n.tr === s.tr && n.ch === s.ch) ons[n.on] = (ons[n.on] || 0) + 1; });
+        var k = Object.keys(ons); s.chords = k.filter(function (o) { return ons[o] > 1; }).length / Math.max(1, k.length);
+        var nm = (s.name || '').replace(/^[\s:]+|[\s:]+$/g, '');
+        s.label = (nm || 'Track ' + (s.tr + 1)) + (list.filter(function (x) { return x.tr === s.tr; }).length > 1 ? ' (channel ' + (s.ch + 1) + ')' : '');
+      });
+      return list;
+    }
+    // The likeliest melody: the part that sits highest and plays mostly single notes
+    function guessMelody(list) {
+      var best = null, bs = -1e9;
+      list.forEach(function (s) { var sc = s.mean - 20 * s.chords + Math.min(10, s.n / 10); if (sc > bs) { bs = sc; best = s; } });
+      return best;
+    }
+    function partNotes(mid, sel) {
+      var keys = [].concat(sel);
+      return mid.notes.filter(function (n) { return keys.indexOf(n.tr + ':' + n.ch) >= 0; });
+    }
+
+    /* ---------- One line of notes from a part ---------- */
+    // top: true keeps the highest note of each chord (a melody), false the lowest (a bass line). A note held under a
+    // newer one is cut where the newer one starts, so the line is one note at a time.
+    function line(notes, top) {
+      var groups = [], g = null;
+      notes.slice().sort(function (a, b) { return a.on - b.on; }).forEach(function (n) {
+        if (g && n.on === g.on) { if (top ? n.m > g.n.m : n.m < g.n.m) g.n = n; }
+        else groups.push(g = { on: n.on, n: n });
+      });
+      var out = [];
+      groups.forEach(function (x, i) {
+        var nx = groups[i + 1], off = x.n.off;
+        if (nx && nx.on < off) off = nx.on;
+        out.push({ on: x.n.on, off: off, m: x.n.m, v: x.n.v, src: x.n });
+      });
+      return out;
+    }
+
+    /* ---------- Timing ---------- */
+    function tempoAt(mid, tick) { var us = 500000; mid.tempos.forEach(function (t) { if (t[0] <= tick) us = t[1]; }); return 60000000 / us; }
+    function timeAt(mid, tick) { var s = [4, 4]; mid.times.forEach(function (t) { if (t[0] <= tick) s = [t[1], t[2]]; }); return s; }
+    function keySigAt(mid, tick) { var k = null; mid.keys.forEach(function (t) { if (t[0] <= tick) k = { sf: t[1], minor: !!t[2] }; }); return k; }
+    // Light quantising: an onset or an end moves to the nearest sixteenth or triplet eighth, if one is within a
+    // 24th of a beat; otherwise to the nearest 24th. Notes written exactly (an engraved score) don't move at all.
+    function snap(b) {
+      var a = Math.round(b * 4) / 4, c = Math.round(b * 3) / 3, best = Math.abs(a - b) <= Math.abs(c - b) ? a : c;
+      return Math.abs(best - b) <= 1 / 24 + EPS ? best : Math.round(b * 24) / 24;
+    }
+
+    /* ---------- Key and mode ---------- */
+    // Duration-weighted pitch classes against the Krumhansl-Kessler profiles. A key signature in the file decides
+    // between a major key and its relative minor's neighbours: only those two keys are compared then. The last note
+    // counts too: a tune that ends on a key's tonic gets a small bonus for that key.
+    function corr(w, prof, tonic) {
+      var mw = 0, mp = 0, i; for (i = 0; i < 12; i++) { mw += w[i] / 12; mp += prof[i] / 12; }
+      var num = 0, dw = 0, dp = 0;
+      for (i = 0; i < 12; i++) { var a = w[(i + tonic) % 12] - mw, b = prof[i] - mp; num += a * b; dw += a * a; dp += b * b; }
+      return dw && dp ? num / Math.sqrt(dw * dp) : 0;
+    }
+    function detectKey(notes, sig, lastPc) {
+      var w = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+      notes.forEach(function (n) { w[n.m % 12] += Math.max(0.05, n.d); });
+      var cands = [], best = null, t;
+      for (t = 0; t < 12; t++) { cands.push({ tonic: t, mode: 'major' }); cands.push({ tonic: t, mode: 'minor' }); }
+      cands.forEach(function (c) {
+        c.score = corr(w, c.mode === 'major' ? KK_MAJ : KK_MIN, c.tonic) + (lastPc === c.tonic ? 0.15 : 0);
+        // the written key signature, if the notes agree with it: the key it names (its major, or its minor when the file
+        // says minor) counts most, the relative key a little
+        if (sig && ((c.mode === 'major' && SF_MAJOR[sig.sf] && pcOf(SF_MAJOR[sig.sf]) === c.tonic) || (c.mode === 'minor' && SF_MINOR[sig.sf] && pcOf(SF_MINOR[sig.sf]) === c.tonic))) {
+          c.score += (c.mode === 'minor') === sig.minor ? 0.25 : 0.1; c.name = c.mode === 'major' ? SF_MAJOR[sig.sf] : SF_MINOR[sig.sf];
+        }
+        if (!best || c.score > best.score) best = c;
+      });
+      if (!best.name) best.name = keyName(best.tonic, best.mode);
+      return best;
+    }
+    // The tonic's name as a key signature would spell it (F major, B♭ major, F♯ minor)
+    function keyName(tonic, mode) {
+      var maj = mode === 'major' ? tonic : (tonic + 3) % 12;
+      var flats = [5, 10, 3, 8, 1, 6].indexOf(maj) >= 0 && maj !== 6;
+      return (flats ? NAMES_FLAT : NAMES_SHARP)[tonic];
+    }
+    function spell(pc, keyNm, mode) {
+      var sf = null;
+      Object.keys(mode === 'minor' ? SF_MINOR : SF_MAJOR).forEach(function (k) { if ((mode === 'minor' ? SF_MINOR : SF_MAJOR)[k] === keyNm) sf = +k; });
+      return (sf !== null && sf < 0 ? NAMES_FLAT : NAMES_SHARP)[pc];
+    }
+
+    /* ---------- Chords from the harmony ---------- */
+    // For each half bar (each bar in 3/4, 6/8 and shorter bars) the major or minor triad that best covers every
+    // sounding note, weighted by how long it sounds, the lowest note counting double. Two halves with the same chord
+    // become one. The result is one string a bar, as the track format wants ("C", "G C", "-" for silence).
+    var TRI = [{ q: '', iv: [0, 4, 7], pen: 0 }, { q: 'm', iv: [0, 3, 7], pen: 0 }, { q: '7', iv: [0, 4, 7, 10], pen: 0.1 }, { q: 'dim', iv: [0, 3, 6], pen: 0.3 }];
+    // diatonic: only the seven chords of the key (what a guitar's chord buttons offer), each span getting the nearest
+    var KEY_TRIADS = { major: [[0, ''], [2, 'm'], [4, 'm'], [5, ''], [7, ''], [9, 'm'], [11, 'dim']],
+      minor: [[0, 'm'], [2, 'dim'], [3, ''], [5, 'm'], [7, 'm'], [8, ''], [10, '']] };
+    function chordsOf(all, bars, per, keyNm, mode, tonic, pickup, diatonic) {
+      var out = [], allowed = diatonic ? (KEY_TRIADS[mode] || KEY_TRIADS.major).map(function (d) { return ((d[0] + tonic) % 12) + d[1]; }) : null;
+      for (var b = 0; b < bars; b++) {
+        var halves = per >= 4 && per % 2 === 0 ? 2 : 1, syms = [];
+        for (var h = 0; h < halves; h++) {
+          var s = b * per + h * per / halves, e = s + per / halves, w = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], low = null, any = false;
+          all.forEach(function (n) {
+            var a = Math.max(s, n.b), z = Math.min(e, n.b + n.d);
+            if (z - a <= EPS) return;
+            any = true; w[n.m % 12] += z - a;
+            if (n.b <= s + EPS && (!low || n.m < low.m)) low = n;
+          });
+          if (!low) all.forEach(function (n) { if (n.b + n.d > s + EPS && n.b < e - EPS && (!low || n.m < low.m)) low = n; });
+          if (!any) { syms.push('-'); continue; }
+          if (low) w[low.m % 12] += per / halves * 0.5;
+          var best = null;
+          for (var r = 0; r < 12; r++) TRI.forEach(function (t) {
+            if (allowed && allowed.indexOf(r + t.q) < 0) return;
+            var sc = 0, tot = 0;
+            for (var i = 0; i < 12; i++) { tot += w[i]; if (t.iv.indexOf((i - r + 12) % 12) >= 0) sc += w[i]; }
+            sc = sc - 0.6 * (tot - sc) + (low && low.m % 12 === r ? 0.25 * per / halves : 0) - (diatonic && t.q === 'dim' ? 0.8 : t.pen) * per / halves; // a strummer rarely wants the diminished chord
+            // chords built on the key's own steps win a tie
+            var deg = (r - tonic + 12) % 12, dia = mode === 'major' ? [0, 2, 4, 5, 7, 9, 11] : [0, 2, 3, 5, 7, 8, 10, 11];
+            if (dia.indexOf(deg) >= 0) sc += 0.05;
+            if (!best || sc > best.sc + EPS) best = { sc: sc, sym: spell(r, keyNm, mode) + t.q };
+          });
+          syms.push(best.sym);
+        }
+        // a pickup bar where only the tune's first notes sound has no chord
+        if (b === 0 && pickup && pickup.length && all.filter(function (n) { return n.b < per - EPS; }).length <= pickup.length) syms = ['-'];
+        if (syms.length === 2 && syms[0] === syms[1]) syms = [syms[0]];
+        out.push(syms.join(' '));
+      }
+      return out;
+    }
+
+    /* ---------- Sections ---------- */
+    // Splits the bars into sections of 4 to 8 bars, ending each where the tune breathes: a bar whose last note is long
+    // (a beat or more) or a rest. Sections of 4 or 8 bars are preferred. Returns [[firstBar, lastBar], ...], 1-based.
+    function sections(notes, bars, per) {
+      if (bars <= 8) return [[1, bars]];
+      var breathe = [];
+      for (var b = 1; b <= bars; b++) {
+        var s = (b - 1) * per, e = b * per, last = null;
+        notes.forEach(function (n) { if (n.b >= s - EPS && n.b < e - EPS) last = n; });
+        breathe[b] = !last || last.d >= Math.min(1, per / 2) - EPS || last.b + last.d < e - EPS;
+      }
+      var cost = [0], from = [];
+      for (var i = 1; i <= bars; i++) {
+        cost[i] = Infinity;
+        for (var len = 2; len <= 8; len++) {
+          var j = i - len;
+          if (j < 0 || cost[j] === Infinity) continue;
+          var c = cost[j] + (len === 4 || len === 8 ? 0 : len < 4 ? (i === bars ? 3 : 20) : 2) + (breathe[i] ? 0 : 4);
+          if (c < cost[i]) { cost[i] = c; from[i] = j; }
+        }
+      }
+      var out = [], k = bars;
+      while (k > 0) { out.unshift([from[k] + 1, k]); k = from[k]; }
+      return out;
+    }
+
+    /* ---------- Converting ---------- */
+    // opts: melody, bass (part keys "track:channel"; the melody defaults to the likeliest part, the bass to the lowest
+    // notes of every other part), start (the file's beat, in quarter notes, where the excerpt's first full bar starts;
+    // default: the bar where the melody starts), lead (beats of pickup before it to keep, default 0), bars (full bars
+    // to take; default: to the end), tempo (overrides the file's), octave (semitones added, whole octaves), grace
+    // (true keeps grace notes; by default notes shorter than a 16th of a beat are ornaments and left out), end (the
+    // file's beat after which no new note starts: where a first-time ending is followed by the second one).
+    // Returns the track's musical fields and a map back to the file: srcBeat is the file's beat at the track's beat 0.
+    function convert(mid, opts) {
+      opts = opts || {};
+      var list = parts(mid);
+      if (!list.length) throw new Error('No notes in this file');
+      var mel = opts.melody ? [].concat(opts.melody) : [guessMelody(list).key];
+      var ppq = mid.ppq, minLen = opts.grace ? 0 : 1 / 16;
+      // the line's notes in beats, not yet quantised (that happens relative to the excerpt's first bar, below)
+      function beats(arr, top) {
+        return line(arr.filter(function (n) { return (n.off - n.on) / ppq >= minLen - EPS; }), top)
+          .map(function (n) { return { b: n.on / ppq, e: n.off / ppq, m: n.m, v: n.v }; });
+      }
+      var raw = beats(partNotes(mid, mel), true);
+      if (!raw.length) throw new Error('The melody part has no notes');
+      var start = opts.start;
+      if (start === undefined) { var t0 = timeAt(mid, 0), p0 = t0[0] * 4 / t0[1]; start = Math.floor(raw[0].b / p0 + EPS) * p0; }
+      var time = timeAt(mid, Math.round(start * ppq)), per = time[0] * 4 / time[1], lead = opts.lead || 0;
+      if (lead > per + EPS) throw new Error('The pickup is longer than a bar');
+      var last = 0; raw.forEach(function (n) { if (n.e > last) last = n.e; });
+      var nb = opts.bars || Math.max(1, Math.ceil((last - start) / per - EPS));
+      var from = start - lead, to = Math.min(start + nb * per, opts.end === undefined ? Infinity : opts.end), base = start - (lead > EPS ? per : 0);
+      var shift = opts.octave || 0;
+      var stop = start + nb * per - base, Q = 1 / 48;
+      function cut(arr) {
+        return arr.filter(function (n) { return n.b >= from - Q && n.b < to - Q; }).map(function (n) {
+          var b = Math.max(0, snap(n.b - base)), e = Math.min(snap(n.e - base), stop);
+          return { b: r4(b), d: r4(e - b), m: n.m + shift, v: n.v };
+        }).filter(function (n) { return n.d > EPS; });
+      }
+      var notes = cut(raw);
+      if (!notes.length) throw new Error('The melody has no notes in those bars');
+      var bars = nb + (lead > EPS ? 1 : 0);
+      var others = list.filter(function (s) { return mel.indexOf(s.key) < 0; }).map(function (s) { return s.key; });
+      var bassKeys = opts.bass ? [].concat(opts.bass) : others;
+      var bass = bassKeys.length ? cut(beats(partNotes(mid, bassKeys), false)) : [];
+      var allNotes = cut(mid.notes.filter(function (n) { return n.ch !== 9 && (n.off - n.on) / ppq >= minLen - EPS; })
+        .map(function (n) { return { b: n.on / ppq, e: n.off / ppq, m: n.m, v: n.v }; }));
+      var tick0 = Math.round(start * ppq);
+      var sig = opts.keySig === false ? null : keySigAt(mid, tick0), key = detectKey(allNotes.length ? allNotes : notes, sig, notes[notes.length - 1].m % 12);
+      var tempo = opts.tempo || Math.round(tempoAt(mid, tick0));
+      return {
+        tempo: tempo, time: time, key: key.name, tonic: key.tonic, mode: key.mode, bars: bars,
+        notes: notes.map(function (n) { return [n.b, n.d, n.m, Math.max(1, Math.min(127, n.v))]; }),
+        low: bass.map(function (n) { return [n.b, n.d, n.m, Math.max(1, Math.min(127, n.v))]; }),
+        chords: chordsOf(allNotes, bars, per, key.name, key.mode, key.tonic, lead > EPS ? notes.filter(function (n) { return n.b < per - EPS; }) : []),
+        keyChords: chordsOf(allNotes, bars, per, key.name, key.mode, key.tonic, lead > EPS ? notes.filter(function (n) { return n.b < per - EPS; }) : [], true),
+        sections: sections(notes, bars, per),
+        map: { melody: mel, bass: bassKeys, srcBeat: r4(base), octave: shift, start: start, lead: lead, grace: !!opts.grace, end: opts.end }
+      };
+    }
+
+    function name(m) { return NAMES_SHARP[m % 12] + (Math.floor(m / 12) - 1); }
+
+    return { parse: parse, parts: parts, guessMelody: guessMelody, partNotes: partNotes, line: line, snap: snap, detectKey: detectKey,
+      keyName: keyName, chordsOf: chordsOf, sections: sections, convert: convert, tempoAt: tempoAt, timeAt: timeAt, name: name };
+  })();
+  // MIDI-CORE-END
+
   /* ---------- Songs: free tracks with Auto-play and Train me ---------- */
   // The library is tracks/*.json (built by tools/make-tracks.mjs, listed in TRACKS.md). It is fetched the first time
   // the Songs sheet opens and the service worker caches it, so songs work offline. A note is
@@ -4751,13 +5112,19 @@ body:not(.song) .sgover { display: none; }
   // the Scale keeps the song's notes unless the player asks to remap them to the new mode. Keyboards zoom to the
   // song's notes, rows of notes hold just the song's stretch. Closing the song puts all of that back.
   // Auto-play, Train me, the glow and the falling bars all read one list: sg.plan.ev.
+  // Round E: the songs are converted from encoded scores (status "verified", credited in Settings > Credits) or built
+  // from a definition ("generated"); tracks typed in from memory are never listed. A melody carries the score's own
+  // bass line (low): Easy plays the tune, Full adds the bass (to play on a keyboard, as backing elsewhere). Each
+  // melodic instrument offers the melodies listed for it (inst). My songs: MIDI files the player adds, converted here
+  // by MidiCore and kept in IndexedDB on this device only.
   var SONG_FILES = ['melodies', 'chords', 'bass', 'drums', 'tabla'];
+  var KEYBOARDS = { piano: 1, organ: 1, synth: 1 };
   var SONG_TYPE = { guitar: 'chords', rhythm: 'chords', ebass: 'bass', drums: 'drums', epad: 'drums', tabla1: 'tabla', tabla2: 'tabla' };
   // Where a fitted song should sit on each instrument (MIDI), and the instruments whose row of notes can start lower
   var SONG_RANGE = { piano: [21, 108], organ: [36, 96], synth: [24, 96], flute: [60, 96], harmonica: [55, 96], horn: [41, 77],
     trumpet: [54, 84], sax: [49, 81], xylo: [60, 96], violin: [55, 93], viola: [48, 83], cello: [36, 71], ebass: [28, 55] };
   var SONG_ROWS = { flute: 1, horn: 1, trumpet: 1, sax: 1, xylo: 1 };
-  var SONG_TAGS = ['Kids', 'Classical', 'Folk', 'Indian', 'Hymn'];
+  var SONG_TAGS = ['Kids', 'Classical', 'Folk', 'Indian', 'Hymn', 'My songs'];
   var EXACT_KEY = { piano: 1, organ: 1, synth: 1, xylo: 1 };
   // Tabla bols as strokes on the two drums (the dayan's Na, Tin, Tun, Te, Ti; the bayan's Ge, Ke). On the single
   // tabla the bayan's part plays itself.
@@ -4773,16 +5140,57 @@ body:not(.song) .sgover { display: none; }
   // the song's own); remap: move the notes to that scale's steps (experimental); backing: soft chords under the song
   var sg = { tr: null, plan: null, tab: '', mode: 'auto', level: 'wait', on: false, paused: false, tempo: 100, speed: 100, loop: false,
              count: true, metro: false, backing: false, sec: -1, timer: 0, raf: 0, voices: [], lastV: {}, timers: [], restore: null, best: {}, fx: [], glow: [],
-             soon: [], bars: [], tp: 0, scale: null, remap: false };
+             soon: [], bars: [], tp: 0, scale: null, remap: false, full: false };
   try { sg.best = JSON.parse(localStorage.getItem('pb-songs') || '{}') || {}; } catch (e) { sg.best = {}; }
+  try { sg.full = localStorage.getItem('pb-full') === '1'; } catch (e) {}
+  var mySongs = [];
 
   function songType(tab) { return SONG_TYPE[tab] || 'melody'; }
   function loadSongs() {
     if (songLibP) return songLibP;
+    myLoad();
     songLibP = Promise.all(SONG_FILES.map(function (f) {
       return fetch('tracks/' + f + '.json').then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
-    })).then(function (lists) { songLib = [].concat.apply([], lists); return songLib; }, function (e) { songLibP = null; throw e; });
+    })).then(function (lists) {
+      songLib = [].concat.apply([], lists).filter(function (tr) { return tr.status !== 'unverified' && !tr.hidden; });
+      return songLib;
+    }, function (e) { songLibP = null; throw e; });
     return songLibP;
+  }
+  // Every track the app knows: the library and the player's own songs
+  function songAll() { return (songLib || []).concat(mySongs); }
+  function songById(id) { return songAll().filter(function (x) { return x.id === id; })[0]; }
+
+  /* My songs: kept in IndexedDB on this device (a database of its own, one record a song). Anything that fails
+     (private mode, storage blocked) leaves the song for this visit only and says so. */
+  var MYDB = 'pocketband-mysongs', myLoaded = null;
+  function myDb() {
+    return new Promise(function (ok, no) {
+      try {
+        var r = indexedDB.open(MYDB, 1);
+        r.onupgradeneeded = function () { r.result.createObjectStore('songs', { keyPath: 'id' }); };
+        r.onsuccess = function () { ok(r.result); };
+        r.onerror = function () { no(r.error); };
+      } catch (e) { no(e); }
+    });
+  }
+  function myTx(mode, fn) {
+    return myDb().then(function (db) {
+      return new Promise(function (ok, no) {
+        try {
+          var tx = db.transaction('songs', mode), st = tx.objectStore('songs'), req = fn(st);
+          tx.oncomplete = function () { ok(req && req.result); db.close(); };
+          tx.onerror = tx.onabort = function () { no(tx.error); db.close(); };
+        } catch (e) { no(e); }
+      });
+    });
+  }
+  function myLoad() {
+    if (myLoaded) return myLoaded;
+    myLoaded = myTx('readonly', function (st) { return st.getAll(); }).then(function (list) {
+      (list || []).forEach(function (tr) { if (!songById(tr.id)) mySongs.push(tr); });
+    }, function () {});
+    return myLoaded;
   }
   function scaleFrom(low, key, scale, count) {
     var out = [];
@@ -4799,7 +5207,14 @@ body:not(.song) .sgover { display: none; }
   }
   function bpb(tr) { return tr.time[0] * 4 / tr.time[1]; }
   function songSecs(tr) { return tr.bars * bpb(tr) * 60 / tr.tempo; }
-  function songSuits(tr, tab) { return tr.type === songType(tab); }
+  // A track suits an instrument when it is the instrument's kind of track; a library melody also has to be one the
+  // instrument offers (inst). The player's own songs suit every melodic instrument.
+  function songSuits(tr, tab) {
+    if (tr.type !== songType(tab) || tr.status === 'unverified' || tr.hidden) return false;
+    return !(tr.type === 'melody' && tr.inst && tr.inst.indexOf(tab) < 0);
+  }
+  // Full: the tune with the score's bass line
+  function songFull(tr) { return !!(sg.full && tr.type === 'melody' && tr.low && tr.low.length); }
   function epadIndex(name) {
     var pads = EKITS[ep.kit].pads, want = EP_NAMES[name] || [];
     for (var k = 0; k < want.length; k++) for (var i = 0; i < pads.length; i++) if (pads[i][0] === want[k]) return i;
@@ -4880,9 +5295,9 @@ body:not(.song) .sgover { display: none; }
   }
   // The song's notes before any octave move: the written ones moved by the transpose, or (when the player asked)
   // remapped onto the steps of the scale they chose
-  function songNotes(tr) {
+  function songNotes(tr, list) {
     var key = songKey(tr), to = sg.scale;
-    return tr.notes.map(function (n) {
+    return (list || tr.notes).map(function (n) {
       var m = n[2] + sg.tp;
       return sg.remap && to && to !== tr.mode ? remapNote(m, key, tr.mode, to) : m;
     });
@@ -4909,7 +5324,9 @@ body:not(.song) .sgover { display: none; }
       st.key = songKey(tr); st.scale = sg.scale || tr.mode;
     }
     if (type === 'melody' || type === 'bass') {
-      var ms = songNotes(tr);
+      // Full on a keyboard: the bass line's notes are played too (the left hand); elsewhere it plays as backing
+      var both = songFull(tr) && KEYBOARDS[tab], src = both ? tr.notes.concat(tr.low) : tr.notes;
+      var ms = songNotes(tr, src);
       // notes the song borrows from outside the scale get a place on the layout too
       ms.forEach(function (m) { var r = T.rel(m, st.key); if (!T.inScale(m, st.key, st.scale) && plan.extra.indexOf(r) < 0) plan.extra.push(r); });
       T.setExtra(st.key, st.scale, plan.extra);
@@ -4931,10 +5348,10 @@ body:not(.song) .sgover { display: none; }
       }
       // Sa for the sargam labels: the tonic in the octave the song was written around, moved with the song
       plan.sa = 60 + tr.tonic - (tr.tonic > 6 ? 12 : 0) + plan.shift;
-      tr.notes.forEach(function (n, i) {
+      src.forEach(function (n, i) {
         var m = ms[i], tg = songTarget(tab, m);
         if (!tg) plan.missing++;
-        plan.ev.push({ i: i, b: n[0], d: n[1], m: m, v: 0.45 + 0.55 * n[3] / 127, tg: tg, k: 'note' });
+        plan.ev.push({ i: i, b: n[0], d: n[1], m: m, v: 0.45 + 0.55 * n[3] / 127, tg: tg, k: 'note', low: i >= tr.notes.length });
       });
       var nm = TAB_NAMES[tab] || tab;
       if (plan.missing) plan.warn = plan.missing + (plan.missing > 1 ? ' notes are' : ' note is') + ' outside the ' + nm + '’s range; the song plays ' + (plan.missing > 1 ? 'them' : 'it') + ' for you';
@@ -4987,11 +5404,13 @@ body:not(.song) .sgover { display: none; }
   }
   function padName(id) { for (var i = 0; i < PADS.length; i++) if (PADS[i].id === id) return PADS[i].name; return id; }
   // The tune that comes along with a chord song or a bass line, near the middle of the keyboard
+  // (and, in Full, the bass line under a melody on an instrument that plays one note at a time)
   function songTune(tr, plan) {
-    var notes = tr.type === 'chords' ? tr.notes : tr.type === 'bass' ? tr.tune : null;
+    var low = tr.type === 'melody' && songFull(tr) && !KEYBOARDS[plan.tab];
+    var notes = tr.type === 'chords' ? tr.notes : tr.type === 'bass' ? tr.tune : low ? tr.low : null;
     if (!notes || !notes.length) return [];
     var ms = notes.map(function (n) { return n[2] + sg.tp; }), mid = (Math.min.apply(null, ms) + Math.max.apply(null, ms)) / 2;
-    var o = 12 * Math.round((72 - mid) / 12);
+    var o = 12 * Math.round(((low ? 48 : 72) - mid) / 12);
     return notes.map(function (n, i) { return { b: n[0], d: n[1], m: ms[i] + o, v: n[3] / 127 }; });
   }
   // A note's name on badges and bars, in the naming system chosen (Labels): C4, Sa (a dot below for the low octave,
@@ -5316,9 +5735,14 @@ body:not(.song) .sgover { display: none; }
   }
 
   /* The transport: play, pause, stop, loop, sections, count-in and metronome */
+  // A track's sections (4 to 8 bars, where the tune breathes), or every 4 bars when it has none
+  function songSections(tr) {
+    if (tr.sections && tr.sections.length) return tr.sections;
+    var out = []; for (var b = 1; b <= tr.bars; b += 4) out.push([b, Math.min(tr.bars, b + 3)]); return out;
+  }
   function songSection() {
-    var per = bpb(sg.tr);
-    if (sg.sec >= 0) { sg.from = sg.sec * 4 * per; sg.to = Math.min(sg.plan.len, sg.from + 4 * per); }
+    var per = bpb(sg.tr), sec = songSections(sg.tr)[sg.sec];
+    if (sg.sec >= 0 && sec) { sg.from = (sec[0] - 1) * per; sg.to = Math.min(sg.plan.len, sec[1] * per); }
     else { sg.from = 0; sg.to = sg.plan.len; }
   }
   function songStart() {
@@ -5540,12 +5964,14 @@ body:not(.song) .sgover { display: none; }
     $('sgWarn').textContent = sg.plan.warn;
     $('sgWarn').hidden = !sg.plan.warn;
     $('sgResult').textContent = '';
-    var secs = $('sgSec'), per = 4;
+    var secs = $('sgSec');
     secs.innerHTML = '<option value="-1">Whole song</option>';
-    for (var b = 0; b < tr.bars; b += per) {
-      var o = document.createElement('option'); o.value = b / per; o.textContent = 'Bars ' + (b + 1) + '–' + Math.min(tr.bars, b + per); secs.appendChild(o);
-    }
+    songSections(tr).forEach(function (sec, k) {
+      var o = document.createElement('option'); o.value = k; o.textContent = 'Bars ' + sec[0] + '–' + sec[1]; secs.appendChild(o);
+    });
     secs.value = -1;
+    $('sgFull').hidden = !(tr.type === 'melody' && tr.low && tr.low.length);
+    $('sgFull').setAttribute('aria-pressed', sg.full);
     songModeUi();
     rects = {};
     songPrewarm();
@@ -5711,28 +6137,162 @@ body:not(.song) .sgover { display: none; }
     sh.hidden = false; $('songs').setAttribute('aria-expanded', 'true');
     $('sgTitle').textContent = 'Songs for ' + (TAB_NAMES[state.tab] || 'this instrument');
     $('sgList').innerHTML = '<li class="sgempty">Loading songs…</li>';
-    loadSongs().then(songsList, function () { $('sgList').innerHTML = '<li class="sgempty">The songs could not load. Open the app once with a connection so they are saved for offline use.</li>'; });
+    loadSongs().then(function () { return myLoad(); }).then(songsList, function () {
+      $('sgList').innerHTML = '<li class="sgempty">The songs could not load. Open the app once with a connection so they are saved for offline use.</li>';
+      if (mySongs.length) songsList();
+    });
   }
   function fmtTime(s) { s = Math.round(s); return Math.floor(s / 60) + ':' + ('0' + s % 60).slice(-2); }
   function songsList() {
     var tab = state.tab, q = sgFilter.q.toLowerCase(), ul = $('sgList');
-    var list = songLib.filter(function (tr) {
+    var match = function (tr) {
       return songSuits(tr, tab) && (!sgFilter.tag || tr.tags.indexOf(sgFilter.tag) >= 0) &&
         (!q || (tr.title + ' ' + tr.by + ' ' + tr.tags.join(' ')).toLowerCase().indexOf(q) >= 0);
-    });
+    };
+    var list = (songLib || []).filter(match), mine = mySongs.filter(match);
     ul.innerHTML = '';
-    if (!list.length) { ul.innerHTML = '<li class="sgempty">No songs match.</li>'; return; }
-    list.forEach(function (tr) {
-      var li = document.createElement('li'), b = sg.best[bestKey(tr, tab, 'wait')] || sg.best[bestKey(tr, tab, 'rhythm')] || sg.best[bestKey(tr, tab, 'along')];
+    if (!list.length && !mine.length) { ul.innerHTML = '<li class="sgempty">' + (songType(tab) === 'melody' && sgFilter.tag === 'My songs' ? 'No songs of your own yet: add a MIDI file with “Add my song”.' : 'No songs match.') + '</li>'; return; }
+    function item(tr) {
+      var li = document.createElement('li'), b = sg.best[bestKey(tr, tab, 'wait')] || sg.best[bestKey(tr, tab, 'rhythm')] || sg.best[bestKey(tr, tab, 'along')], my = tr.status === 'mine';
       li.className = 'sgitem'; li.dataset.id = tr.id;
       li.innerHTML = '<div class="sgmain"><b class="sgt"></b><span class="sgby"></span>' +
         '<span class="sgmeta"><span class="sglvl" aria-label="Difficulty ' + tr.level + ' of 3">' + '★★★'.slice(0, tr.level) + '<i>' + '★★★'.slice(tr.level) + '</i></span> · ' + fmtTime(songSecs(tr)) +
-        ' · ' + tr.tags.join(', ') + ' <span class="free">Free</span>' + (b ? ' <span class="sgbest">Best ' + '★★★'.slice(0, b.stars) + '</span>' : '') + '</span></div>' +
-        '<div class="sgbtns"><button data-go="auto">Auto-play</button><button data-go="train" class="sgtrain">Train me</button></div>';
+        ' · ' + tr.tags.join(', ') + (my ? ' <span class="sgmine">Mine</span>' : ' <span class="free">Free</span>') + (b ? ' <span class="sgbest">Best ' + '★★★'.slice(0, b.stars) + '</span>' : '') + '</span></div>' +
+        '<div class="sgbtns"><button data-go="auto">Auto-play</button><button data-go="train" class="sgtrain">Train me</button>' +
+        (my ? '<button data-go="del" class="sgdel" aria-label="Delete this song">🗑</button>' : '') + '</div>';
       li.querySelector('.sgt').textContent = tr.title;
       li.querySelector('.sgby').textContent = tr.by;
       ul.appendChild(li);
-    });
+    }
+    list.forEach(item);
+    if (mine.length) {
+      var h = document.createElement('li'); h.className = 'sghead'; h.textContent = 'My songs'; ul.appendChild(h);
+      mine.forEach(item);
+    }
+  }
+
+  /* Add my song: a .mid file, read and converted here, kept on this device */
+  var myPending = null;
+  function myOpen(file) {
+    var rd = new FileReader();
+    rd.onload = function () {
+      var mid, list;
+      try { mid = MidiCore.parse(new Uint8Array(rd.result)); list = MidiCore.parts(mid); if (!list.length) throw new Error('No notes in this file'); }
+      catch (e) { songsNote('That file could not be read: ' + e.message); return; }
+      myPending = { mid: mid, parts: list };
+      var sel = $('myPart'), guess = MidiCore.guessMelody(list);
+      sel.innerHTML = '';
+      list.forEach(function (p) {
+        var o = document.createElement('option'); o.value = p.key;
+        o.textContent = p.label + ' · ' + p.n + ' notes · ' + MidiCore.name(p.lo) + '–' + MidiCore.name(p.hi) + (p.chords > 0.3 ? ' · chords' : '');
+        sel.appendChild(o);
+      });
+      sel.value = guess.key;
+      $('myName').value = file.name.replace(/\.(mid|midi)$/i, '').replace(/[_-]+/g, ' ').slice(0, 60);
+      $('myInfo').textContent = 'Choose the part that has the tune. The likeliest one is chosen for you.';
+      myPreview();
+      $('mySheet').hidden = false;
+    };
+    rd.onerror = function () { songsNote('That file could not be read.'); };
+    rd.readAsArrayBuffer(file);
+  }
+  var MY_BARS = 96;
+  function myConvert() {
+    var p = myPending, t = MidiCore.convert(p.mid, { melody: [$('myPart').value] });
+    if (t.bars > MY_BARS) { // a long file: the first bars only
+      var per = t.time[0] * 4 / t.time[1], end = MY_BARS * per;
+      t = MidiCore.convert(p.mid, { melody: [$('myPart').value], start: t.map.start, bars: MY_BARS });
+      t.cut = end;
+    }
+    return t;
+  }
+  function myPreview() {
+    try {
+      var t = myConvert(), names = t.notes.slice(0, 8).map(function (n) { return MidiCore.name(n[2]); }).join(' ');
+      $('myPreview').textContent = T.describe(t.tonic, t.mode === 'minor' ? 'minor' : 'major') + ' · ' + t.time.join('/') + ' · ' + t.tempo + ' BPM · ' + t.bars + ' bars' +
+        (t.cut ? ' (the first ' + MY_BARS + ')' : '') + ' · starts ' + names;
+      $('myOk').disabled = false;
+    } catch (e) { $('myPreview').textContent = e.message; $('myOk').disabled = true; }
+  }
+  function myAdd() {
+    var t;
+    try { t = myConvert(); } catch (e) { $('myPreview').textContent = e.message; return; }
+    var tr = { id: 'my-' + Date.now().toString(36), type: 'melody', title: $('myName').value.trim() || 'My song', by: 'My song (from a MIDI file)', src: 'Mine', status: 'mine',
+      tempo: t.tempo, time: t.time, key: t.key, tonic: t.tonic, mode: t.mode, level: 2, tags: ['My songs'], bars: t.bars, notes: t.notes, chords: t.chords, sections: t.sections };
+    if (t.low.length) tr.low = t.low;
+    mySongs.push(tr);
+    $('mySheet').hidden = true; myPending = null;
+    myTx('readwrite', function (st) { return st.put(tr); }).then(function () { songsNote('Added “' + tr.title + '” to My songs.'); },
+      function () { songsNote('Added “' + tr.title + '” for this visit: this browser would not save it.'); });
+    sgFilter.tag = ''; songsList();
+  }
+  function myDelete(id) {
+    mySongs = mySongs.filter(function (x) { return x.id !== id; });
+    myTx('readwrite', function (st) { return st.delete(id); }).catch(function () {});
+    songsList();
+  }
+  function songsNote(text) {
+    var ul = $('sgList'), li = document.createElement('li');
+    li.className = 'sgempty'; li.setAttribute('role', 'status'); li.textContent = text;
+    ul.insertBefore(li, ul.firstChild);
+  }
+
+  /* Report a wrong note: every bar of the open song, a button a beat; a tap copies "track id, bar, beat" */
+  function reportOpen() {
+    var tr = sg.tr; if (!tr) return;
+    songMenu(false);
+    var g = $('repGrid'), per = bpb(tr), unit = 4 / tr.time[1], beats = tr.time[0];
+    g.innerHTML = ''; $('repMsg').textContent = '';
+    for (var b = 0; b < tr.bars; b++) {
+      var row = document.createElement('div'); row.className = 'repbar';
+      row.innerHTML = '<b>Bar ' + (b + 1) + '</b>';
+      for (var k = 0; k < beats; k++) {
+        var s0 = b * per + k * unit, names = tr.notes.filter(function (n) { return n[0] >= s0 - 1e-6 && n[0] < s0 + unit - 1e-6; })
+          .map(function (n) { return T.name(n[2] + sg.tp); });
+        var btn = document.createElement('button');
+        btn.dataset.rep = tr.id + ', bar ' + (b + 1) + ', beat ' + (k + 1);
+        btn.innerHTML = 'Beat ' + (k + 1) + '<small></small>';
+        btn.lastChild.textContent = names.slice(0, 3).join(' ') + (names.length > 3 ? '…' : '');
+        btn.setAttribute('aria-label', 'Bar ' + (b + 1) + ', beat ' + (k + 1) + (names.length ? ': ' + names.join(' ') : ''));
+        row.appendChild(btn);
+      }
+      g.appendChild(row);
+    }
+    $('repSheet').hidden = false;
+  }
+  function copyText(text) {
+    function fallback() {
+      var ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      var ok = false; try { ok = document.execCommand('copy'); } catch (e) {}
+      ta.remove(); return ok;
+    }
+    try { if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(text).then(function () { return true; }, fallback); } catch (e) {}
+    return Promise.resolve(fallback());
+  }
+
+  /* Settings > Credits: where every song comes from */
+  function creditsOpen() {
+    var box = $('credList');
+    box.innerHTML = '<p>Loading…</p>';
+    $('credSheet').hidden = false;
+    loadSongs().then(function () {
+      var seen = {}, ver = songLib.filter(function (t) { if (t.status !== 'verified' || seen[t.title]) return false; seen[t.title] = 1; return true; });
+      box.innerHTML = '<p>The songs are converted from free encoded scores of the <a href="https://www.mutopiaproject.org" target="_blank" rel="noopener">Mutopia Project</a>, ' +
+        'typeset by its volunteers, and checked note by note against them. Only public domain and Creative Commons BY and BY-SA scores are used; ' +
+        'tracks from a BY-SA score are shared under the same licence.</p><h3>Songs from scores</h3><ul></ul>' +
+        '<h3>Made for the app</h3><p>The raag exercises (aroha and avaroha, alankar), the taal thekas, the drum grooves and the Pocket Band originals are written in the app’s own track builder.</p>' +
+        '<h3>My songs</h3><p>Songs you add from your own MIDI files stay on this device. They are never uploaded or shared.</p>';
+      var ul = box.querySelector('ul');
+      ver.forEach(function (t) {
+        var c = t.credit || {}, li = document.createElement('li'), a = document.createElement('a');
+        li.appendChild(document.createElement('b')).textContent = t.title;
+        var sp = li.appendChild(document.createElement('span'));
+        sp.textContent = (c.composer || t.by) + (c.died ? ' (died ' + c.died + ')' : '') + ' · ' + (c.licence || t.src) + ' · ' + (c.source || '') + ' · converted ' + (c.converted || '');
+        if (c.url) { a.href = c.url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = 'Score on Mutopia'; li.appendChild(a); }
+        ul.appendChild(li);
+      });
+    }, function () { box.innerHTML = '<p>The credits could not load. Open the app once with a connection so they are saved for offline use.</p>'; });
   }
   (function songsUi() {
     var chips = $('sgTags');
@@ -5753,7 +6313,8 @@ body:not(.song) .sgover { display: none; }
       if (e.target === this) { songsSheet(false); return; }
       var go = e.target.closest('[data-go]');
       if (!go) return;
-      var tr = songLib.filter(function (x) { return x.id === go.closest('[data-id]').dataset.id; })[0];
+      var tr = songById(go.closest('[data-id]').dataset.id);
+      if (go.dataset.go === 'del') { myDelete(tr.id); return; }
       songsSheet(false);
       songOpen(tr, go.dataset.go === 'auto' ? 'auto' : 'train', go.dataset.go === 'auto' ? null : 'wait');
     });
@@ -5774,6 +6335,26 @@ body:not(.song) .sgover { display: none; }
     $('sgLoop').onclick = function () { sg.loop = !sg.loop; this.setAttribute('aria-pressed', sg.loop); };
     $('sgCount').onclick = function () { sg.count = !sg.count; this.setAttribute('aria-pressed', sg.count); };
     $('sgMetro').onclick = function () { sg.metro = !sg.metro; this.setAttribute('aria-pressed', sg.metro); if (sg.on && sg.anchor && ctx) sg.click = Math.ceil(beatAt(ctx.currentTime + LOOKAHEAD)); };
+    $('sgFull').onclick = function () {
+      sg.full = !sg.full; this.setAttribute('aria-pressed', sg.full);
+      try { localStorage.setItem('pb-full', sg.full ? '1' : '0'); } catch (e) {}
+      songMenu(false); songRefit(true);
+    };
+    $('sgReport').onclick = reportOpen;
+    $('repClose').onclick = function () { $('repSheet').hidden = true; };
+    $('repGrid').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-rep]'); if (!b) return;
+      var text = b.dataset.rep;
+      copyText(text).then(function (ok) { $('repMsg').textContent = ok ? 'Copied “' + text + '”. Paste it into a message to us.' : 'Copy this: ' + text; });
+    });
+    $('sgAdd').onclick = function () { $('sgFile').value = ''; $('sgFile').click(); };
+    $('sgFile').onchange = function () { if (this.files && this.files[0]) myOpen(this.files[0]); };
+    $('myPart').onchange = myPreview;
+    $('myOk').onclick = myAdd;
+    $('myClose').onclick = function () { $('mySheet').hidden = true; myPending = null; };
+    $('credits').onclick = creditsOpen;
+    $('credClose').onclick = function () { $('credSheet').hidden = true; };
+    ['mySheet', 'repSheet', 'credSheet'].forEach(function (id) { $(id).addEventListener('click', function (e) { if (e.target === this) { this.hidden = true; if (id === 'mySheet') myPending = null; } }); });
     $('sgBack').onclick = function () { sg.backing = !sg.backing; this.setAttribute('aria-pressed', sg.backing); if (sg.on && sg.anchor && ctx) songCursorBack(); };
     $('sgSec').onchange = function () { sg.sec = +this.value; songMenu(false); if (sg.tr) songStart(); };
     $('sgMore').onclick = function () { songMenu($('sgMenu').hidden); };
@@ -5846,7 +6427,7 @@ body:not(.song) .sgover { display: none; }
       bowRect: function () { return bw.rect = bowed.getBoundingClientRect(); },
       bwDown: bwDown, bwMove: bwMove, bwLift: bwLift, bwTick: bwTick, bowPitch: bowPitch,
       setDrone: setDrone, voices: function () { return live.filter(function (v) { return !v.done; }).length; },
-      songs: { load: loadSongs, lib: function () { return songLib; }, fit: fitTrack, open: songOpen, close: songClose, start: songStart,
+      songs: { load: loadSongs, lib: function () { return songLib; }, mine: function () { return mySongs; }, all: songAll, core: MidiCore, fit: fitTrack, open: songOpen, close: songClose, start: songStart,
                halt: songHalt, state: function () { return sg; }, fire: songFire, heard: songHeard, target: songTarget, layoutSet: layoutSet,
                type: songType, suits: songSuits, spb: spb, setSched: function (t) { SCHED = t; }, transpose: songTranspose,
                setKey: songSetKey, setScale: songSetScale, reset: songReset, notes: songNotes, remap: remapNote, hintDone: songHintDone,
