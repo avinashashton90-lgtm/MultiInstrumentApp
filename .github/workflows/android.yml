@@ -112,7 +112,7 @@ jobs:
           echo "Build tools: $bt"
           badging=$("$bt/aapt" dump badging dist/PocketBand.apk)
           echo "----- aapt dump badging (package, version, SDK, label, orientation) -----"
-          echo "$badging" | grep -E "^(package|sdkVersion|targetSdkVersion|application-label|launchable-activity|uses-implied-feature|uses-feature|native-code)" || true
+          echo "$badging" | grep -E "^ *(package|sdkVersion|targetSdkVersion|application-label:|launchable-activity|uses-implied-feature|uses-feature|native-code)" || true
           orient=$("$bt/aapt" dump xmltree dist/PocketBand.apk AndroidManifest.xml | grep -i screenOrientation || true)
           echo "Orientation in the manifest: $orient"
           echo "----- signature -----"

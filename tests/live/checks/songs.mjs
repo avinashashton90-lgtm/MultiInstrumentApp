@@ -496,6 +496,9 @@ async function timingRows(browser, base, tabs) {
       await tapSel(page, touch, '#songs');
       await page.waitForSelector('.sgitem');
       await setCount(page, false);
+      // Past the master limiter's start-up bridge (it hands over to the limiter 0.30-0.35 s into the audio clock):
+      // on a fast machine the song's first note otherwise lands on the handover and measures several cents off
+      await page.waitForFunction(() => window.__testCtx && window.__testCtx.currentTime > 0.5, null, { timeout: 10000 });
       await tapSel(page, touch, `.sgitem[data-id="${SAMPLE.melody}"] [data-go="auto"]`);
       await waitAudio(page);
       const info = await page.evaluate(() => { const sg = window.PocketBandTest.songs.state(); return { t: sg.anchor.time, b: sg.anchor.beat, spb: window.PocketBandTest.songs.spb(), sr: window.__rec.sr, ev: sg.plan.ev.slice(0, 14).map((e) => ({ b: e.b, m: e.m, d: e.d })) }; });
