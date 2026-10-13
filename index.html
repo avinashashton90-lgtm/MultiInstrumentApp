@@ -4207,6 +4207,7 @@ body:not(.song) .sgover { display: none; }
   };
   $('irev').oninput = function () {
     var st = NST[state.tab], c = chains[state.tab];
+    if (!st) return;
     st.rev = +this.value;
     if (c) glideTo(c.send.gain, st.rev, 0.05);
   };
