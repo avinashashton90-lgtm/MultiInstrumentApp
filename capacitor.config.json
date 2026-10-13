@@ -1,0 +1,16 @@
+{
+  "appId": "com.avinash.pocketband",
+  "appName": "Pocket Band",
+  "webDir": "www",
+  "android": {
+    "backgroundColor": "#efe9dc",
+    "allowMixedContent": false,
+    "webContentsDebuggingEnabled": false
+  },
+  "plugins": {
+    "SystemBars": {
+      "hidden": true,
+      "initialViewportFitValueHint": "cover"
+    }
+  }
+}
