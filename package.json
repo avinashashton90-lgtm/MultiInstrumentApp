@@ -10,7 +10,8 @@
     "tracks": "node tools/make-tracks.mjs && node tools/sync-core.mjs",
     "test:tracks": "node tools/verify-tracks.mjs",
     "build:web": "node tools/copy-web.mjs",
-    "cap:sync": "node tools/copy-web.mjs && npx cap sync android"
+    "cap:sync": "node tools/make-android-icons.mjs && node tools/copy-web.mjs && npx cap sync android",
+    "android:icons": "node tools/make-android-icons.mjs --preview=docs/android-icon-preview.png"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.3",
