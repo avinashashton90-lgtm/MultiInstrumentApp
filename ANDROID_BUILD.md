@@ -108,8 +108,12 @@ All of it is native, so the browser and GitHub Pages version behaves exactly as 
 - No service worker is registered (`index.html` skips it when it runs inside Capacitor); every file is already inside
   the APK. The page's web font still comes from Google Fonts when online and falls back to the system font offline,
   as in the browser.
-- Adaptive launcher icon and splash screen made from `icon-512.png` by `tools/make-android-icons.py` (needs Pillow;
-  run it again if the icon changes and commit the results).
+- Launcher icon and splash screen are drawn by `tools/make-android-icons.mjs` (plain Node, no packages) on every build:
+  `mipmap-mdpi` to `mipmap-xxxhdpi` square and round icons for older Android, an adaptive icon (foreground keys inside
+  the 66 dp safe circle on a `#1D2A2A` background) with a monochrome layer for themed icons, and the splash images
+  (the round icon on the app's cream `#EFE9DC`). The design matches `icon-512.png`. Change the look in the script,
+  never in `android/app/src/main/res` by hand; `npm run android:icons` redraws them and saves
+  `docs/android-icon-preview.png`. The script also holds an alternative `bold` design (`--design=bold`).
 
 The only web-side additions are `window.__pbBack` (called only by the Android Back button) and the Capacitor check
 before the service worker registration, both at the end of `index.html`.

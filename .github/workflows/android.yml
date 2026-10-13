@@ -46,9 +46,10 @@ jobs:
       - name: Install packages (npm ci)
         run: npm ci
 
-      - name: Copy the web app into www/ and sync Capacitor
+      - name: Draw the launcher icons and splash, copy the web app into www/ and sync Capacitor
         id: sync
         run: |
+          node tools/make-android-icons.mjs
           node tools/copy-web.mjs
           npx cap sync android
 
@@ -106,7 +107,7 @@ jobs:
           echo "Build tools: $bt"
           badging=$("$bt/aapt" dump badging dist/PocketBand.apk)
           echo "----- aapt dump badging (package, version, SDK, label, orientation) -----"
-          echo "$badging" | grep -E "^ *(package|sdkVersion|targetSdkVersion|application-label:|launchable-activity|uses-implied-feature|uses-feature|native-code)" || true
+          echo "$badging" | grep -E "^ *(package|sdkVersion|targetSdkVersion|application-label:|application-icon|launchable-activity|uses-implied-feature|uses-feature|native-code)" || true
           orient=$("$bt/aapt" dump xmltree dist/PocketBand.apk AndroidManifest.xml | grep -i screenOrientation || true)
           echo "Orientation in the manifest: $orient"
           echo "----- signature -----"
@@ -115,12 +116,20 @@ jobs:
           echo "$badging" | grep -q "package: name='com.avinash.pocketband'" || { echo "::error::Package id is not com.avinash.pocketband"; fail=1; }
           echo "$badging" | grep -q "versionName='$want_version'" || { echo "::error::versionName is not $want_version from package.json"; fail=1; }
           echo "$badging" | grep -q "versionCode='$BUILD_NUMBER'" || { echo "::error::versionCode is not the build number $BUILD_NUMBER"; fail=1; }
+          echo "$badging" | grep -q "application-label:'Pocket Band'" || { echo "::error::The app name is not Pocket Band"; fail=1; }
+          # Resource names are shortened in release builds, so follow the icon path and check it is the adaptive icon
+          icon=$(echo "$badging" | sed -n "s/^application-icon-65534:'\(.*\)'$/\1/p")
+          if [ -z "$icon" ]; then echo "::error::The APK has no launcher icon"; fail=1
+          else
+            echo "Launcher icon: $icon"
+            "$bt/aapt" dump xmltree dist/PocketBand.apk "$icon" | grep -q "monochrome" || { echo "::error::The launcher icon is not the adaptive icon from tools/make-android-icons.mjs"; fail=1; }
+          fi
           echo "$badging" | grep -q "android.hardware.screen.landscape" || { echo "::error::The APK does not ask for landscape"; fail=1; }
           "$bt/apksigner" verify dist/PocketBand.apk || { echo "::error::apksigner could not verify the APK signature"; fail=1; }
           unzip -l dist/PocketBand.apk | grep -q "assets/public/index.html" || { echo "::error::index.html is not bundled inside the APK"; fail=1; }
           unzip -l dist/PocketBand.apk | grep -q "assets/public/tracks/melodies.json" || { echo "::error::tracks/ is not bundled inside the APK"; fail=1; }
           if unzip -l dist/PocketBand.apk | grep -q "assets/public/sw.js"; then echo "::error::sw.js should not be inside the APK"; fail=1; fi
-          [ $fail = 0 ] && echo "APK check passed: com.avinash.pocketband $want_version (build $BUILD_NUMBER), landscape, signed, web files bundled."
+          [ $fail = 0 ] && echo "APK check passed: com.avinash.pocketband $want_version (build $BUILD_NUMBER), named Pocket Band with its icon, landscape, signed, web files bundled."
           exit $fail
 
       - name: Keep the APK as a workflow artifact
