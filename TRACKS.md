@@ -238,17 +238,17 @@ Converted on 2026-10-15.
 | Turkish March (Rondo alla turca) | verified | Wolfgang Amadeus Mozart (K. 331, 1783) | A Natural minor | 2/4 | 120 | 0:09 | ★★★ | the score's | A3 C4 C4 C4 A3 C4 C4 C4 A3 C4 A3 C4 A3 C4 C4 C4 |
 | Minuet in G | verified | Christian Petzold (c. 1725, BWV Anh. 114, long credited to J. S. Bach) | G Major | 3/4 | 140 | 0:21 | ★★ | the score's | G3 A3 B3 C4 B3 A3 G3 D4 B3 G3 D4 D3 C4 B3 A3 B3 |
 | Minuet in G minor | verified | Christian Petzold (c. 1725, BWV Anh. 115) | G Natural minor | 3/4 | 140 | 0:21 | ★★ | the score's | G3 F3 E♭3 D3 D4 C4 B♭3 A3 G3 A3 B♭3 G3 A3 G♭3 G3 D3 |
-| Musette in D | verified | Anna Magdalena Bach notebook (BWV Anh. 126, c. 1725) | D Major | 2/4 | 120 | 0:12 | ★★ | the score's | D2 D3 D2 D3 D2 D3 D2 D3 F♯3 G3 A3 G3 F♯3 E3 A3 F♯3 |
+| Musette in D | verified | Anna Magdalena Bach notebook (BWV Anh. 126, c. 1725) | D Major | 2/4 | 120 | 0:12 | ★★ | chord roots | D2 D2 F♯1 D2 D2 D2 F♯1 D2 A1 A1 A1 A1 |
 | Air on the G String | verified | Johann Sebastian Bach (Suite No. 3, BWV 1068) | A Major | 4/4 | 30 | 0:48 | ★★★ | chord roots | D2 B1 E1 A1 F♯1 B1 E1 A1 D2 E1 A1 |
 | Spring (The Four Seasons) | verified | Antonio Vivaldi (Op. 8 No. 1, 1725) | E Major | 4/4 | 115 | 0:15 | ★★ | the score's | E3 E3 E3 E3 E3 E3 E3 E3 E3 E3 E3 A2 A♯2 B2 E3 E3 |
-| Brahms' Lullaby (Wiegenlied) | verified | Johannes Brahms (Op. 49 No. 4, 1868) | E♭ Major | 3/4 | 72 | 0:43 | ★ | the score's | B♭2 E♭2 G3 B♭2 E♭2 G3 B♭2 E♭2 B♭3 B♭2 E♭2 F3 B♭2 E♭2 F3 B♭2 |
+| Brahms' Lullaby (Wiegenlied) | verified | Johannes Brahms (Op. 49 No. 4, 1868) | E♭ Major | 3/4 | 72 | 0:43 | ★ | chord roots | E♭2 E♭2 E♭2 E♭2 E♭2 F1 F1 B♭1 E♭2 A♭1 E♭2 B♭1 E♭2 A♭1 E♭2 E♭2 |
 | In the Hall of the Mountain King | verified | Edvard Grieg (Peer Gynt, Op. 46 No. 4, 1875), Grieg's piano version | B Natural minor | 4/4 | 138 | 0:14 | ★★ | the score's | F♯1 B0 F♯1 B0 F♯1 B0 F♯1 B0 F♯1 D1 A1 D1 A1 B0 F♯1 B0 |
-| Symphony No. 5 (opening) | verified | Ludwig van Beethoven (Op. 67, 1808) | C Natural minor | 2/4 | 192 | 0:13 | ★★ | the score's | G2 G2 G2 E♭2 F2 F2 F2 D2 C4 B3 C4 B3 C4 B3 B2 B2 |
+| Symphony No. 5 (opening) | verified | Ludwig van Beethoven (Op. 67, 1808) | C Natural minor | 2/4 | 192 | 0:13 | ★★ | chord roots | C2 E♭2 B♭1 G1 G1 C2 A♭1 C2 C2 C2 D2 G1 G1 G1 C2 C2 |
 | O Come, All Ye Faithful (Adeste Fideles) | verified | John Francis Wade (c. 1743) | G Major | 4/4 | 100 | 0:50 | ★ | the score's | G3 G3 B3 G3 F♯3 F♯3 G3 F♯3 G3 C3 D3 D3 E3 E3 D3 A2 |
 | Good King Wenceslas | verified | Traditional (Piae Cantiones, 1582) | A Major | 4/4 | 120 | 0:34 | ★ | the score's | A3 A3 F♯3 G♯3 A3 D3 E3 D3 C♯3 D3 B2 A2 A2 A3 A3 F♯3 |
 | The First Noel | verified | Traditional English carol (published 1833) | D Major | 3/4 | 100 | 0:45 | ★ | the score's | D3 G3 D3 B2 A2 A3 G3 F♯3 F♯3 G3 C♯4 D3 G3 G3 F♯3 D3 |
 | The Holly and the Ivy | verified | Traditional English carol | F Major | 3/4 | 120 | 0:26 | ★ | chord roots | D2 F1 D2 C2 D2 D2 A1 F1 D2 F1 D2 C2 D2 D2 A1 F1 |
-| Home! Sweet Home! | verified | Henry Rowley Bishop (1823) | F Major | 4/4 | 90 | 0:45 | ★ | the score's | F2 C3 F3 C3 G2 C3 G3 C3 F2 C3 F3 C3 F2 C3 F3 C3 |
+| Home! Sweet Home! | verified | Henry Rowley Bishop (1823) | F Major | 4/4 | 90 | 0:45 | ★ | chord roots | F1 F1 C2 F1 E1 C2 F1 F1 C2 F1 E1 C2 F1 F1 B♭1 F1 |
 | Gymnopédie No. 1 | verified | Erik Satie (1888) | D Major | 3/4 | 72 | 0:10 | ★ | the score's | G2 D2 G2 D2 |
 | Sonata facile (opening) | verified | Wolfgang Amadeus Mozart (K. 545, 1788) | C Major | 4/4 | 132 | 0:07 | ★★ | the score's | C4 G4 E4 G4 C4 G4 E4 G4 D4 G4 F4 G4 C4 G4 E4 G4 |
 | Piano Sonata in A (theme) | verified | Wolfgang Amadeus Mozart (K. 331, 1783) | A Major | 6/8 | 56 | 0:26 | ★★ | the score's | A3 B3 A3 C♯4 C♯4 G♯3 A3 G♯3 B3 B3 F♯3 F♯3 G♯3 G♯3 A3 D3 |

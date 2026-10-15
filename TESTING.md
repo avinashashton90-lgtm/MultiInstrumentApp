@@ -106,6 +106,21 @@ builds, checks and publishes `PocketBand.apk` with no dependency on the tests. `
 to it with `continue-on-error: true` and a 25-minute limit, so its result is shown on the run but never blocks a
 release.
 
+## Round F: more songs, and every song on every instrument
+
+- **New sources.** Besides Mutopia, `tools/render-sources.py` now reads ABC and MusicXML from OpenEWLD, the Nottingham
+  Music Database, PianoBooster's Booster Music, LaTeX for Musicians and the music21 corpus, after checking each
+  collection's licence file. 14 songs were added (Happy Birthday first, in a new Celebrate group); 12 requested songs
+  had no verifiable free source and are listed under "Not found" in TRACKS.md, including Jana Gana Mana and Vande Mataram.
+- **Every song on every instrument.** Each of the 46 verified songs has its melody on all 12 melodic instruments, a chord
+  song, a bass line (the score's, or the chord roots where the score's line doesn't fit the bass's 12 frets), a drum beat
+  and a tabla theka in its own time signature. `tools/verify-tracks.mjs` checks these too. Latest run: 46 tracks, every
+  note matching its source MIDI, 3,853 notes heard at the written pitch.
+- **Quick suite (cloud container).** 255 of 261 passed. The 6 failures were: per-note processing just over 8 ms on violin,
+  viola, cello and rhythm guitar (the known slow-machine timing), and four score bass lines that didn't fit the electric
+  bass's frets (also flagged by the self-test page). Those four now use chord roots, and the songs, library and load
+  checks were rerun: all 21 passed.
+
 ## Round E: songs from encoded scores
 
 - **Melodies typed from memory didn't sound like the real songs.** Every track was audited: the 38 that had been

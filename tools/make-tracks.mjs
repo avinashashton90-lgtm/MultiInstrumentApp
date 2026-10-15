@@ -438,8 +438,8 @@ export function rootsBass(t, chords) {
   return notes;
 }
 export function buildVerifiedBass(s, mel) {
-  // (the score's line has to fit the bass guitar, E1-C4, moved by whole octaves)
-  const fits = (l) => { const lo = Math.min(...l.map((n) => n[2])), hi = Math.max(...l.map((n) => n[2])); return [-2, -1, 0, 1].some((o) => lo + 12 * o >= 28 && hi + 12 * o <= 60); };
+  // (the score's line has to fit the app's bass guitar, E1 to G3 on four strings of 12 frets, moved by whole octaves)
+  const fits = (l) => { const lo = Math.min(...l.map((n) => n[2])), hi = Math.max(...l.map((n) => n[2])); return [-2, -1, 0, 1].some((o) => lo + 12 * o >= 28 && hi + 12 * o <= 55); };
   const { low, notes, sections, keyChords, ...t } = mel, score = !!(low && low.length >= mel.bars / 2 && fits(low));
   return { ...t, id: 'bs-' + s.id, type: 'bass', line: score ? 'score' : 'roots', notes: score ? low : rootsBass(mel, mel.keyChords), tune: notes, sections };
 }
