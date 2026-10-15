@@ -31,7 +31,7 @@ import { INSTRUMENTS } from '../instruments.mjs';
 import { NAMES, pc, midiOf, row, pool, dryReverb, setToggle } from '../common.mjs';
 
 export const TRACK_FILES = ['melodies', 'chords', 'bass', 'drums', 'tabla'];
-export const TAGS = ['Kids', 'Classical', 'Folk', 'Indian', 'Hymn', 'My songs'];
+export const TAGS = ['Celebrate', 'Kids', 'Classical', 'Folk', 'Indian', 'Hymn', 'My songs'];
 // Modes a track may be in, and what the app's key label calls them (written here from the definitions)
 const SCALE_IV = {
   major: [0, 2, 4, 5, 7, 9, 11], minor: [0, 2, 3, 5, 7, 8, 10], harmonic: [0, 2, 3, 5, 7, 8, 11], melodic: [0, 2, 3, 5, 7, 9, 11],
@@ -47,8 +47,7 @@ const pitchedType = (t) => t.type === 'melody' || t.type === 'bass' || t.type ==
 export const TYPE_OF = { guitar: 'chords', rhythm: 'chords', ebass: 'bass', drums: 'drums', epad: 'drums', tabla1: 'tabla', tabla2: 'tabla' };
 export const typeOf = (tab) => TYPE_OF[tab] || 'melody';
 export const SAMPLE = { melody: 'twinkle', chords: 'ch-twinkle', bass: 'bs-twinkle', drums: 'dr-rock', tabla: 'tl-keherwa' };
-// The sample a test plays on an instrument: the type's sample if the instrument offers it (each melodic instrument
-// offers its own 5-10 melodies), else the first track it offers; n > 0 picks the n-th other offered track
+// The sample a test plays on an instrument: the type's sample if the instrument offers it, else the first track it offers; n > 0 picks the n-th other offered track
 export function sampleFor(lib, tab, n = 0) {
   const type = typeOf(tab), offered = lib.filter((t) => t.type === type && (!t.inst || t.inst.includes(tab)));
   const first = offered.find((t) => t.id === SAMPLE[type]) || offered[0];
@@ -115,10 +114,10 @@ function checkNotes(t, notes, e, label) {
 export function validateTrack(t) {
   const e = [], per = t.time && bpb(t), len = t.bars * per;
   if (!t.id || !t.title || !t.by) e.push('missing id, title or composer');
-  if (!['Public domain', 'Original'].includes(t.src) && !/^CC BY(-SA)? [0-9.]+$/.test(t.src)) e.push('licence must be Public domain, Original, CC BY or CC BY-SA, not ' + t.src);
+  if (!['Public domain', 'Original'].includes(t.src) && !/^(CC BY(-SA)?|GPL|GFDL) [0-9.]+$/.test(t.src)) e.push('licence must be Public domain, Original, CC BY, CC BY-SA, GPL or GFDL, not ' + t.src);
   if (!['verified', 'generated'].includes(t.status)) e.push('status must be verified or generated, not ' + t.status);
   if (!(t.tempo >= 24 && t.tempo <= 220)) e.push('tempo ' + t.tempo + ' outside 24-220'); // (Bach's Air is marked a quarter = 30)
-  const beats = t.type === 'tabla' ? t.time[0] >= 2 && t.time[0] <= 16 : [2, 3, 4, 5, 6, 7].includes(t.time[0]);
+  const beats = t.type === 'tabla' ? t.time[0] >= 2 && t.time[0] <= 16 : [2, 3, 4, 5, 6, 7, 9, 12].includes(t.time[0]);
   if (!Array.isArray(t.time) || !beats || ![2, 4, 8].includes(t.time[1])) e.push('bad time signature');
   if (![1, 2, 3].includes(t.level)) e.push('difficulty must be 1-3');
   if (!t.tags || !t.tags.length || t.tags.some((g) => !TAGS.includes(g))) e.push('tags must come from ' + TAGS.join(', '));
@@ -163,7 +162,11 @@ export function validateTrack(t) {
       if (t.type === 'drums' ? !PADS.includes(h[1]) : !TABLA[h[1]]) e.push(`hit ${i + 1}: unknown ${t.type === 'drums' ? 'pad' : 'bol'} ${h[1]}`);
       if (!(h[2] >= 1 && h[2] <= 127)) e.push(`hit ${i + 1}: velocity ${h[2]}`);
     });
-    if (t.type === 'tabla' && (!t.vibhag || t.vibhag.reduce((a, b) => a + b, 0) !== t.time[0] || !t.tali || t.tali.length !== t.vibhag.length)) e.push('vibhags must add up to the matras, with a tali sign each');
+    // a taal's own track has one cycle a bar (a matra a beat); a song's theka sets its matra and cycle, and a cycle
+    // takes whole bars or a whole fraction of one
+    const matras = t.vibhag && t.vibhag.reduce((a, b) => a + b, 0), whole = (x) => Math.abs(x - Math.round(x)) < 1e-6;
+    if (t.type === 'tabla' && (!t.vibhag || !t.tali || t.tali.length !== t.vibhag.length || (t.matra ? !near(matras * t.matra, t.cycle) || !(whole(t.cycle / per) || whole(per / t.cycle)) : matras !== t.time[0])))
+      e.push('vibhags must add up to the matras of a cycle that fits the bars, with a tali sign each');
     if (t.hits && t.hits.length && Math.max(...t.hits.map((h) => h[0])) < len - per) e.push('the last bar is empty');
   } else e.push('unknown type ' + t.type);
   return e;
