@@ -2,7 +2,7 @@
 // Builds the song library in tracks/*.json and the list in TRACKS.md: the verified tracks converted from the scores in
 // tools/sources.json (see tools/midi-to-track.mjs), and the generated ones from the definitions below.
 //   node tools/make-tracks.mjs
-// Every track is either public domain (traditional, or a composer who died long ago) or written for Pocket Band.
+// Every track is public domain, under a free licence its source states (CC BY, CC BY-SA, GPL, GFDL), or written for Pocket Band.
 // Melodies are written bar by bar ("|" between bars); the script checks that every bar adds up to the time
 // signature, so a slip in a transcription stops the build instead of reaching the app.
 //
@@ -251,7 +251,7 @@ const BASS_SONGS = [
   { from: 'minuet', fig: 'waltz', level: 2 },
   { from: 'sunny', fig: 'drive', level: 2 }
 ];
-function chordTones(sym, key) {
+function chordTones(sym) {
   const m = /^([A-G](?:#|b)?)(m(?!aj)|dim)?/.exec(sym), root = pitchClass(m[1]);
   return { root, third: m[2] ? 3 : 4, fifth: m[2] === 'dim' ? 6 : 7 };
 }
@@ -371,13 +371,25 @@ const statusOf = (melId) => GENERATED.has(melId) ? 'generated' : 'unverified';
 const SRC = SOURCES.sources;
 export function licenceShort(l) {
   if (/^public domain$/i.test(l)) return 'Public domain';
-  const m = /attribution(-sharealike)?\s*([0-9.]+)/i.exec(l);
-  return m ? 'CC BY' + (m[1] ? '-SA' : '') + ' ' + m[2] : l;
+  let m = /attribution(-sharealike)?\s*([0-9.]+)/i.exec(l);
+  if (m) return 'CC BY' + (m[1] ? '-SA' : '') + ' ' + m[2];
+  m = /gnu (general public|free documentation) licen[cs]e\s*([0-9.]+)/i.exec(l);
+  return m ? (m[1].toLowerCase() === 'general public' ? 'GPL ' : 'GFDL ') + m[2] : l;
 }
+// Where a score comes from: Mutopia (the default) or one of the collections in sources.json's origins
+export const originOf = (s) => SOURCES.origins[s.origin || 'mutopia'];
 function credit(s) {
-  return { composer: s.composer, died: s.died, licence: s.licence, source: 'Mutopia Project, piece ' + s.mutopia + ': ' + s.excerpt,
-    url: 'https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=' + s.mutopia, file: SOURCES.repo + '/tree/' + SOURCES.commit + '/ftp/' + s.path,
-    converted: SOURCES.converted, tempo: s.tempoWhy || (s.tempo ? 'set (the score has no tempo marking)' : 'from the score') };
+  const o = originOf(s), tempo = s.tempoWhy || (s.tempo ? 'set (the score has no tempo marking)' : 'from the score');
+  if (!s.origin || s.origin === 'mutopia')
+    return { composer: s.composer, died: s.died, licence: s.licence, origin: 'Mutopia', source: 'Mutopia Project, piece ' + s.mutopia + ': ' + s.excerpt,
+      url: 'https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=' + s.mutopia, file: SOURCES.repo + '/tree/' + SOURCES.commit + '/ftp/' + s.path,
+      converted: SOURCES.converted, tempo };
+  const tune = s.number && /\.abc$/.test(s.file) ? ' (tune X:' + s.number + ')' : '';
+  const url = o.repo && o.commit ? o.repo + '/blob/' + o.commit + '/' + s.file : o.url;
+  const c = { composer: s.composer, died: s.died, licence: s.licence, origin: o.short, source: o.name + ', ' + s.file + tune + ': ' + s.excerpt, url, file: url,
+    converted: SOURCES.converted, tempo };
+  if (s.licenceNote) c.note = s.licenceNote;
+  return c;
 }
 export function buildVerified(s) {
   const c = convertSource(s);
@@ -389,6 +401,7 @@ export function buildVerified(s) {
   Object.defineProperty(t, 'keyChords', { value: c.keyChords, enumerable: false });
   t.from = { file: c.map.file, melody: c.map.melody, bass: c.map.bass, srcBeat: c.map.srcBeat, lead: c.map.lead, grace: c.map.grace };
   if (c.map.end !== undefined) t.from.end = c.map.end;
+  if (s.key) Object.assign(t.from, { key: s.key, mode: s.mode });
   return t;
 }
 function strumOf(t, pattern) {
@@ -398,50 +411,108 @@ function strumOf(t, pattern) {
   return strum;
 }
 // A verified melody's harmony as the key's own seven chords (the guitar's chord buttons): each half bar gets the
-// chord of the key that best covers the score's notes there. The tune comes along for the backing.
+// chord of the key that best covers the score's notes there. The tune comes along for the backing. The strum is the
+// manifest's pattern, else one that suits the time signature.
+const compound = (time) => time[1] === 8 && time[0] % 3 === 0;
+export function defaultStrum(t) {
+  const per = barBeats(t.time);
+  if (compound(t.time)) return { 3: 'D-U', 6: 'D--DUD', 9: 'D--D--DUD', 12: 'D--DUDD--DUD' }[t.time[0]];
+  return { 2: 'D-DU', 3: 'D-DUDU', 4: 'D-D-DUDU' }[per] || 'D'.padEnd(Math.round(per), '-');
+}
 export function buildVerifiedChords(s, mel) {
   const { low, ...t } = mel;
   t.chords = mel.keyChords;
-  return { ...t, id: 'ch-' + s.id, type: 'chords', strum: strumOf(t, s.chordSong) };
+  return { ...t, id: 'ch-' + s.id, type: 'chords', strum: strumOf(t, s.chordSong || defaultStrum(t)) };
 }
-// A verified melody's own bass line, from the score's lowest part; the tune comes along
+// A verified melody's bass line: the score's own lowest part where it has one that fits (line "score"), else the roots of the
+// key chords the chord song strums (line "roots"), one held note per chord between E1 and D#2. The tune comes along.
+export function rootsBass(t, chords) {
+  const per = barBeats(t.time), notes = [], end = t.bars * per;
+  chords.forEach((bar, bi) => {
+    const syms = bar.split(/\s+/).filter((x) => x && x !== '-');
+    syms.forEach((sym, k) => {
+      const span = per / syms.length, start = r3(bi * per + k * span), root = chordTones(sym).root;
+      notes.push([start, r3(Math.min(span, end - start)), 28 + ((root - 4) % 12 + 12) % 12, k === 0 ? 100 : 90]);
+    });
+  });
+  return notes;
+}
 export function buildVerifiedBass(s, mel) {
-  const { low, notes, sections, ...t } = mel;
-  return { ...t, id: 'bs-' + s.id, type: 'bass', notes: low, tune: notes, sections };
+  // (the score's line has to fit the app's bass guitar, E1 to G3 on four strings of 12 frets, moved by whole octaves)
+  const fits = (l) => { const lo = Math.min(...l.map((n) => n[2])), hi = Math.max(...l.map((n) => n[2])); return [-2, -1, 0, 1].some((o) => lo + 12 * o >= 28 && hi + 12 * o <= 55); };
+  const { low, notes, sections, keyChords, ...t } = mel, score = !!(low && low.length >= mel.bars / 2 && fits(low));
+  return { ...t, id: 'bs-' + s.id, type: 'bass', line: score ? 'score' : 'roots', notes: score ? low : rootsBass(mel, mel.keyChords), tune: notes, sections };
+}
+
+// A verified melody's rhythm, for the drums and the tabla: a beat in the song's own time signature and tempo, from its
+// first full bar (a pickup bar is left to the tune), a fill every fourth bar, and a single closing stroke on the last
+// bar. The tune and its key chords come along as backing. Patterns are one bar, spread evenly across it.
+const SONG_GROOVES = {
+  '4': { name: 'Rock beat', beat: { kick: 'x-------x-x-----', snare: '----X-------X---', hatC: 'x-x-x-x-x-x-x-x-' },
+    fill: { kick: 'x-------x-------', snare: '----X-------xxxx', hatC: 'x-x-x-x-x-------', tomH: '--------xx------', tomL: '----------xx----' } },
+  '4slow': { name: 'Ballad', beat: { kick: 'x-------x-------', snare: '----X-------X---', hatC: 'x---x---x---x---' },
+    fill: { kick: 'x-------x-------', snare: '----X-------X---', hatC: 'x---x---x-------', tomH: '----------x-----', tomL: '------------x-x-' } },
+  '2': { name: 'March', beat: { kick: 'x-------', snare: '----X---', hatC: 'x-x-x-x-' }, fill: { kick: 'x-------', snare: '----X-xx', tomL: '-------x' } },
+  '3': { name: 'Waltz', beat: { kick: 'x-----------', snare: '----o---o---', hatC: 'x---x---x---' }, fill: { kick: 'x-----------', snare: '----o---xxxx', hatC: 'x---x-------' } },
+  '6/8': { name: 'Six-eight', beat: { kick: 'x-----', snare: '---X--', hatC: 'xxxxxx' }, fill: { kick: 'x-----', snare: '---Xxx', tomL: '-x----' } },
+  '3/8': { name: 'One in a bar', beat: { kick: 'x--', snare: '--o', hatC: 'xxx' }, fill: { kick: 'x--', snare: '-xx' } },
+  '9/8': { name: 'Nine-eight', beat: { kick: 'x--------', snare: '---o--o--', hatC: 'x--x--x--' }, fill: { kick: 'x--------', snare: '---o--xxx', hatC: 'x--x-----' } },
+  '12/8': { name: 'Twelve-eight', beat: { kick: 'x-----x-----', snare: '---X-----X--', hatC: 'xxxxxxxxxxxx' }, fill: { kick: 'x-----x-----', snare: '---X-----Xxx' } }
+};
+function grooveFor(t) {
+  const per = barBeats(t.time);
+  if (compound(t.time)) return SONG_GROOVES[t.time.join('/')];
+  if (per === 4) return SONG_GROOVES[t.tempo < 80 ? '4slow' : '4'];
+  return SONG_GROOVES[String(per)];
+}
+function rhythmBase(mel, id, type) {
+  // unpitched, like every drum and tabla track (the tune and chords that come along still follow Transpose)
+  const { low, notes, keyChords, inst, credit, from, key, ...t } = mel;
+  return { ...t, id, type, status: 'generated', song: mel.id, tonic: null, mode: 'none', chords: keyChords, tune: notes };
+}
+export function buildSongDrums(mel) {
+  const g = grooveFor(mel);
+  if (!g) throw new Error(`${mel.id}: no drum beat for ${mel.time.join('/')}`);
+  const per = barBeats(mel.time), first = mel.from && mel.from.lead ? 1 : 0, last = mel.bars - 1, hits = [];
+  for (let bi = first; bi < last; bi++) {
+    const bar = (bi - first) % 4 === 3 && bi < last - 1 ? g.fill : g.beat;
+    for (const [pad, line] of Object.entries(bar)) [...line].forEach((ch, k) => { if (VEL[ch]) hits.push([r3(bi * per + k * per / line.length), pad, VEL[ch]]); });
+  }
+  hits.push([r3(first * per), 'crash', 110], [r3(last * per), 'kick', 118], [r3(last * per), 'crash', 110]);
+  hits.sort((a, b) => a[0] - b[0] || a[1].localeCompare(b[1]));
+  return { ...rhythmBase(mel, 'dr-' + mel.id, 'drums'), level: mel.tempo >= 140 ? 2 : 1, groove: g.name, hits };
+}
+// Tabla: Keherwa (8 matras) for two and four beats a bar, Dadra (6 matras) for three-four and the compound times,
+// a matra being an eighth note (a dotted quarter in 9/8). A cycle can take one bar, half a bar or two bars.
+const SONG_TAALS = {
+  keherwa: { name: 'Keherwa (8 matras)', theka: 'Dha Ge Na Ti Na Ka Dhi Na', vibhag: [4, 4], tali: ['X', '0'] },
+  dadra: { name: 'Dadra (6 matras)', theka: 'Dha Dhi Na Dha Ti Na', vibhag: [3, 3], tali: ['X', '0'] }
+};
+export function buildSongTabla(mel) {
+  const per = barBeats(mel.time), triple = compound(mel.time) || (mel.time[0] === 3 && mel.time[1] === 4);
+  const g = SONG_TAALS[triple ? 'dadra' : 'keherwa'], words = g.theka.split(' '), n = words.length;
+  const matra = mel.time.join('/') === '9/8' ? 1.5 : 0.5, cycle = n * matra;
+  const first = mel.from && mel.from.lead ? 1 : 0, sam = first * per, stop = (mel.bars - 1) * per, hits = [];
+  if (Math.abs(cycle / per - Math.round(cycle / per)) > 1e-6 && Math.abs(per / cycle - Math.round(per / cycle)) > 1e-6)
+    throw new Error(`${mel.id}: a ${g.name} cycle doesn't fit ${mel.time.join('/')} bars`);
+  for (let b = sam, k = 0; b < stop - 1e-6; b = r3(b + matra), k = (k + 1) % n) hits.push([r3(b), words[k], k === 0 ? 112 : 96]);
+  hits.push([r3(stop), 'Dha', 112]);
+  return { ...rhythmBase(mel, 'tl-' + mel.id, 'tabla'), by: mel.by, level: 1, taal: g.name, vibhag: g.vibhag, tali: g.tali, matra, cycle, sam, hits };
 }
 
 /* ---------------- Which melodies each instrument offers ---------------- */
-// Every melodic instrument offers 5 to 10 tracks that fit it: all the notes inside its range after a whole-octave
-// move, nothing too fast for a wind player (level 3), and on the diatonic harmonica only tunes that stay inside a
-// major scale. A mix: up to 3 folk, hymn and children's tunes, 4 classical, 1 Indian and 1 original, rotated per
-// instrument so they don't all offer the same ten, then the fitting track offered on the fewest instruments so far.
+// Every melody is offered on every melodic instrument: the app moves it by whole octaves to where most of its notes
+// sit in the instrument's range, and plays any note the instrument can't reach for the player. RANGE says how many
+// fit without that help, for TRACKS.md.
 export const RANGE = { piano: [21, 108], organ: [36, 96], synth: [24, 96], flute: [60, 96], harmonica: [60, 96], horn: [41, 77],
   trumpet: [54, 84], sax: [49, 81], xylo: [60, 96], violin: [55, 93], viola: [48, 83], cello: [36, 71] };
-const WIND = new Set(['flute', 'horn', 'trumpet', 'sax', 'harmonica']);
-const catOf = (t) => t.tags.includes('Indian') ? 'indian' : /Pocket Band/.test(t.by) ? 'original' : t.tags.includes('Classical') ? 'classical' : 'folk';
-const QUOTA = { folk: 3, classical: 4, indian: 1, original: 1 };
-function fitsRange(t, R) {
+export function fitsRange(t, R) {
   const ms = t.notes.map((n) => n[2]), lo = Math.min(...ms), hi = Math.max(...ms);
   for (let o = -4; o <= 4; o++) if (lo + 12 * o >= R[0] && hi + 12 * o <= R[1]) return true;
   return false;
 }
 export function assignInstruments(melodies) {
-  const shown = melodies.filter((t) => t.status !== 'unverified');
-  shown.forEach((t) => { t.inst = []; });
-  Object.keys(RANGE).forEach((tab, ti) => {
-    const ok = shown.filter((t) => fitsRange(t, RANGE[tab]) && !(WIND.has(tab) && t.level >= 3) &&
-      !(tab === 'harmonica' && (!['major', 'bilawal', 'bhoopali'].includes(t.mode) || outside(t.notes, t.tonic, 'major').length)));
-    const pick = ok.filter((t) => (t.pin || []).includes(tab)); // tracks a score asks to be offered on this instrument
-    for (const cat of Object.keys(QUOTA)) {
-      const c = ok.filter((t) => catOf(t) === cat), rot = c.length ? (ti * 2) % c.length : 0;
-      c.slice(rot).concat(c.slice(0, rot)).filter((t) => !pick.includes(t)).slice(0, Math.max(0, QUOTA[cat] - pick.filter((t) => catOf(t) === cat).length))
-        .forEach((t) => { if (pick.length < 10) pick.push(t); });
-    }
-    // the rest: the fitting tracks offered on the fewest instruments so far, so every track has a home
-    ok.filter((t) => !pick.includes(t)).sort((a, b) => a.inst.length - b.inst.length).slice(0, 10 - pick.length).forEach((t) => pick.push(t));
-    if (pick.length < 5) throw new Error(`${tab}: only ${pick.length} songs fit it`);
-    pick.forEach((t) => t.inst.push(tab));
-  });
+  melodies.filter((t) => t.status !== 'unverified').forEach((t) => { t.inst = Object.keys(RANGE); });
 }
 
 /* ---------------- Writing it out ---------------- */
@@ -452,49 +523,68 @@ function noteName(m, t) {
 }
 const first16 = (t) => t.notes ? t.notes.slice(0, 16).map((n) => noteName(n[2], t)).join(' ') : '–';
 const KIND = { melodies: 'Melodies (every melodic instrument)', chords: 'Chord songs (guitar and rhythm guitar)', bass: 'Bass lines (electric bass)',
-  drums: 'Drum grooves (drums and electric drum pad)', tabla: 'Taals (tabla, dual and single)' };
+  drums: 'Drum beats (drums and electric drum pad)', tabla: 'Taals (tabla, dual and single)' };
 const fmtLen = (t) => { const s = Math.round(t.bars * t.time[0] * 4 / t.time[1] * 60 / t.tempo); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
-const keyOf = (t) => t.tonic !== null ? NOTE_NAMES[t.tonic] + ' ' + MODE_NAMES[t.mode] : '– (unpitched)';
+const keyOf = (t) => t.tonic !== null && t.tonic !== undefined ? NOTE_NAMES[t.tonic] + ' ' + MODE_NAMES[t.mode] : '– (unpitched)';
 const INST_NAMES = { piano: 'Piano', organ: 'Organ', synth: 'Synth', flute: 'Flute', harmonica: 'Harmonica', horn: 'Horn', trumpet: 'Trumpet', sax: 'Sax',
   xylo: 'Xylophone', violin: 'Violin', viola: 'Viola', cello: 'Cello' };
 function tracksMd(out, hidden) {
   const L = [];
   L.push('# Songs: the track library', '',
     'Every track the Songs button offers, where it comes from and how it was checked. Round E replaced the songs that had',
-    'been typed in from memory with tracks converted from encoded scores, and hid the rest.', '',
-    '**Status.** `verified`: converted from an encoded score (a LilyPond file from the [Mutopia Project](https://www.mutopiaproject.org),',
-    'rendered to MIDI) by `tools/midi-to-track.mjs`, then checked by `tools/verify-tracks.mjs`: every note against the source MIDI',
-    '(pitch exact, onset within a 16th of a beat), and an offline render of the track whose pitches are detected again and',
-    'compared. `generated`: built from a definition in `tools/make-tracks.mjs` (a raag\'s aroha and avaroha, the alankar',
-    'exercise, a taal\'s theka, a drum groove, or a tune written for Pocket Band), so the definition is the track.',
-    '`unverified`: typed in from memory; kept in `tracks/unverified.json` but hidden from the song picker.', '',
-    '**Licences.** Only public domain, CC BY and CC BY-SA scores are used; `tools/render-sources.py` reads each score\'s own',
-    'licence line and stops on anything else. CC BY and CC BY-SA scores are credited here and in the app (Settings → Credits).',
-    'The track data converted from a CC BY-SA score is shared under the same licence.', '',
-    '**Rebuilding.** `python3 tools/render-sources.py <Mutopia checkout>` copies the scores into `sources/` and renders their MIDI;',
-    '`node tools/make-tracks.mjs` converts them and writes `tracks/*.json` and this file; `node tools/verify-tracks.mjs` checks',
-    'every verified track (the build fails if a track and its source disagree).', '',
-    '**Easy and Full.** Every verified melody carries the score\'s own bass line (`low`) and the chords its harmony spells',
-    '(`chords`). Easy is the melody alone; Full adds the bass line, as notes to play on the keyboards and as backing elsewhere.',
-    'Sections (`sections`, 4 to 8 bars) end where the tune breathes.', '',
+    'been typed in from memory with tracks converted from encoded scores, and hid the rest. Round F added more songs from',
+    'further free collections, a Celebrate group (Happy Birthday first), and a version of every song for every instrument.', '',
+    '**Status.** `verified`: converted from an encoded score (LilyPond from the [Mutopia Project](https://www.mutopiaproject.org),',
+    'ABC or MusicXML from the collections listed below, rendered to MIDI) by `tools/midi-to-track.mjs`, then checked by',
+    '`tools/verify-tracks.mjs`: every note against the source MIDI (pitch exact, onset within a 16th of a beat), and an offline',
+    'render of the track whose pitches are detected again and compared. `generated`: built from a definition in',
+    '`tools/make-tracks.mjs` (a song\'s drum beat or tabla theka, a raag\'s aroha and avaroha, the alankar exercise, a taal\'s',
+    'theka, a drum groove, or a tune written for Pocket Band), so the definition is the track. `unverified`: typed in from',
+    'memory; kept in `tracks/unverified.json` but hidden from the song picker.', '',
+    '**Licences.** Only public domain, CC BY, CC BY-SA, GNU GPL and GNU FDL scores are used; `tools/render-sources.py` reads each',
+    'score\'s own licence line (or its collection\'s licence file) and stops on anything else. Every non-public-domain score is',
+    'credited here and in the app (Settings → Credits). Track data converted from a CC BY-SA, GPL or GFDL score is shared under',
+    'that same licence; the licence texts are in `sources/LICENSES/`. Only melodies are used, never lyrics.', '',
+    '**Every song on every instrument.** Each verified song comes as: the melody, offered on every melodic instrument (the app',
+    'moves it by whole octaves into the instrument\'s range and plays any note out of reach for you); a chord song for the',
+    'guitars (the key\'s own chords that best cover the score\'s harmony, strummed in a pattern for its time signature); a bass',
+    'line (the score\'s own lowest part, or where it has none the roots of those chords); a drum beat and a tabla theka in its',
+    'time signature and tempo (Keherwa for two and four beats a bar, Dadra for three-four and compound time), from its first',
+    'full bar, with a fill every fourth bar. Chord songs, bass lines and rhythms carry the tune and chords as backing.', '',
+    '**Rebuilding.** `python3 tools/render-sources.py --mutopia=<checkout> --openewld=<checkout> --nmd=<checkout>',
+    '--boostermusic=<checkout> --latex4musicians=<folder>` copies the scores into `sources/` and renders their MIDI;',
+    '`npm run tracks` converts them and writes `tracks/*.json` and this file; `node tools/verify-tracks.mjs` checks every',
+    'verified track (the build fails if a track and its source disagree).', '',
+    '**Easy and Full.** Every verified melody carries the score\'s own bass line (`low`, where it has one) and the chords its',
+    'harmony spells (`chords`). Easy is the melody alone; Full adds the bass line. Sections (`sections`, 4 to 8 bars) end where',
+    'the tune breathes.', '',
     '**Format.** Each track: `id`, `type`, `title`, `by`, `src` (the licence), `status`, `tempo` (quarter notes a minute), `time`,',
     '`key`, `tonic` (pitch class), `mode`, `level` (1-3), `tags`, `bars`, `sections`, `inst` (the melodic instruments that offer it),',
     'and by type: `notes` `[startBeat, beats, midi, velocity]`, `low` (bass line, same form), `chords` (one string a bar),',
-    '`strum`, `hits`, `bols`, `tune`. Verified tracks add `credit` (composer, death year, licence, source, URL, conversion',
-    'date) and `from` (the source MIDI file, its parts and the beat the track starts at, for the verifier).', '');
-  L.push('## Verified tracks and their sources', '', `Converted on ${SOURCES.converted} from Mutopia (${SOURCES.repo}, commit ${SOURCES.commit.slice(0, 10)}).`, '',
+    '`strum`, `hits`, `tune`; a song\'s rhythm adds `song`, a drum beat `groove`, a theka `taal`, `vibhag`, `tali`, `matra`',
+    '(beats a matra), `cycle` (beats a cycle) and `sam` (the beat of the first sam). Verified tracks add `credit` (composer,',
+    'death year, licence, collection, source, URL, conversion date) and `from` (the source MIDI file, its parts and the beat',
+    'the track starts at, for the verifier).', '');
+  L.push('## Collections', '', `Converted on ${SOURCES.converted}.`, '',
+    `- **Mutopia Project**: LilyPond, ${SOURCES.repo}, commit ${SOURCES.commit.slice(0, 10)}; each file states its own licence.`);
+  Object.entries(SOURCES.origins).filter(([k]) => k !== 'mutopia').forEach(([, o]) =>
+    L.push(`- **${o.short}** (${o.name}): ${o.repo ? o.repo + (o.commit ? ', commit ' + o.commit.slice(0, 10) : '') : o.url}${o.package ? ', ' + o.package : ''}; licence from \`${o.licenceFile}\`.`));
+  L.push('', '## Verified tracks and their sources', '',
     '| Track | Composer | Died | Excerpt | Licence | Source | Tempo |', '|---|---|---|---|---|---|---|');
   out.melodies.filter((t) => t.status === 'verified').forEach((t) => {
-    const s = SRC.find((x) => x.id === t.id);
-    L.push(`| ${t.title} | ${s.composer} | ${s.died || '–'} | ${s.excerpt} | ${t.src} | [Mutopia ${s.mutopia}](${t.credit.url}) | ${t.credit.tempo} |`);
+    const s = SRC.find((x) => x.id === t.id), where = s.mutopia ? 'Mutopia ' + s.mutopia : t.credit.origin + ': ' + s.file.split('/').pop() + (s.number && /\.abc$/.test(s.file) ? ' X:' + s.number : '');
+    L.push(`| ${t.title} | ${s.composer} | ${s.died || '–'} | ${s.excerpt} | ${t.src} | [${where}](${t.credit.url}) | ${t.credit.tempo} |`);
   });
   L.push('');
   for (const file of Object.keys(KIND)) {
-    L.push('## ' + KIND[file], '', '| Track | Status | By | Key | Time | Tempo | Length | Level | ' + (file === 'melodies' ? 'Instruments | ' : '') + 'First 16 notes |',
-      '|---|---|---|---|---|---|---|---|' + (file === 'melodies' ? '---|' : '') + '---|');
+    const extra = file === 'melodies' ? 'Instruments' : file === 'bass' ? 'Line' : file === 'drums' ? 'Beat' : file === 'tabla' ? 'Taal' : null;
+    L.push('## ' + KIND[file], '', '| Track | Status | By | Key | Time | Tempo | Length | Level | ' + (extra ? extra + ' | ' : '') + 'First 16 notes |',
+      '|---|---|---|---|---|---|---|---|' + (extra ? '---|' : '') + '---|');
     out[file].forEach((t) => {
-      L.push(`| ${t.title} | ${t.status} | ${t.by} | ${keyOf(t)} | ${t.time.join('/')} | ${t.tempo} | ${fmtLen(t)} | ${'★'.repeat(t.level)} | ` +
-        (file === 'melodies' ? (t.inst || []).map((i) => INST_NAMES[i]).join(', ') + ' | ' : '') + `${t.type === 'drums' || t.type === 'tabla' ? '–' : first16(t)} |`);
+      const ex = file === 'melodies' ? (t.inst || []).length === Object.keys(RANGE).length ? 'All' : (t.inst || []).map((i) => INST_NAMES[i]).join(', ')
+        : file === 'bass' ? (t.line === 'score' ? 'the score\'s' : t.line === 'roots' ? 'chord roots' : 'pattern') : file === 'drums' ? t.groove || 'groove' : file === 'tabla' ? t.taal || t.title : null;
+      const tune = t.type === 'drums' || t.type === 'tabla' ? (t.tune ? first16({ ...t, notes: t.tune }) : '–') : first16(t);
+      L.push(`| ${t.title} | ${t.status} | ${t.by} | ${keyOf(t)} | ${t.time.join('/')} | ${t.tempo} | ${fmtLen(t)} | ${'★'.repeat(t.level)} | ` + (ex !== null ? ex + ' | ' : '') + `${tune} |`);
     });
     L.push('');
   }
@@ -515,15 +605,21 @@ export function buildAll() {
   for (const [file, list] of Object.entries(LIBRARY)) old[file] = list.map((s) => BUILD[file](s));
   const verified = SRC.map(buildVerified);
   const byId = Object.fromEntries(verified.map((t) => [t.id, t]));
+  // Celebrate songs first, then the manifest's order
+  const songs = SRC.filter((s) => s.tags.includes('Celebrate')).concat(SRC.filter((s) => !s.tags.includes('Celebrate')));
   const out = {
-    melodies: verified.concat(old.melodies.filter((t) => t.status === 'generated')),
-    chords: SRC.filter((s) => s.chordSong).map((s) => buildVerifiedChords(s, byId[s.id])).concat(old.chords.filter((t) => t.status === 'generated')),
-    bass: SRC.filter((s) => s.bassSong).map((s) => buildVerifiedBass(s, byId[s.id])).concat(old.bass.filter((t) => t.status === 'generated')),
-    drums: old.drums, tabla: old.tabla
+    melodies: songs.map((s) => byId[s.id]).concat(old.melodies.filter((t) => t.status === 'generated')),
+    chords: songs.map((s) => buildVerifiedChords(s, byId[s.id])).concat(old.chords.filter((t) => t.status === 'generated')),
+    bass: songs.map((s) => buildVerifiedBass(s, byId[s.id])).concat(old.bass.filter((t) => t.status === 'generated')),
+    drums: songs.map((s) => buildSongDrums(byId[s.id])).concat(old.drums),
+    tabla: songs.map((s) => buildSongTabla(byId[s.id])).concat(old.tabla)
   };
   const hidden = [].concat(old.melodies, old.chords, old.bass).filter((t) => t.status === 'unverified').map((t) => ({ ...t, id: 'uv-' + t.id, hidden: true }));
   assignInstruments(out.melodies);
-  ['chords', 'bass'].forEach((f) => { if (out[f].length < 5 || out[f].length > 10) throw new Error(`${f}: ${out[f].length} tracks, the instrument should offer 5 to 10`); });
+  for (const [f, list] of Object.entries(out)) {
+    const seen = new Set();
+    list.forEach((t) => { if (seen.has(t.id)) throw new Error(`${f}: two tracks have the id ${t.id}`); seen.add(t.id); });
+  }
   return { out, hidden };
 }
 

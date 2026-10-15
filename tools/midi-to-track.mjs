@@ -45,7 +45,7 @@ export function convertSource(src) {
   const file = path.join(ROOT, 'sources', src.id, src.id + '.mid');
   const mid = readMidi(file);
   const t = Core.convert(mid, { melody: partKeys(mid, src.melody), bass: src.bass ? partKeys(mid, src.bass) : [], start: src.start, lead: src.lead,
-    bars: src.bars, end: src.end, tempo: src.tempo, octave: src.octave, grace: src.grace, keySig: src.keySig });
+    bars: src.bars, end: src.end, tempo: src.tempo, octave: src.octave, grace: src.grace, keySig: src.keySig, key: src.key, mode: src.mode });
   t.map.file = path.relative(ROOT, file);
   return t;
 }

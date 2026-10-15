@@ -173,7 +173,8 @@ var MidiCore = (function () {
   var TRI = [{ q: '', iv: [0, 4, 7], pen: 0 }, { q: 'm', iv: [0, 3, 7], pen: 0 }, { q: '7', iv: [0, 4, 7, 10], pen: 0.1 }, { q: 'dim', iv: [0, 3, 6], pen: 0.3 }];
   // diatonic: only the seven chords of the key (what a guitar's chord buttons offer), each span getting the nearest
   var KEY_TRIADS = { major: [[0, ''], [2, 'm'], [4, 'm'], [5, ''], [7, ''], [9, 'm'], [11, 'dim']],
-    minor: [[0, 'm'], [2, 'dim'], [3, ''], [5, 'm'], [7, 'm'], [8, ''], [10, '']] };
+    minor: [[0, 'm'], [2, 'dim'], [3, ''], [5, 'm'], [7, 'm'], [8, ''], [10, '']],
+    dorian: [[0, 'm'], [2, 'm'], [3, ''], [5, ''], [7, 'm'], [9, 'dim'], [10, '']] };
   function chordsOf(all, bars, per, keyNm, mode, tonic, pickup, diatonic) {
     var out = [], allowed = diatonic ? (KEY_TRIADS[mode] || KEY_TRIADS.major).map(function (d) { return ((d[0] + tonic) % 12) + d[1]; }) : null;
     for (var b = 0; b < bars; b++) {
@@ -242,7 +243,8 @@ var MidiCore = (function () {
   // default: the bar where the melody starts), lead (beats of pickup before it to keep, default 0), bars (full bars
   // to take; default: to the end), tempo (overrides the file's), octave (semitones added, whole octaves), grace
   // (true keeps grace notes; by default notes shorter than a 16th of a beat are ornaments and left out), end (the
-  // file's beat after which no new note starts: where a first-time ending is followed by the second one).
+  // file's beat after which no new note starts: where a first-time ending is followed by the second one), key and
+  // mode (set the tune's key where the profile can't tell it, e.g. "D" and "dorian" for a modal folk tune).
   // Returns the track's musical fields and a map back to the file: srcBeat is the file's beat at the track's beat 0.
   function convert(mid, opts) {
     opts = opts || {};
@@ -282,6 +284,7 @@ var MidiCore = (function () {
       .map(function (n) { return { b: n.on / ppq, e: n.off / ppq, m: n.m, v: n.v }; }));
     var tick0 = Math.round(start * ppq);
     var sig = opts.keySig === false ? null : keySigAt(mid, tick0), key = detectKey(allNotes.length ? allNotes : notes, sig, notes[notes.length - 1].m % 12);
+    if (opts.key) key = { name: opts.key, tonic: pcOf(opts.key), mode: opts.mode || 'major' };
     var tempo = opts.tempo || Math.round(tempoAt(mid, tick0));
     return {
       tempo: tempo, time: time, key: key.name, tonic: key.tonic, mode: key.mode, bars: bars,

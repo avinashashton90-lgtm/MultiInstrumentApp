@@ -1054,7 +1054,7 @@ body:not(.song) .sgover { display: none; }
   var AC = window.AudioContext || window.webkitAudioContext;
   var ctx, bus, master, limiter, makeup, wet, lfoDepth, noiseBuf, drive, conv, gch, eOut, hall;
   // App version: matches the service worker's cache name (sw.js), shown in Settings so a phone can be checked
-  var APP_VERSION = 9;
+  var APP_VERSION = 10;
   var MAKEUP = 1.26; // +2 dB after the limiter (Chrome's compressor adds its own make-up on top: see TESTING.md)
   var $ = function (id) { return document.getElementById(id); };
 
@@ -4974,7 +4974,8 @@ body:not(.song) .sgover { display: none; }
     var TRI = [{ q: '', iv: [0, 4, 7], pen: 0 }, { q: 'm', iv: [0, 3, 7], pen: 0 }, { q: '7', iv: [0, 4, 7, 10], pen: 0.1 }, { q: 'dim', iv: [0, 3, 6], pen: 0.3 }];
     // diatonic: only the seven chords of the key (what a guitar's chord buttons offer), each span getting the nearest
     var KEY_TRIADS = { major: [[0, ''], [2, 'm'], [4, 'm'], [5, ''], [7, ''], [9, 'm'], [11, 'dim']],
-      minor: [[0, 'm'], [2, 'dim'], [3, ''], [5, 'm'], [7, 'm'], [8, ''], [10, '']] };
+      minor: [[0, 'm'], [2, 'dim'], [3, ''], [5, 'm'], [7, 'm'], [8, ''], [10, '']],
+      dorian: [[0, 'm'], [2, 'm'], [3, ''], [5, ''], [7, 'm'], [9, 'dim'], [10, '']] };
     function chordsOf(all, bars, per, keyNm, mode, tonic, pickup, diatonic) {
       var out = [], allowed = diatonic ? (KEY_TRIADS[mode] || KEY_TRIADS.major).map(function (d) { return ((d[0] + tonic) % 12) + d[1]; }) : null;
       for (var b = 0; b < bars; b++) {
@@ -5043,7 +5044,8 @@ body:not(.song) .sgover { display: none; }
     // default: the bar where the melody starts), lead (beats of pickup before it to keep, default 0), bars (full bars
     // to take; default: to the end), tempo (overrides the file's), octave (semitones added, whole octaves), grace
     // (true keeps grace notes; by default notes shorter than a 16th of a beat are ornaments and left out), end (the
-    // file's beat after which no new note starts: where a first-time ending is followed by the second one).
+    // file's beat after which no new note starts: where a first-time ending is followed by the second one), key and
+    // mode (set the tune's key where the profile can't tell it, e.g. "D" and "dorian" for a modal folk tune).
     // Returns the track's musical fields and a map back to the file: srcBeat is the file's beat at the track's beat 0.
     function convert(mid, opts) {
       opts = opts || {};
@@ -5083,6 +5085,7 @@ body:not(.song) .sgover { display: none; }
         .map(function (n) { return { b: n.on / ppq, e: n.off / ppq, m: n.m, v: n.v }; }));
       var tick0 = Math.round(start * ppq);
       var sig = opts.keySig === false ? null : keySigAt(mid, tick0), key = detectKey(allNotes.length ? allNotes : notes, sig, notes[notes.length - 1].m % 12);
+      if (opts.key) key = { name: opts.key, tonic: pcOf(opts.key), mode: opts.mode || 'major' };
       var tempo = opts.tempo || Math.round(tempoAt(mid, tick0));
       return {
         tempo: tempo, time: time, key: key.name, tonic: key.tonic, mode: key.mode, bars: bars,
@@ -5124,7 +5127,7 @@ body:not(.song) .sgover { display: none; }
   var SONG_RANGE = { piano: [21, 108], organ: [36, 96], synth: [24, 96], flute: [60, 96], harmonica: [55, 96], horn: [41, 77],
     trumpet: [54, 84], sax: [49, 81], xylo: [60, 96], violin: [55, 93], viola: [48, 83], cello: [36, 71], ebass: [28, 55] };
   var SONG_ROWS = { flute: 1, horn: 1, trumpet: 1, sax: 1, xylo: 1 };
-  var SONG_TAGS = ['Kids', 'Classical', 'Folk', 'Indian', 'Hymn', 'My songs'];
+  var SONG_TAGS = ['Celebrate', 'Kids', 'Classical', 'Folk', 'Indian', 'Hymn', 'My songs'];
   var EXACT_KEY = { piano: 1, organ: 1, synth: 1, xylo: 1 };
   // Tabla bols as strokes on the two drums (the dayan's Na, Tin, Tun, Te, Ti; the bayan's Ge, Ke). On the single
   // tabla the bayan's part plays itself.
@@ -5393,7 +5396,7 @@ body:not(.song) .sgover { display: none; }
       var strokes = tr.type === 'tabla' ? TABLA_MAP[h[1]] || [] : [h[1]];
       strokes.forEach(function (sk) {
         var e = { i: n++, b: h[0], d: 0.25, k: 'hit', hit: sk, pad: sk, bol: h[1], v: h[2] / 127, lab: tr.type === 'tabla' ? h[1] : padName(sk) };
-        if (tr.type === 'tabla' && tr.tali && Math.abs(h[0] % per) < 1e-6) e.lab += ' ' + tr.tali[0];
+        if (tr.type === 'tabla' && tr.tali && Math.abs((h[0] - (tr.sam || 0)) % (tr.cycle || per)) < 1e-6) e.lab += ' ' + tr.tali[0];
         e.tg = evTarget(tab, e);
         if (tr.type === 'tabla' && !e.tg && tab === 'tabla1') e.auto = true; // the bayan's strokes on the single tabla
         else if (!e.tg) plan.missing++;
@@ -5407,7 +5410,7 @@ body:not(.song) .sgover { display: none; }
   // (and, in Full, the bass line under a melody on an instrument that plays one note at a time)
   function songTune(tr, plan) {
     var low = tr.type === 'melody' && songFull(tr) && !KEYBOARDS[plan.tab];
-    var notes = tr.type === 'chords' ? tr.notes : tr.type === 'bass' ? tr.tune : low ? tr.low : null;
+    var notes = tr.type === 'chords' ? tr.notes : tr.type !== 'melody' ? tr.tune : low ? tr.low : null;
     if (!notes || !notes.length) return [];
     var ms = notes.map(function (n) { return n[2] + sg.tp; }), mid = (Math.min.apply(null, ms) + Math.max.apply(null, ms)) / 2;
     var o = 12 * Math.round(((low ? 48 : 72) - mid) / 12);
@@ -6278,10 +6281,11 @@ body:not(.song) .sgover { display: none; }
     $('credSheet').hidden = false;
     loadSongs().then(function () {
       var seen = {}, ver = songLib.filter(function (t) { if (t.status !== 'verified' || seen[t.title]) return false; seen[t.title] = 1; return true; });
-      box.innerHTML = '<p>The songs are converted from free encoded scores of the <a href="https://www.mutopiaproject.org" target="_blank" rel="noopener">Mutopia Project</a>, ' +
-        'typeset by its volunteers, and checked note by note against them. Only public domain and Creative Commons BY and BY-SA scores are used; ' +
-        'tracks from a BY-SA score are shared under the same licence.</p><h3>Songs from scores</h3><ul></ul>' +
-        '<h3>Made for the app</h3><p>The raag exercises (aroha and avaroha, alankar), the taal thekas, the drum grooves and the Pocket Band originals are written in the app’s own track builder.</p>' +
+      box.innerHTML = '<p>The songs are converted from free encoded scores, checked note by note against them: the <a href="https://www.mutopiaproject.org" target="_blank" rel="noopener">Mutopia Project</a>, ' +
+        'OpenEWLD (public-domain leadsheets from the Wikifonia archive), the Nottingham Music Database, PianoBooster’s Booster Music, Guido Gonzato’s LaTeX for Musicians and the music21 corpus. ' +
+        'Only public domain, Creative Commons BY and BY-SA, GNU GPL and GNU FDL scores are used, and only their melodies, never lyrics; ' +
+        'tracks from a BY-SA, GPL or FDL score are shared under the same licence.</p><h3>Songs from scores</h3><ul></ul>' +
+        '<h3>Made for the app</h3><p>Each song’s chord pattern, drum beat and tabla theka, the raag exercises (aroha and avaroha, alankar), the taal thekas, the drum grooves and the Pocket Band originals are written in the app’s own track builder.</p>' +
         '<h3>My songs</h3><p>Songs you add from your own MIDI files stay on this device. They are never uploaded or shared.</p>';
       var ul = box.querySelector('ul');
       ver.forEach(function (t) {
@@ -6289,7 +6293,7 @@ body:not(.song) .sgover { display: none; }
         li.appendChild(document.createElement('b')).textContent = t.title;
         var sp = li.appendChild(document.createElement('span'));
         sp.textContent = (c.composer || t.by) + (c.died ? ' (died ' + c.died + ')' : '') + ' · ' + (c.licence || t.src) + ' · ' + (c.source || '') + ' · converted ' + (c.converted || '');
-        if (c.url) { a.href = c.url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = 'Score on Mutopia'; li.appendChild(a); }
+        if (c.url) { a.href = c.url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = 'Score on ' + (c.origin || 'Mutopia'); li.appendChild(a); }
         ul.appendChild(li);
       });
     }, function () { box.innerHTML = '<p>The credits could not load. Open the app once with a connection so they are saved for offline use.</p>'; });

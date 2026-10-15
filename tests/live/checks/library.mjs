@@ -1,12 +1,13 @@
 // Check 13. The song library after round E: where every track comes from, and the features around it.
 //   sources   every listed track is verified (converted from a score) or generated (built from a definition); none
 //             typed from memory is shipped (they sit in tracks/unverified.json, hidden); every verified track has
-//             its score and MIDI file in sources/, a free licence (public domain, CC BY, CC BY-SA), a composer, a death
+//             its score and MIDI file in sources/, a free licence (public domain, CC BY, CC BY-SA, GPL, GFDL), a composer, a death
 //             year (or none for anonymous and traditional), a URL and a conversion date; TRACKS.md lists every track
 //             with its status and first 16 notes, and the tunes not found
 //   verify    tools/verify-tracks.mjs --notes-only passes (every note against the source MIDI), and the MIDI core in
 //             index.html is the one the tools run (tools/sync-core.mjs --check)
-//   offer     each instrument's Songs sheet lists 5 to 10 tracks, none unverified
+//   offer     each instrument's Songs sheet lists every verified song in its own version (the tune, chord song, bass
+//             line, drum beat or tabla theka), Celebrate songs first, none unverified
 //   credits   Settings > Credits names every verified track with its composer and licence
 //   full      Easy plays the tune; Full adds the score's bass line: as notes to play on the piano, as backing on the flute
 //   sections  the section menu offers the track's own 4-8 bar sections
@@ -21,7 +22,7 @@ import { row } from '../common.mjs';
 import { TRACK_FILES, typeOf } from './songs.mjs';
 import { INSTRUMENTS } from '../instruments.mjs';
 
-const LICENCE = /^(Public Domain|Creative Commons Attribution(-ShareAlike)? [0-9.]+)$/;
+const LICENCE = /^(Public Domain|Creative Commons Attribution(-ShareAlike)? [0-9.]+|GNU (General Public|Free Documentation) License [0-9.]+)$/;
 const load = (f) => JSON.parse(fs.readFileSync(path.join(ROOT, 'tracks', f + '.json'), 'utf8'));
 
 function sourceRows() {
@@ -34,7 +35,7 @@ function sourceRows() {
     const c = t.credit || {};
     if (!c.composer || !('died' in c) || !LICENCE.test(c.licence || '') || !/^https:\/\//.test(c.url || '') || !/^\d{4}-\d\d-\d\d$/.test(c.converted || '')) errs.push(`${t.id}: incomplete credit`);
     if (!t.from || !fs.existsSync(path.join(ROOT, t.from.file))) errs.push(`${t.id}: source MIDI missing`);
-    else if (!fs.readdirSync(path.dirname(path.join(ROOT, t.from.file))).some((f) => /\.ly$/.test(f))) errs.push(`${t.id}: score files missing`);
+    else if (!fs.readdirSync(path.dirname(path.join(ROOT, t.from.file))).some((f) => /\.(ly|abc|mxl|musicxml|xml)$/.test(f))) errs.push(`${t.id}: score files missing`);
   });
   hidden.forEach((t) => { if (t.status !== 'unverified' || !t.hidden) errs.push(`${t.id}: in unverified.json but not marked hidden`); });
   const md = fs.readFileSync(path.join(ROOT, 'TRACKS.md'), 'utf8');
@@ -69,8 +70,9 @@ async function openWithHooks(browser, base, tab) {
   return cur;
 }
 
+const PREFIX = { melody: '', chords: 'ch-', bass: 'bs-', drums: 'dr-', tabla: 'tl-' };
 async function offerRows(browser, base) {
-  const errs = [], counts = [];
+  const errs = [], counts = [], songs = load('melodies').filter((t) => t.status === 'verified');
   const cur = await openApp(browser, base, { tab: '' });
   const { page, touch } = cur;
   try {
@@ -79,7 +81,9 @@ async function offerRows(browser, base) {
       await tapSel(page, touch, '#songs');
       await page.waitForSelector('.sgitem');
       const ids = await page.evaluate(() => [...document.querySelectorAll('#sgList .sgitem')].map((li) => li.dataset.id));
-      if (ids.length < 5 || ids.length > 10) errs.push(`${it.tab}: ${ids.length} songs`);
+      const want = songs.map((t) => PREFIX[typeOf(it.tab)] + t.id), lacks = want.filter((id) => !ids.includes(id));
+      if (lacks.length) errs.push(`${it.tab}: lacks ${lacks.slice(0, 4).join(', ')}${lacks.length > 4 ? ' and ' + (lacks.length - 4) + ' more' : ''}`);
+      if (ids[0] !== PREFIX[typeOf(it.tab)] + 'birthday') errs.push(`${it.tab}: the list starts with ${ids[0]}, not Happy Birthday`);
       if (ids.some((id) => /^uv-/.test(id))) errs.push(`${it.tab}: lists an unverified track`);
       counts.push(it.tab + ' ' + ids.length);
       await tapSel(page, touch, '#sgClose');

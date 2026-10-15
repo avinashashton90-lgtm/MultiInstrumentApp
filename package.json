@@ -1,6 +1,6 @@
 {
   "name": "pocket-band",
-  "version": "8.0.0",
+  "version": "9.0.0",
   "private": true,
   "description": "Pocket Band: a phone music app in one HTML file. The tests play it in headless Chromium.",
   "scripts": {
